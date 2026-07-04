@@ -1,0 +1,120 @@
+# Contract Validation Architecture
+
+Version: 0.1
+Status: Active
+Last updated: 2026-07-04
+
+## Purpose
+
+Define a model-neutral validation pipeline that applies machine-readable schemas
+and repository rules to framework artifacts before activation or execution.
+
+## Scope
+
+This architecture covers validation boundaries and diagnostics. Sprint 7 provides
+schemas and documentation only; it does not implement a full validator, Runtime,
+or CLI.
+
+## Definitions
+
+- **Structural validation:** JSON Schema checks over a parsed artifact.
+- **Semantic validation:** rules not expressible reliably in JSON Schema.
+- **Repository validation:** cross-file identity, reference, path, and lifecycle checks.
+- **Normalized model:** tool-neutral object produced from YAML or Markdown.
+- **Diagnostic:** stable error or warning with artifact path and rule location.
+
+## Design
+
+### Pipeline
+
+```text
+Discover artifact
+  -> Parse YAML or Markdown
+  -> Normalize keys and sections
+  -> Select schema by artifact type and schema_version
+  -> JSON Schema Draft 2020-12 validation
+  -> Semantic validation
+  -> Repository-integrity validation
+  -> Diagnostics and validation report
+```
+
+Parsing never mutates source. Schema validation is deterministic and offline.
+Only artifacts with zero errors may become `active`; warnings require review but
+do not automatically fail unless policy promotes the rule.
+
+### Schema Authority
+
+Markdown specifications define intent and normative behavior. Files under
+`schemas/` encode machine-checkable structure. When they disagree, the repository
+specification is authoritative and both artifacts must be reconciled in one
+reviewed change. Schema `$id` values are stable logical identifiers, not network
+dependencies.
+
+### Source Adapters
+
+- Skill and Workflow adapters parse canonical YAML manifests.
+- Evaluation and Reflection schemas validate their embedded manifest objects.
+- Knowledge adapters parse canonical Markdown headings, metadata, lists, and
+  revision rows into `knowledge.schema.json`'s normalized model.
+
+Knowledge Markdown remains the source of truth. The normalized object is transient
+validation input and MUST NOT become a duplicate stored Knowledge artifact.
+
+### Validation Layers
+
+JSON Schema validates required/optional fields, primitive types, enums, patterns,
+ranges, closed objects, and reusable `$ref` contracts.
+
+Semantic validators handle:
+
+- Skill ID/name/path agreement and one-responsibility review;
+- Evaluation metric-name uniqueness and weights summing to `1.0`;
+- Reflection/evaluation routing consistency;
+- Workflow entrypoint, unique step IDs, acyclic graph, mapping availability, and
+  type compatibility;
+- Knowledge ID/taxonomy/path agreement and required Markdown sections;
+- compatible version resolution and deprecation policy.
+
+Repository validators handle unique IDs, reference existence, lifecycle,
+Knowledge Index membership, canonical paths, links, case-insensitive collisions,
+secrets, and package file requirements.
+
+### Diagnostics
+
+Each diagnostic contains `code`, `severity`, `artifact`, `location`, `message`,
+`rule_reference`, and optional `suggestion`. Validators do not silently repair
+source. Stable codes use `ASF-<LAYER>-<NUMBER>`, such as `ASF-SCHEMA-001`.
+
+### Compatibility and Security
+
+Schema selection uses exact supported `schema_version`; unknown major versions
+fail. Schema changes follow the Version Specification. Parsers disable unsafe YAML
+features, do not resolve remote references, limit input size/depth, redact marked
+sensitive values, and never execute artifact content.
+
+### Extension Path
+
+The future validator may expose library and CLI adapters over one validation core.
+Exit behavior, output formats, caching, and editor integration belong to the
+Validator Roadmap and must not change validation meaning.
+
+## Examples
+
+A Workflow may pass JSON Schema but fail semantic validation because its graph
+contains a cycle. A Knowledge Markdown file may parse successfully but fail
+repository validation because its ID is missing from the Knowledge Index.
+
+## References
+
+- [Schema Registry](../../schemas/README.md)
+- [Validation Guide](../guides/VALIDATION_GUIDE.md)
+- [Validator Roadmap](../roadmaps/VALIDATOR_ROADMAP.md)
+- [AI Skill Specification](../specifications/AI_SKILL_SPECIFICATION.md)
+- [Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md)
+- [Knowledge Architecture](KNOWLEDGE_ARCHITECTURE.md)
+
+## Revision History
+
+| Version | Date | Description |
+| --- | --- | --- |
+| 0.1 | 2026-07-04 | Established layered contract validation architecture |

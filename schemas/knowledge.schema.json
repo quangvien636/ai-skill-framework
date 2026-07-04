@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/knowledge.schema.json",
+  "title": "Normalized Knowledge Document",
+  "description": "Validation model extracted from a canonical Markdown Knowledge document; it does not replace Markdown storage.",
+  "type": "object",
+  "required": [
+    "id", "title", "status", "category", "domain", "topic", "version",
+    "last_updated", "summary", "applies_to", "scope", "guidance",
+    "decision_rules", "examples", "limitations_and_risks",
+    "related_knowledge", "sources", "revision_history"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^kb:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "$ref": "metadata.schema.json#/$defs/status" },
+    "category": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+    "domain": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+    "topic": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+    "version": { "$ref": "version.schema.json#/$defs/semver" },
+    "last_updated": { "type": "string", "format": "date" },
+    "summary": { "type": "string", "minLength": 1 },
+    "applies_to": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["includes", "excludes"],
+      "properties": {
+        "includes": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "excludes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "guidance": { "type": "string", "minLength": 1 },
+    "decision_rules": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "examples": {
+      "type": "object",
+      "required": ["good", "counterexample"],
+      "properties": {
+        "good": { "type": "string", "minLength": 1 },
+        "counterexample": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "limitations_and_risks": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "related_knowledge": {
+      "type": "array", "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^kb:" }
+    },
+    "sources": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "revision_history": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["version", "date", "description"],
+        "properties": {
+          "version": { "$ref": "version.schema.json#/$defs/semver" },
+          "date": { "type": "string", "format": "date" },
+          "description": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [{
+    "id": "kb:technical:databases:indexing:index-selection",
+    "title": "Index Selection",
+    "status": "draft",
+    "category": "technical",
+    "domain": "databases",
+    "topic": "indexing",
+    "version": "0.1.0",
+    "last_updated": "2026-07-04",
+    "summary": "Illustrative normalized Knowledge document.",
+    "applies_to": ["skill:optimize-query"],
+    "scope": { "includes": ["Index selection."], "excludes": [] },
+    "guidance": "Choose indexes from observed query patterns.",
+    "decision_rules": [],
+    "examples": { "good": "Measure before adding.", "counterexample": "Index every column." },
+    "limitations_and_risks": [],
+    "related_knowledge": [],
+    "sources": ["None - repository-authored guidance"],
+    "revision_history": [{ "version": "0.1.0", "date": "2026-07-04", "description": "Initial draft." }]
+  }]
+}

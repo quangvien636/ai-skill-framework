@@ -40,6 +40,10 @@ Authority stays narrow: a specification references another contract instead of
 copying its rules. Existing Knowledge Architecture documents remain authoritative
 for taxonomy, hierarchy, knowledge-document structure, and Knowledge naming.
 
+Machine-checkable structure is encoded in the
+[Schema Registry](../../schemas/README.md). Markdown specifications remain
+authoritative for intent and semantic rules that JSON Schema cannot express.
+
 Normative keywords **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY**
 express requirement strength.
 
@@ -56,6 +60,7 @@ specifications.
 - [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
 - [Design Principles](../principles/DESIGN_PRINCIPLES.md)
 - [ADR-0001](../adr/ADR-0001-repository-is-the-source-of-truth.md)
+- [Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
 
 ## Revision History
 

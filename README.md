@@ -33,3 +33,5 @@ Under Development
 - [Design Principles](docs/principles/DESIGN_PRINCIPLES.md)
 - [Knowledge Architecture](docs/architecture/KNOWLEDGE_ARCHITECTURE.md)
 - [AI Skill Framework Specifications](docs/specifications/README.md)
+- [Machine-Readable Schemas](schemas/README.md)
+- [Contract Validation Architecture](docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)

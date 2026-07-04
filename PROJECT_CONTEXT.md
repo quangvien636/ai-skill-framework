@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.6
+Version: 0.7
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,10 +88,10 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 6 - Evaluation and Reflection Architecture**. The focus
-is consistent metrics, scoring, acceptance thresholds, failure routing, bounded
-improvement, retry, and termination. See `PROJECT_TRACKER.md` and the Evaluation
-and Reflection architecture documents.
+The project is in **Sprint 7 - Machine-Readable Schemas and Contract Validators**.
+The focus is Draft 2020-12 schemas, normalized artifact models, layered contract
+validation, and a roadmap for future validator tooling. See `PROJECT_TRACKER.md`,
+`schemas/README.md`, and the Contract Validation Architecture.
 
 ## Definition of Done
 
@@ -114,3 +114,4 @@ A change is complete when:
 | 0.4 | 2026-07-04 | Set Sprint 4 Skill Architecture as current focus |
 | 0.5 | 2026-07-04 | Set Sprint 5 Workflow Architecture as current focus |
 | 0.6 | 2026-07-04 | Set Sprint 6 quality architecture as current focus |
+| 0.7 | 2026-07-04 | Set Sprint 7 schema and validation focus |

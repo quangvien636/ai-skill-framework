@@ -165,6 +165,9 @@ The contracts for artifact metadata, versions, Knowledge dependencies,
 evaluation, and reflection are indexed in the
 [Specification Registry](../specifications/README.md).
 
+Machine-readable structure and layered validation follow the
+[Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md).
+
 ---
 
 ## 5. Initial Architecture Version

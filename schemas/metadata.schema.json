@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/metadata.schema.json",
+  "title": "Common Artifact Metadata",
+  "description": "Shared metadata definitions extended by artifact schemas.",
+  "allOf": [{ "$ref": "#/$defs/commonArtifact" }],
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "template:example",
+    "name": "example",
+    "display_name": "Example",
+    "description": "Illustrative common metadata.",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"]
+  }],
+  "$defs": {
+    "kebabName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "description": "Canonical lowercase kebab-case name.",
+      "examples": ["summarize-document"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "active", "deprecated", "archived"],
+      "description": "Artifact lifecycle state."
+    },
+    "commonArtifact": {
+      "type": "object",
+      "description": "Fields required by machine-consumable artifacts.",
+      "required": [
+        "schema_version",
+        "id",
+        "name",
+        "display_name",
+        "description",
+        "version",
+        "status",
+        "owners"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "version.schema.json#/$defs/schemaVersion" },
+        "id": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Globally unique immutable artifact ID."
+        },
+        "name": { "$ref": "#/$defs/kebabName" },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable artifact label."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Retrieval-oriented artifact summary."
+        },
+        "version": { "$ref": "version.schema.json#/$defs/semver" },
+        "status": { "$ref": "#/$defs/status" },
+        "owners": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Accountable maintainers or repository roles."
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/kebabName" },
+          "default": [],
+          "description": "Optional discovery labels."
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": ["type", "required", "description"],
+      "properties": {
+        "type": {
+          "enum": ["string", "number", "integer", "boolean", "array", "object"]
+        },
+        "required": { "type": "boolean" },
+        "description": { "type": "string", "minLength": 1 },
+        "constraints": {
+          "type": "object",
+          "description": "Tool-neutral bounds, patterns, enums, shape, or item rules."
+        },
+        "default": {
+          "description": "Deterministic default for an optional field."
+        },
+        "sensitive": { "type": "boolean", "default": false },
+        "additional_properties": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    },
+    "versionedReference": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 3 },
+        "version": { "$ref": "version.schema.json#/$defs/versionRange" },
+        "required": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

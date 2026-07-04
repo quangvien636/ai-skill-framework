@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/skill.schema.json",
+  "title": "AI Skill Manifest",
+  "description": "Machine-readable contract for skills/<skill-name>/skill.yaml.",
+  "allOf": [{ "$ref": "metadata.schema.json#/$defs/commonArtifact" }],
+  "type": "object",
+  "required": [
+    "responsibility",
+    "inputs",
+    "outputs",
+    "dependencies",
+    "constraints",
+    "evaluation",
+    "reflection"
+  ],
+  "properties": {
+    "schema_version": true,
+    "id": {
+      "type": "string",
+      "pattern": "^skill:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "name": true,
+    "display_name": true,
+    "description": true,
+    "version": true,
+    "status": true,
+    "owners": true,
+    "tags": true,
+    "responsibility": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Skill's single observable responsibility."
+    },
+    "inputs": {
+      "type": "object",
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    },
+    "outputs": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["runtime", "tools", "knowledge"],
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "metadata.schema.json#/$defs/versionedReference" }
+        },
+        "tools": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "metadata.schema.json#/$defs/versionedReference" }
+        },
+        "knowledge": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "version", "required", "purpose"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^kb:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+$"
+              },
+              "version": { "$ref": "version.schema.json#/$defs/versionRange" },
+              "required": { "type": "boolean" },
+              "purpose": { "type": "string", "minLength": 1 },
+              "sections": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "procedure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "action"],
+        "properties": {
+          "id": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+          "action": { "type": "string", "minLength": 1 },
+          "condition": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["side_effects", "prohibited"],
+      "properties": {
+        "side_effects": { "type": "string", "minLength": 1 },
+        "prohibited": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_input_size": { "type": "integer", "minimum": 1 },
+        "max_output_size": { "type": "integer", "minimum": 1 },
+        "deterministic": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "evaluation": { "$ref": "evaluation.schema.json" },
+    "reflection": { "$ref": "reflection.schema.json" }
+  },
+  "unevaluatedProperties": false,
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "skill:summarize-document",
+    "name": "summarize-document",
+    "display_name": "Summarize Document",
+    "description": "Produces a bounded summary of one document.",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"],
+    "responsibility": "Summarize one document without external research.",
+    "inputs": {},
+    "outputs": {
+      "summary": { "type": "string", "required": true, "description": "Summary." }
+    },
+    "dependencies": { "runtime": [], "tools": [], "knowledge": [] },
+    "constraints": { "side_effects": "none", "prohibited": [] },
+    "evaluation": {
+      "metrics": [{
+        "name": "accuracy",
+        "description": "Claims match input.",
+        "weight": 1,
+        "rubric": { "0": "False.", "50": "Partial.", "100": "Supported." }
+      }],
+      "scoring": { "scale": "0..100", "aggregate": "weighted-mean" },
+      "acceptance": { "minimum_score": 80 },
+      "on_failure": "fail"
+    },
+    "reflection": {
+      "enabled": false,
+      "max_attempts": 0,
+      "minimum_improvement": 0,
+      "on_exhausted": "fail",
+      "reflectable_hard_gates": []
+    }
+  }]
+}

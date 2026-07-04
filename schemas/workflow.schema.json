@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/workflow.schema.json",
+  "title": "Workflow Manifest",
+  "description": "Machine-readable contract for workflows/<workflow-name>/workflow.yaml.",
+  "allOf": [{ "$ref": "metadata.schema.json#/$defs/commonArtifact" }],
+  "type": "object",
+  "required": ["entrypoint", "inputs", "steps", "outputs", "error_handling"],
+  "properties": {
+    "schema_version": true,
+    "id": {
+      "type": "string",
+      "pattern": "^workflow:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "name": true,
+    "display_name": true,
+    "description": true,
+    "version": true,
+    "status": true,
+    "owners": true,
+    "tags": true,
+    "entrypoint": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+    "inputs": {
+      "type": "object",
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "skill", "depends_on", "input_mapping", "on_error"],
+        "properties": {
+          "id": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+          "skill": {
+            "type": "object",
+            "required": ["id", "version"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^skill:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "version": { "$ref": "version.schema.json#/$defs/versionRange" }
+            },
+            "additionalProperties": false
+          },
+          "depends_on": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "$ref": "metadata.schema.json#/$defs/kebabName" }
+          },
+          "input_mapping": {
+            "type": "object",
+            "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^(workflow\\.inputs\\.[a-z][a-z0-9-]*|steps\\.[a-z][a-z0-9-]*\\.outputs\\.[a-z][a-z0-9-]*)$"
+            }
+          },
+          "optional": { "type": "boolean", "default": false },
+          "on_error": { "enum": ["fail", "skip", "retry", "manual-review"] },
+          "retry": {
+            "type": "object",
+            "required": ["max_attempts"],
+            "properties": {
+              "max_attempts": { "type": "integer", "minimum": 1, "maximum": 3 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type", "from"],
+        "properties": {
+          "type": { "enum": ["string", "number", "integer", "boolean", "array", "object"] },
+          "description": { "type": "string" },
+          "from": {
+            "type": "string",
+            "pattern": "^steps\\.[a-z][a-z0-9-]*\\.outputs\\.[a-z][a-z0-9-]*$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "error_handling": {
+      "type": "object",
+      "required": ["default"],
+      "properties": {
+        "default": { "enum": ["fail", "manual-review"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "unevaluatedProperties": false,
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "workflow:summarize-and-review",
+    "name": "summarize-and-review",
+    "display_name": "Summarize and Review",
+    "description": "Composes summary and review Skills.",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"],
+    "entrypoint": "summarize",
+    "inputs": {
+      "document": { "type": "string", "required": true, "description": "Input document." }
+    },
+    "steps": [{
+      "id": "summarize",
+      "skill": { "id": "skill:summarize-document", "version": ">=1.0.0 <2.0.0" },
+      "depends_on": [],
+      "input_mapping": { "document": "workflow.inputs.document" },
+      "on_error": "fail"
+    }],
+    "outputs": {
+      "summary": { "type": "string", "from": "steps.summarize.outputs.summary" }
+    },
+    "error_handling": { "default": "fail" }
+  }]
+}

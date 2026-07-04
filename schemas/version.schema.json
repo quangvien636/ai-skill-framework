@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/version.schema.json",
+  "title": "Version Values",
+  "description": "Reusable Semantic Version and comparator-range definitions.",
+  "oneOf": [
+    { "$ref": "#/$defs/semver" },
+    { "$ref": "#/$defs/versionRange" }
+  ],
+  "examples": ["1.0.0", ">=1.2.0 <2.0.0"],
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "description": "Semantic Version 2.0.0 value.",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+      "examples": ["1.0.0", "0.2.1"]
+    },
+    "schemaVersion": {
+      "allOf": [{ "$ref": "#/$defs/semver" }],
+      "description": "Version of the machine-readable artifact contract.",
+      "examples": ["1.0.0"]
+    },
+    "versionRange": {
+      "type": "string",
+      "description": "Exact SemVer or whitespace-separated comparator range; floating labels are forbidden.",
+      "pattern": "^(?:[0-9]+\\.[0-9]+\\.[0-9]+|(?:>=|>|<=|<|=)[0-9]+\\.[0-9]+\\.[0-9]+(?:\\s+(?:>=|>|<=|<|=)[0-9]+\\.[0-9]+\\.[0-9]+)*)$",
+      "examples": ["1.4.2", ">=1.2.0 <2.0.0"]
+    }
+  }
+}

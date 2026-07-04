@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.6
+Version: 0.7
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,10 +12,10 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 6 - Evaluation and Reflection Architecture**
+**Sprint 7 - Machine-Readable Schemas and Contract Validators**
 
-Goal: standardize evaluation metrics, scoring, thresholds, failure routing,
-reflection improvement, retry, termination, and evidence.
+Goal: encode the established contracts as Draft 2020-12 schemas and define the
+layered validation foundation without implementing a full CLI or Runtime.
 
 Status: **Completed**
 
@@ -53,25 +53,34 @@ Status: **Completed**
 
 Sprint 5 established Workflow lifecycle, package, execution, and mapping design.
 
-## Sprint 6 Backlog
+## Sprint 6 - Evaluation and Reflection Architecture
+
+Status: **Completed**
+
+Sprint 6 established consistent quality evaluation and bounded reflection.
+
+## Sprint 7 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define Evaluation Engine architecture | Done | `docs/architecture/EVALUATION_ARCHITECTURE.md` |
-| Define Reflection Engine architecture | Done | `docs/architecture/REFLECTION_ARCHITECTURE.md` |
-| Define metrics, scoring, and thresholds | Done | Evaluation architecture |
-| Define retry and improvement loop | Done | Reflection architecture |
-| Define failure handling and evidence | Done | Both quality architectures |
-| Confirm specifications remain canonical schemas | Done | Cross-document review |
+| Create Skill and Workflow schemas | Done | `schemas/skill.schema.json`, `schemas/workflow.schema.json` |
+| Create Knowledge schema | Done | `schemas/knowledge.schema.json` |
+| Create Evaluation and Reflection schemas | Done | `schemas/evaluation.schema.json`, `schemas/reflection.schema.json` |
+| Create Metadata and Version schemas | Done | `schemas/metadata.schema.json`, `schemas/version.schema.json` |
+| Document validation architecture | Done | `docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md` |
+| Add validation guide | Done | `docs/guides/VALIDATION_GUIDE.md` |
+| Add validator roadmap | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md` |
+| Verify JSON, refs, links, and contract alignment | Done | Sprint 7 review |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
 ## Sprint Exit Criteria
 
-- Skills and Workflows share one deterministic quality model.
-- Evaluation is read-only and Reflection is bounded and evidence-directed.
-- Retry, stagnation, termination, and failure routing are explicit.
-- No Runtime implementation is added.
-- Review passes and Sprint 6 is pushed to `main`.
+- All seven core schemas use JSON Schema Draft 2020-12.
+- Schemas compose shared Metadata, Version, Evaluation, and Reflection contracts.
+- Knowledge Markdown remains authoritative and validates through a normalized model.
+- Structural, semantic, and repository validation boundaries are explicit.
+- No production Skill, Runtime, or full CLI is implemented.
+- Review passes and Sprint 7 is pushed to `main`.
 
 ## Risks and Guardrails
 
@@ -85,9 +94,9 @@ Sprint 5 established Workflow lifecycle, package, execution, and mapping design.
 
 ## Next Actions
 
-1. Select the next Sprint through a documented planning checkpoint.
-2. Recommend schema and validator implementation before production Skills.
-3. Add conformance fixtures for Skill, Workflow, Evaluation, and Reflection.
+1. Plan schema conformance fixtures as the next Sprint.
+2. Select and pin a Draft 2020-12 validator implementation.
+3. Implement safe YAML and Knowledge Markdown normalization adapters.
 
 ## Revision History
 
@@ -99,3 +108,4 @@ Sprint 5 established Workflow lifecycle, package, execution, and mapping design.
 | 0.4 | 2026-07-04 | Completed Sprint 4 Skill Architecture |
 | 0.5 | 2026-07-04 | Completed Sprint 5 Workflow Architecture |
 | 0.6 | 2026-07-04 | Completed Sprint 6 quality architecture |
+| 0.7 | 2026-07-04 | Completed Sprint 7 schemas and validation foundation |
