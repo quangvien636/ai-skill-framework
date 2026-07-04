@@ -60,6 +60,8 @@ A workflow should not contain deep domain knowledge.
 
 Workflow manifests, step ordering, mappings, and failure behavior follow the
 [Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md).
+Lifecycle and execution semantics follow the
+[Workflow Architecture](WORKFLOW_ARCHITECTURE.md).
 
 ---
 

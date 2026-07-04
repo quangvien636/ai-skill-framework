@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+id: "workflow:<workflow-name>"
+name: "<workflow-name>"
+display_name: "<Workflow Display Name>"
+description: "<Composed business outcome.>"
+version: "0.1.0"
+status: "draft"
+owners: ["<owner>"]
+tags: []
+entrypoint: "<first-step>"
+inputs:
+  <input-name>:
+    type: "string"
+    required: true
+steps:
+  - id: "<first-step>"
+    skill:
+      id: "skill:<first-skill>"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      <skill-input>: "workflow.inputs.<input-name>"
+    on_error: "fail"
+  - id: "<second-step>"
+    skill:
+      id: "skill:<second-skill>"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: ["<first-step>"]
+    input_mapping:
+      <skill-input>: "steps.<first-step>.outputs.<skill-output>"
+    on_error: "fail"
+outputs:
+  <output-name>:
+    type: "string"
+    from: "steps.<second-step>.outputs.<skill-output>"
+error_handling:
+  default: "fail"

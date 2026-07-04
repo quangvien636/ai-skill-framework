@@ -187,6 +187,7 @@ cases.
 
 ## References
 
+- [Workflow Architecture](../architecture/WORKFLOW_ARCHITECTURE.md)
 - [AI Skill Specification](AI_SKILL_SPECIFICATION.md)
 - [Metadata Specification](METADATA_SPECIFICATION.md)
 - [Version Specification](VERSION_SPECIFICATION.md)

@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.4
+Version: 0.5
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,10 +88,10 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 4 - Skill Architecture**. The focus is the Skill
-lifecycle, package standard, canonical authoring template, validation, testing,
-and examples. See `PROJECT_TRACKER.md` for progress and
-`docs/architecture/SKILL_ARCHITECTURE.md` for the detailed design.
+The project is in **Sprint 5 - Workflow Architecture**. The focus is Workflow
+lifecycle, package templates, deterministic graph execution, Skill orchestration,
+mapping, failures, and validation. See `PROJECT_TRACKER.md` and
+`docs/architecture/WORKFLOW_ARCHITECTURE.md`.
 
 ## Definition of Done
 
@@ -112,3 +112,4 @@ A change is complete when:
 | 0.2 | 2026-07-04 | Set Sprint 2 Knowledge Architecture as current focus |
 | 0.3 | 2026-07-04 | Set Sprint 3 AI Skill Specification as current focus |
 | 0.4 | 2026-07-04 | Set Sprint 4 Skill Architecture as current focus |
+| 0.5 | 2026-07-04 | Set Sprint 5 Workflow Architecture as current focus |

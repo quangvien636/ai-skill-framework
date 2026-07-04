@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.4
+Version: 0.5
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,10 +12,10 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 4 - Skill Architecture**
+**Sprint 5 - Workflow Architecture**
 
-Goal: make the Skill specification authorable and generator-ready through a
-lifecycle, package architecture, neutral template, validation, tests, and examples.
+Goal: define a generator-ready Workflow package and deterministic execution,
+orchestration, mapping, failure, validation, and testing architecture.
 
 Status: **Completed**
 
@@ -41,26 +41,31 @@ Status: **Completed**
 
 Sprint 3 established the normative artifact contracts and specification registry.
 
-## Sprint 4 Backlog
+## Sprint 4 - Skill Architecture
+
+Status: **Completed**
+
+Sprint 4 established the Skill lifecycle, package architecture, and template.
+
+## Sprint 5 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define Skill lifecycle | Done | `docs/architecture/SKILL_ARCHITECTURE.md` |
-| Define Skill folder and template standards | Done | Architecture and `templates/skill/` |
-| Define input/output architecture | Done | Skill Architecture and Skill Specification |
-| Define validation rules | Done | `docs/architecture/SKILL_ARCHITECTURE.md` |
-| Define testing and example standards | Done | Architecture and template guidance |
-| Add generator-ready neutral template | Done | `templates/skill/` |
-| Confirm no production Skill exists | Done | Empty `skills/` |
+| Define Workflow lifecycle and folder standard | Done | `docs/architecture/WORKFLOW_ARCHITECTURE.md` |
+| Add generator-ready Workflow template | Done | `templates/workflow/` |
+| Define deterministic execution and orchestration | Done | Workflow Architecture |
+| Define input/output mapping and failures | Done | Workflow Architecture |
+| Define validation and testing | Done | Architecture and template guidance |
+| Confirm no Runtime or production Workflow exists | Done | Repository review |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
 ## Sprint Exit Criteria
 
-- A generator can create the required Skill package from `templates/skill/`.
-- Lifecycle, folders, contracts, validation, testing, and examples are explicit.
-- The architecture preserves One Skill = One Responsibility and Knowledge reuse.
-- No production Skill is implemented.
-- Review passes and all Sprint 4 changes are committed and pushed to `main`.
+- A future Runtime can deterministically execute the documented Workflow model.
+- A generator can create the required package from `templates/workflow/`.
+- Orchestration remains outside Skills and the Master Skill stays thin.
+- No Runtime or production Workflow is implemented.
+- Review passes and Sprint 5 is pushed to `main`.
 
 ## Risks and Guardrails
 
@@ -74,9 +79,8 @@ Sprint 3 established the normative artifact contracts and specification registry
 
 ## Next Actions
 
-1. Design Sprint 5 Workflow Architecture.
-2. Add a neutral Workflow package template.
-3. Define deterministic execution, mapping, and failure architecture.
+1. Design Sprint 6 Evaluation and Reflection Architecture.
+2. Unify quality metrics, scoring, thresholds, retry, and improvement flow.
 
 ## Revision History
 
@@ -86,3 +90,4 @@ Sprint 3 established the normative artifact contracts and specification registry
 | 0.2 | 2026-07-04 | Added Sprint 2 Knowledge Architecture progress |
 | 0.3 | 2026-07-04 | Completed Sprint 3 AI Skill Specification |
 | 0.4 | 2026-07-04 | Completed Sprint 4 Skill Architecture |
+| 0.5 | 2026-07-04 | Completed Sprint 5 Workflow Architecture |
