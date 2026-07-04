@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.12
+Version: 0.13
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,36 +12,39 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 12 - Generator Engine Architecture**
+**Sprint 13 - CLI Design Expansion**
 
-Goal: define the Generator's pipeline, template/dependency resolution,
-overwrite/conflict policy, extension model, validation, and diagnostics,
-consuming IR and the Template Registry, without implementing a Generator.
+Goal: extend the CLI Architecture with the concrete Command Registry,
+Plugin Discovery, Service Container, Workspace/Project/Template Discovery,
+Generator/Validator Integration, Exit Codes, and Diagnostics mechanics,
+without implementing a CLI.
 
 Status: **Completed**
 
-### Sprint 12 Backlog
+### Sprint 13 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define generation pipeline and stages | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
-| Define Template Resolver and Dependency Resolution | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
-| Define Incremental Generation, Overwrite Policy, Conflict Resolution | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
-| Define Generator extension model, validation, diagnostics | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
-| Record the safe-overwrite decision | Done | `docs/adr/ADR-0006-generator-safe-overwrite-policy.md` |
-| Add Renderer extension point and cross-link CLI/Template/IR/System architectures | Done | `docs/architecture/CLI_ARCHITECTURE.md`, `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, `docs/architecture/SYSTEM_ARCHITECTURE.md`, `README.md` |
+| Add Command Registry and Plugin Discovery | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Formalize the Service Container | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Add Workspace, Project, and Template Discovery | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Add Generator and Validator Integration | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Add a concrete Exit Codes table and Diagnostics code-prefix allocation | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Record the workspace-root marker-file decision | Done | `docs/adr/ADR-0007-workspace-discovery-marker-files.md` |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-### Sprint 12 Exit Criteria
+### Sprint 13 Exit Criteria
 
-- Generator Architecture covers pipeline, template/dependency resolution,
-  overwrite/conflict policy, extension model, validation, and diagnostics.
-- The Generator is specified to consume IR and the Template Registry only —
-  no direct Markdown/YAML parsing.
-- The overwrite-safety decision (no silent or forced overwrite of diverging
-  content) is recorded in an ADR.
-- No Generator implementation or CLI command is added.
-- Review passes and Sprint 12 is pushed to `main`.
+- CLI Architecture defines a concrete, deterministic build order for the
+  Service Container (Configuration -> Workspace Discovery -> Plugin
+  Discovery -> Command Registry -> extension-point instantiation).
+- Workspace Discovery's marker-file decision is recorded in an ADR.
+- Generator/Validator Integration sections add no logic beyond argument
+  parsing and Reporter output — they delegate to the Generator and Contract
+  Validation architectures.
+- Exit Codes and Diagnostics are concrete tables, not prose only.
+- No CLI implementation is added.
+- Review passes and Sprint 13 is pushed to `main`.
 
 ## Sprint History
 
@@ -64,6 +67,7 @@ sprint indefinitely.
 | 10 | Template Engine | `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, `templates/README.md`, ADR-0004 |
 | 11 | Intermediate Representation (IR) | `docs/architecture/IR_ARCHITECTURE.md`, `docs/specifications/IR_SPECIFICATION.md`, ADR-0005 |
 | 12 | Generator Engine Architecture | `docs/architecture/GENERATOR_ARCHITECTURE.md`, ADR-0006 |
+| 13 | CLI Design Expansion | `docs/architecture/CLI_ARCHITECTURE.md` v0.4, ADR-0007 |
 
 ## Risks and Guardrails
 
@@ -78,16 +82,18 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Expand the CLI Architecture (next sprint): command registry, plugin
-   discovery, service container, workspace/project/template discovery, and
-   Generator/Validator integration built on Sprints 9-12.
-2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
+1. Perform a Repository Engineering Review (next sprint): terminology
+   normalization, ADR cross-link audit, navigation, and duplication check
+   across the documents Sprints 8-13 added.
+2. Design the AI Team Architecture (`.ai/`): roles, playbooks, standards,
+   and governance for human/AI collaboration on this repository.
+3. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
    normalization (IR) adapters with preserved source locations.
-3. Extend the fixture-conformance script toward Phase 3 semantic validators
+4. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
-4. When a CLI implementation sprint starts, choose and record its language
+5. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
-5. When a Generator implementation sprint starts, build the Dependency
+6. When a Generator implementation sprint starts, build the Dependency
    Graph / Version Graph construction the IR Specification describes.
 
 ## Revision History
@@ -106,3 +112,4 @@ sprint indefinitely.
 | 0.10 | 2026-07-04 | Completed Sprint 10 Template Engine |
 | 0.11 | 2026-07-04 | Completed Sprint 11 IR; consolidated sprint history table |
 | 0.12 | 2026-07-04 | Completed Sprint 12 Generator Engine architecture |
+| 0.13 | 2026-07-04 | Completed Sprint 13 CLI Design Expansion |

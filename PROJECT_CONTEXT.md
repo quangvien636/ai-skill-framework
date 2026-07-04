@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.12
+Version: 0.13
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,12 +88,12 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 12 - Generator Engine Architecture**. The focus
-is the generation pipeline, template/dependency resolution, safe overwrite
-and conflict policy, extension model, validation, and diagnostics for a
-future Generator that consumes IR and the Template Registry. See
-`PROJECT_TRACKER.md`, `docs/architecture/GENERATOR_ARCHITECTURE.md`, and
-ADR-0006.
+The project is in **Sprint 13 - CLI Design Expansion**. The focus is the
+concrete Command Registry, Plugin Discovery, Service Container, Workspace/
+Project/Template Discovery, Generator/Validator Integration, Exit Codes,
+and Diagnostics mechanics added to the CLI Architecture. See
+`PROJECT_TRACKER.md`, `docs/architecture/CLI_ARCHITECTURE.md` (v0.4), and
+ADR-0007.
 
 ## Definition of Done
 
@@ -122,3 +122,4 @@ A change is complete when:
 | 0.10 | 2026-07-04 | Set Sprint 10 Template Engine as current focus |
 | 0.11 | 2026-07-04 | Set Sprint 11 Intermediate Representation as current focus |
 | 0.12 | 2026-07-04 | Set Sprint 12 Generator Engine architecture as current focus |
+| 0.13 | 2026-07-04 | Set Sprint 13 CLI Design Expansion as current focus |
