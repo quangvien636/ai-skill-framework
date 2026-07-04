@@ -1,0 +1,4 @@
+schema_version: "1.0.0"
+id: "skill:summarize-document"
+name: summarize-document
+  bad_indent: [unclosed

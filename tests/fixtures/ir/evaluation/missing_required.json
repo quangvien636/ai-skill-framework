@@ -1,0 +1,17 @@
+{
+  "metrics": [
+    {
+      "name": "accuracy",
+      "description": "Claims are supported by supplied input.",
+      "weight": 1,
+      "rubric": {
+        "0": "Contradicted.",
+        "50": "Partially supported.",
+        "100": "Fully supported."
+      }
+    }
+  ],
+  "scoring": { "scale": "0..100", "aggregate": "weighted-mean" },
+  "acceptance": { "hard_gates": ["output-schema-valid"] },
+  "on_failure": "reflect"
+}

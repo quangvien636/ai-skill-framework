@@ -1,0 +1,111 @@
+{
+  "cases": [
+    {
+      "name": "valid-skill",
+      "fixture": "tests/fixtures/ir/skill/valid.yaml",
+      "kind": "skill",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-skill",
+      "fixture": "tests/fixtures/ir/skill/missing_required.yaml",
+      "kind": "skill",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
+      "name": "unsupported-version-skill",
+      "fixture": "tests/fixtures/ir/skill/unsupported_version.yaml",
+      "kind": "skill",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-002"
+    },
+    {
+      "name": "malformed-metadata-skill",
+      "fixture": "tests/fixtures/ir/skill/malformed_metadata.yaml",
+      "kind": "skill",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-005"
+    },
+    {
+      "name": "malformed-syntax-skill",
+      "fixture": "tests/fixtures/ir/skill/malformed_syntax.yaml",
+      "kind": "skill",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-001"
+    },
+    {
+      "name": "valid-workflow",
+      "fixture": "tests/fixtures/ir/workflow/valid.yaml",
+      "kind": "workflow",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-workflow",
+      "fixture": "tests/fixtures/ir/workflow/missing_required.yaml",
+      "kind": "workflow",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
+      "name": "invalid-reference-workflow",
+      "fixture": "tests/fixtures/ir/workflow/invalid_reference.yaml",
+      "kind": "workflow",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-004"
+    },
+    {
+      "name": "unsupported-version-workflow",
+      "fixture": "tests/fixtures/ir/workflow/unsupported_version.yaml",
+      "kind": "workflow",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-002"
+    },
+    {
+      "name": "cycle-workflow",
+      "fixture": "tests/fixtures/ir/workflow/cycle.yaml",
+      "kind": "workflow",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-006"
+    },
+    {
+      "name": "valid-knowledge",
+      "fixture": "tests/fixtures/ir/knowledge/valid.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-knowledge",
+      "fixture": "tests/fixtures/ir/knowledge/missing_required.md",
+      "kind": "knowledge",
+      "expected": "invalid",
+      "expected_code": "ASF-PARSE-003"
+    },
+    {
+      "name": "valid-evaluation",
+      "fixture": "tests/fixtures/ir/evaluation/valid.json",
+      "kind": "evaluation",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-evaluation",
+      "fixture": "tests/fixtures/ir/evaluation/missing_required.json",
+      "kind": "evaluation",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
+      "name": "valid-reflection",
+      "fixture": "tests/fixtures/ir/reflection/valid.json",
+      "kind": "reflection",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-reflection",
+      "fixture": "tests/fixtures/ir/reflection/missing_required.json",
+      "kind": "reflection",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    }
+  ]
+}

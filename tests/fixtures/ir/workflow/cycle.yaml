@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+id: "workflow:summarize-document"
+name: "summarize-document"
+display_name: "Summarize Document"
+description: "Invokes two Skills that depend on each other."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+entrypoint: "a"
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document text."
+steps:
+  - id: "a"
+    skill:
+      id: "skill:summarize-document"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: ["b"]
+    input_mapping:
+      document: "workflow.inputs.document"
+    on_error: "fail"
+  - id: "b"
+    skill:
+      id: "skill:summarize-document"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: ["a"]
+    input_mapping:
+      document: "workflow.inputs.document"
+    on_error: "fail"
+outputs:
+  summary:
+    type: "string"
+    from: "steps.a.outputs.summary"
+error_handling:
+  default: "fail"

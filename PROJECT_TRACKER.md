@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.15
+Version: 0.16
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,40 +12,56 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 15 - AI Team Architecture**
+**Sprint 16 - Validator Roadmap Phase 2 (IR Adapters)**
 
-Goal: document human/AI collaboration on this repository itself — roles,
-playbooks, standards, and governance — under `.ai/`, as governance
-documentation rather than executable Skills.
+Goal: implement typed IR adapters for Skill, Workflow, Knowledge,
+Evaluation, and Reflection, extending the Sprint 8 validator prototype
+without redesigning the CLI, Generator, or any specification.
 
 Status: **Completed**
 
-### Sprint 15 Backlog
+### Sprint 16 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define seven roles (responsibility, inputs, outputs, one decision right, boundaries) | Done | `.ai/roles/*.md` |
-| Define the Sprint Workflow and Handover playbooks | Done | `.ai/playbooks/SPRINT_WORKFLOW.md`, `.ai/playbooks/HANDOVER.md` |
-| Define collaboration standards (ADR/tracker ownership, review gates) | Done | `.ai/standards/COLLABORATION_STANDARDS.md` |
-| Define human vs. AI decision rights, consistent with ADR-0001 | Done | `.ai/governance/DECISION_RIGHTS.md` |
-| Record the documentation-not-executable boundary decision | Done | `docs/adr/ADR-0008-ai-team-is-documentation-not-executable.md` |
-| Add `.ai/README.md` index and link it from the repository README | Done | `.ai/README.md`, `README.md` |
+| Record package location, Metadata/Version scope, and new diagnostic prefix decisions | Done | `docs/adr/ADR-0009-ir-adapter-package-and-scope.md` |
+| Build the reusable pipeline (loader, schema registry, per-kind adapters, diagnostics) | Done | `scripts/asf_validator/` |
+| Implement Skill, Workflow, Knowledge, Evaluation, Reflection IR adapters | Done | `scripts/asf_validator/{skill,workflow,knowledge,evaluation,reflection}_ir.py` |
+| Implement reusable Metadata/Version helpers (not standalone adapters) | Done | `scripts/asf_validator/metadata_ir.py`, `scripts/asf_validator/version_ir.py` |
+| Add an IR fixture-conformance script and manifest | Done | `scripts/build_ir.py`, `tests/fixtures/ir/cases.json` (16/16) |
+| Add fixtures for valid/missing-required/invalid-reference/unsupported-version/malformed-metadata/cycle | Done | `tests/fixtures/ir/{skill,workflow,knowledge,evaluation,reflection}/` |
+| Add unit tests for every adapter | Done | `tests/unit/test_*.py` (30 tests, all pass) |
+| Fix a bug the unit tests caught (`extract_metadata_ir` returning an object despite error diagnostics) | Done | `scripts/asf_validator/metadata_ir.py` |
+| Add the ASF-PARSE-* diagnostic prefix | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Confirm zero regressions in the Sprint 8 validator | Done | `python scripts/validate_contracts.py` still 10/10 |
+| Update Validator Roadmap (Phase 2 Done, assumptions, deferred items) | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md` |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-### Sprint 15 Exit Criteria
+### Sprint 16 Exit Criteria
 
-- Every role names one responsibility, its inputs/outputs, exactly one
-  decision right, and explicit boundaries against the roles it could
-  overlap with.
-- No role has a `skill.yaml` or is referenced from a Workflow step or the
-  Dependency Graph.
-- The documentation-vs-executable boundary is recorded in an ADR that does
-  not contradict ADR-0001.
-- `.ai/README.md`'s links all resolve to files actually created.
-- Review passes and Sprint 15 is pushed to `main`.
-- Review passes and Sprint 14 is pushed to `main`.
-- No CLI implementation is added.
-- Review passes and Sprint 13 is pushed to `main`.
+- Every Skill/Workflow/Knowledge/Evaluation/Reflection adapter builds a
+  strongly typed IR object matching `docs/specifications/IR_SPECIFICATION.md`.
+- Loading, schema validation, IR conversion, and diagnostics are separate
+  modules with no duplicated parsing logic, no hardcoded repository paths,
+  and no global mutable state.
+- `python scripts/validate_contracts.py` (Phase 1) still passes 10/10 with
+  no changes to its behavior.
+- `python scripts/build_ir.py` (Phase 2) passes 16/16 fixture cases.
+- `python -m unittest discover -s tests/unit` passes all unit tests.
+- No Runtime, SDK, Generator rendering, or CLI implementation is added.
+- No repository Markdown link or ADR reference is broken.
+- Review passes and Sprint 16 is pushed to `main`.
+
+### Sprint 16 Deferred / Documented Gaps
+
+(See `docs/roadmaps/VALIDATOR_ROADMAP.md` Phase 2 for full detail.)
+
+- Cross-repository reference resolution (Dependency Graph) — Phase 3/4.
+- Version-range satisfaction checking — Phase 3.
+- Precise line/column source-position tracking beyond YAML's own parse
+  errors — not yet implemented.
+- Knowledge ID/taxonomy/path agreement against the Knowledge Index —
+  Phase 3, requires Project Discovery integration.
 
 ## Sprint History
 
@@ -71,6 +87,7 @@ sprint indefinitely.
 | 13 | CLI Design Expansion | `docs/architecture/CLI_ARCHITECTURE.md` v0.4, ADR-0007 |
 | 14 | Repository Engineering Review | README navigation rework, broken-link fix, IR terminology alignment |
 | 15 | AI Team Architecture | `.ai/roles/`, `.ai/playbooks/`, `.ai/standards/`, `.ai/governance/`, ADR-0008 |
+| 16 | Validator Roadmap Phase 2 (IR Adapters) | `scripts/asf_validator/`, `scripts/build_ir.py` (16/16), 30 unit tests, ADR-0009 |
 
 ## Risks and Guardrails
 
@@ -85,14 +102,16 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown IR
-   adapters with preserved source locations.
-2. Extend the fixture-conformance script toward Phase 3 semantic validators
-   (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
-3. When a CLI implementation sprint starts, choose and record its language
-   and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
-4. When a Generator implementation sprint starts, build the Dependency
-   Graph / Version Graph construction the IR Specification describes.
+1. Build the Dependency Graph and Version Graph (IR Specification) on top
+   of the Sprint 16 adapters — the natural Phase 3 starting point.
+2. Implement version-range satisfaction checking (Phase 3).
+3. Extend the fixture-conformance script toward the remaining Phase 3
+   semantic validators (weight sums, mapping/routing rules, ID/taxonomy/
+   path agreement) once the Dependency Graph exists.
+4. When a CLI implementation sprint starts, choose and record its language
+   and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
+   and wire `scripts/build_ir.py`'s pipeline behind the `validate`/`generate`
+   commands per `CLI_ARCHITECTURE.md`'s Validator/Generator Integration.
 5. Add a lightweight link/anchor check to the fixture-conformance script (or
    a sibling script) so Sprint 14's manual broken-link scan does not need to
    be repeated by hand every sprint — an Automation Engineer task per
@@ -100,6 +119,9 @@ sprint indefinitely.
 6. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
+7. Add precise line/column source-position tracking to IR adapter
+   diagnostics (currently field/section names only) — see Sprint 16's
+   Deferred / Documented Gaps in `docs/roadmaps/VALIDATOR_ROADMAP.md`.
 
 ## Revision History
 
@@ -120,3 +142,4 @@ sprint indefinitely.
 | 0.13 | 2026-07-04 | Completed Sprint 13 CLI Design Expansion |
 | 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |
 | 0.15 | 2026-07-04 | Completed Sprint 15 AI Team Architecture |
+| 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters); removed a stray duplicated "Previous Sprint" section left over from an earlier edit |

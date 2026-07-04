@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.15
+Version: 0.16
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,13 +88,14 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 15 - AI Team Architecture**. The focus is `.ai/`:
-seven contributor roles (Chief Architect, Principal Engineer, Framework
-Engineer, Quality Engineer, Test Engineer, Documentation Engineer,
-Automation Engineer), the Sprint Workflow and Handover playbooks,
-collaboration standards, and human/AI decision rights — governance
-documentation, not executable Skills. See `PROJECT_TRACKER.md`,
-`.ai/README.md`, and ADR-0008.
+The project is in **Sprint 16 - Validator Roadmap Phase 2**. This is the
+first sprint to ship executable product code: `scripts/asf_validator/`
+implements typed IR adapters for Skill, Workflow, Knowledge, Evaluation,
+and Reflection, with a reusable loader/schema/IR/diagnostics pipeline,
+16/16 fixture cases (`scripts/build_ir.py`), and 30 passing unit tests
+(`tests/unit/`). The Sprint 8 validator prototype is unchanged (still
+10/10). See `PROJECT_TRACKER.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md`,
+and ADR-0009.
 
 ## Definition of Done
 
@@ -126,3 +127,4 @@ A change is complete when:
 | 0.13 | 2026-07-04 | Set Sprint 13 CLI Design Expansion as current focus |
 | 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |
 | 0.15 | 2026-07-04 | Set Sprint 15 AI Team Architecture as current focus |
+| 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters) |

@@ -1,6 +1,6 @@
 # Intermediate Representation (IR) Architecture
 
-Version: 0.1
+Version: 0.2
 Status: Active
 
 Last updated: 2026-07-04
@@ -20,9 +20,15 @@ serialization strategy, and parser/normalization strategy. The
 [IR Specification](../specifications/IR_SPECIFICATION.md) defines the
 object model itself (Skill IR, Workflow IR, Knowledge IR, Metadata IR,
 Reference IR, Dependency Graph, Version Graph). This architecture does not
-implement a parser, Generator, CLI, or Runtime, and it does not change what
+implement a Generator, CLI, or Runtime, and it does not change what
 "valid" means — the [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md)
 remains authoritative for validation layers and diagnostics.
+
+Sprint 16 (Validator Roadmap Phase 2) implements the Skill, Workflow,
+Knowledge, Evaluation, and Reflection IR adapters this architecture
+describes, in `scripts/asf_validator/`. The Dependency Graph and Version
+Graph remain specification-only; no CLI or Generator consumes the IR yet.
+See ADR-0009 and `docs/roadmaps/VALIDATOR_ROADMAP.md`.
 
 ## Definitions
 
@@ -192,3 +198,4 @@ file a second time with different logic.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established the IR pipeline, lifecycle, and adapter strategy |
+| 0.2 | 2026-07-04 | Noted the Sprint 16 IR adapter implementation (ADR-0009) |

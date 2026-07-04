@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+id: "workflow:summarize-document"
+name: "summarize-document"
+display_name: "Summarize Document"
+description: "Invokes one summary Skill."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+entrypoint: "summarize"
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document text."
+steps:
+  - id: "summarize"
+    skill:
+      id: "skill:summarize-document"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      document: "workflow.inputs.document"
+    on_error: "fail"
+  - id: "review"
+    skill:
+      id: "skill:review-summary"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: ["summarize"]
+    input_mapping:
+      summary: "steps.summarize.outputs.summary"
+    on_error: "fail"
+outputs:
+  summary:
+    type: "string"
+    from: "steps.review.outputs.summary"
+error_handling:
+  default: "fail"
