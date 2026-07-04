@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.10
+Version: 0.11
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,173 +12,59 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 10 - Template Engine**
+**Sprint 11 - Intermediate Representation (IR)**
 
-Goal: formalize the shared template conventions Skill, Workflow, and
-Knowledge templates already follow, add the missing ADR and Documentation
-templates, and register every template kind in one index.
+Goal: name and generalize the existing "normalized model" concept into a
+cross-cutting IR that the Validator, Generator, CLI, and future Runtime all
+consume, and define the Dependency Graph / Version Graph built from it.
 
 Status: **Completed**
 
-## Sprint 10 Backlog
+### Sprint 11 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Document shared template conventions (placeholders, lifecycle, categories) | Done | `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md` |
-| Add ADR template | Done | `docs/adr/ADR_TEMPLATE.md` |
-| Add generic Documentation template | Done | `docs/_templates/DOCUMENTATION_TEMPLATE.md` |
-| Register every template kind in one index | Done | `templates/README.md` |
-| Record the registry/category decision | Done | `docs/adr/ADR-0004-template-engine-registry.md` |
-| Update tracker, context, and README | Done | This document, `PROJECT_CONTEXT.md`, `README.md` |
+| Define IR pipeline, lifecycle, serialization, parser/normalization strategy | Done | `docs/architecture/IR_ARCHITECTURE.md` |
+| Define Skill/Workflow/Knowledge/Metadata/Reference IR object model | Done | `docs/specifications/IR_SPECIFICATION.md` |
+| Define Dependency Graph and Version Graph | Done | `docs/specifications/IR_SPECIFICATION.md`, `docs/architecture/IR_ARCHITECTURE.md` |
+| Record the authoring-format-vs-IR decision | Done | `docs/adr/ADR-0005-markdown-authoring-ir-internal-contract.md` |
+| Align existing terminology ("normalized model") with IR | Done | `docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md`, `schemas/README.md`, `docs/architecture/CLI_ARCHITECTURE.md` |
+| Register IR Specification and update navigation | Done | `docs/specifications/README.md`, `docs/architecture/SYSTEM_ARCHITECTURE.md`, `README.md` |
+| Consolidate tracker history to stop repeated "Previous Sprint" sections | Done | This document |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-## Sprint 10 Exit Criteria
+### Sprint 11 Exit Criteria
 
-- Every template kind named in Milestone 10 (Skill, Workflow, Knowledge, ADR,
-  Documentation, Examples, Tests) is covered by an existing template or a new
-  one, and listed in `templates/README.md`.
-- No existing template file moved; no repository reference broken.
-- The reusable-executable vs. governance template split is recorded in an
-  ADR.
-- No Generator or CLI code is added.
-- Review passes and Sprint 10 is pushed to `main`.
+- IR Architecture and IR Specification exist and reference, without
+  duplicating, the Contract Validation, Metadata, Version, Knowledge
+  Dependency, and Workflow contracts.
+- Every existing reference to "normalized model" is aligned with the IR term
+  without breaking a cross-reference.
+- Dependency Graph and Version Graph are specified as derived, read-only
+  constructs; no graph implementation or storage is added.
+- No parser, Generator, or Runtime code is added.
+- Review passes and Sprint 11 is pushed to `main`.
 
-## Previous Sprint
+## Sprint History
 
-**Sprint 9 - CLI Architecture**
+Full per-sprint backlogs and exit criteria for completed sprints live in Git
+history and the ADRs/architecture documents each sprint produced; this table
+is the durable summary so this tracker does not grow one repeated section per
+sprint indefinitely.
 
-Goal: design the command system, plugin model, extension points, dependency
-injection, configuration, logging, and error handling for `AISkill.CLI`,
-without implementing a CLI or choosing its language.
-
-Status: **Completed**
-
-## Sprint 9 Backlog
-
-| Item | Status | Evidence / Output |
+| Sprint | Title | Key Output |
 | --- | --- | --- |
-| Design command system and plugin/extension model | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Design dependency injection and configuration strategy | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Design logging and error/exit-code handling | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Record the architecture-first, language-deferred decision | Done | `docs/adr/ADR-0003-cli-architecture-before-implementation.md` |
-| No CLI code or dependency added | Done | No `AISkill.CLI` package added this sprint |
-| Update tracker, context, and README | Done | This document, `PROJECT_CONTEXT.md`, `README.md` |
-| Review, commit, and push | Done | Git history and `origin/main` |
-
-## Sprint 9 Exit Criteria
-
-- CLI Architecture document covers command system, plugin model, extension
-  points, DI, configuration precedence, logging, and error handling.
-- The architecture references, but does not duplicate, the Contract
-  Validation Architecture's diagnostics shape.
-- No CLI implementation, package manifest, or language choice is committed.
-- Review passes and Sprint 9 is pushed to `main`.
-
-## Previous Sprint
-
-**Sprint 8 - Validator Prototype**
-
-Goal: implement Validator Roadmap Phase 1 (conformance fixtures pinned to a
-Draft 2020-12 implementation) as a minimal offline script, without a CLI or
-Runtime.
-
-Status: **Completed**
-
-## Sprint 8 Backlog
-
-| Item | Status | Evidence / Output |
-| --- | --- | --- |
-| Pin a Draft 2020-12 implementation | Done | `requirements-validator.txt` (`jsonschema`, `referencing`, `PyYAML`) |
-| Build a minimal fixture-conformance script | Done | `scripts/validate_contracts.py`, `scripts/validate-contracts.ps1` |
-| Add positive/negative fixtures for every standalone schema | Done | `tests/fixtures/contracts/{skill,workflow,knowledge,evaluation,reflection}/` |
-| Declare fixture cases and expected outcomes | Done | `tests/fixtures/contracts/cases.json` |
-| Verify all fixtures match expectations | Done | `python scripts/validate_contracts.py` -> 10/10 |
-| Record the prototype's scope and rationale as an ADR | Done | `docs/adr/ADR-0002-prototype-contract-validator.md` |
-| Update Validation Guide and Validator Roadmap | Done | `docs/guides/VALIDATION_GUIDE.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md` |
-| Fix broken arrow glyphs in System Architecture | Done | `docs/architecture/SYSTEM_ARCHITECTURE.md` |
-| Review, commit, and push | Done | Git history and `origin/main` |
-
-## Sprint 8 Exit Criteria
-
-- `python scripts/validate_contracts.py` passes for every declared fixture.
-- Every standalone schema (Skill, Workflow, Knowledge, Evaluation, Reflection)
-  has at least one valid and one invalid fixture.
-- The prototype's scope, dependencies, and boundaries are recorded in an ADR.
-- Validator Roadmap Phase 1 is marked Done; no semantic, repository, or CLI
-  logic was added.
-- Review passes and Sprint 8 is pushed to `main`.
-
-## Previous Sprint
-
-**Sprint 7 - Machine-Readable Schemas and Contract Validators**
-
-Goal: encode the established contracts as Draft 2020-12 schemas and define the
-layered validation foundation without implementing a full CLI or Runtime.
-
-Status: **Completed**
-
-## Sprint 1 - Foundation
-
-Status: **Completed**
-
-Foundation established repository governance, system architecture, project
-context, design principles, and ADR-0001. Remaining placeholder documents are
-tracked as future documentation work and do not redefine the completed
-architecture baseline.
-
-## Sprint 2 - Knowledge Architecture
-
-Status: **Completed**
-
-Sprint 2 established the Knowledge hierarchy, taxonomy, document template,
-discovery index, and naming rules.
-
-## Sprint 3 - AI Skill Specification
-
-Status: **Completed**
-
-Sprint 3 established the normative artifact contracts and specification registry.
-
-## Sprint 4 - Skill Architecture
-
-Status: **Completed**
-
-Sprint 4 established the Skill lifecycle, package architecture, and template.
-
-## Sprint 5 - Workflow Architecture
-
-Status: **Completed**
-
-Sprint 5 established Workflow lifecycle, package, execution, and mapping design.
-
-## Sprint 6 - Evaluation and Reflection Architecture
-
-Status: **Completed**
-
-Sprint 6 established consistent quality evaluation and bounded reflection.
-
-## Sprint 7 Backlog
-
-| Item | Status | Evidence / Output |
-| --- | --- | --- |
-| Create Skill and Workflow schemas | Done | `schemas/skill.schema.json`, `schemas/workflow.schema.json` |
-| Create Knowledge schema | Done | `schemas/knowledge.schema.json` |
-| Create Evaluation and Reflection schemas | Done | `schemas/evaluation.schema.json`, `schemas/reflection.schema.json` |
-| Create Metadata and Version schemas | Done | `schemas/metadata.schema.json`, `schemas/version.schema.json` |
-| Document validation architecture | Done | `docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md` |
-| Add validation guide | Done | `docs/guides/VALIDATION_GUIDE.md` |
-| Add validator roadmap | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md` |
-| Verify JSON, refs, links, and contract alignment | Done | Sprint 7 review |
-| Review, commit, and push | Done | Git history and `origin/main` |
-
-## Sprint Exit Criteria
-
-- All seven core schemas use JSON Schema Draft 2020-12.
-- Schemas compose shared Metadata, Version, Evaluation, and Reflection contracts.
-- Knowledge Markdown remains authoritative and validates through a normalized model.
-- Structural, semantic, and repository validation boundaries are explicit.
-- No production Skill, Runtime, or full CLI is implemented.
-- Review passes and Sprint 7 is pushed to `main`.
+| 1 | Foundation | Repository governance, System Architecture, Design Principles, ADR-0001 |
+| 2 | Knowledge Architecture | Knowledge hierarchy, taxonomy, template, discovery index, naming rules |
+| 3 | AI Skill Specification | Normative artifact contracts, specification registry |
+| 4 | Skill Architecture | Skill lifecycle, package architecture, `templates/skill/` |
+| 5 | Workflow Architecture | Workflow lifecycle, package, execution, mapping design, `templates/workflow/` |
+| 6 | Evaluation and Reflection Architecture | Quality evaluation and bounded reflection contracts |
+| 7 | Machine-Readable Schemas | Draft 2020-12 schemas, Contract Validation Architecture, Validator Roadmap |
+| 8 | Validator Prototype | `scripts/validate_contracts.py`, 10 fixture cases, ADR-0002 |
+| 9 | CLI Architecture | `docs/architecture/CLI_ARCHITECTURE.md`, ADR-0003 |
+| 10 | Template Engine | `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, `templates/README.md`, ADR-0004 |
+| 11 | Intermediate Representation (IR) | `docs/architecture/IR_ARCHITECTURE.md`, `docs/specifications/IR_SPECIFICATION.md`, ADR-0005 |
 
 ## Risks and Guardrails
 
@@ -189,17 +75,20 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 | Skills overlap and become hard to test | Enforce One Skill = One Responsibility |
 | Knowledge is duplicated in prompts | Store reusable knowledge in the Knowledge Base |
 | Implementation drifts from architecture | Update and review documentation first |
+| Governance documents (this tracker) grow unbounded | Summarize completed sprints in Sprint History instead of repeating sections |
 
 ## Next Actions
 
-1. Design the Generator Engine architecture (Milestone 11): the pipeline that
-   consumes `templates/` and producer values to emit filled artifacts.
+1. Design the Generator Engine architecture (next sprint): the pipeline that
+   consumes IR, `templates/`, and producer values to emit filled artifacts.
 2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
-   normalization adapters with preserved source locations.
+   normalization (IR) adapters with preserved source locations.
 3. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
 4. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
+5. When the Generator Engine architecture lands, implement the Dependency
+   Graph / Version Graph construction the IR Specification describes.
 
 ## Revision History
 
@@ -215,3 +104,4 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 | 0.8 | 2026-07-04 | Completed Sprint 8 validator prototype |
 | 0.9 | 2026-07-04 | Completed Sprint 9 CLI architecture |
 | 0.10 | 2026-07-04 | Completed Sprint 10 Template Engine |
+| 0.11 | 2026-07-04 | Completed Sprint 11 IR; consolidated sprint history table |

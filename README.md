@@ -40,6 +40,8 @@ Under Development
 - [CLI Architecture](docs/architecture/CLI_ARCHITECTURE.md)
 - [Template Engine Architecture](docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md)
 - [Template Registry](templates/README.md)
+- [IR Architecture](docs/architecture/IR_ARCHITECTURE.md)
+- [IR Specification](docs/specifications/IR_SPECIFICATION.md)
 
 ## Validator Prototype
 

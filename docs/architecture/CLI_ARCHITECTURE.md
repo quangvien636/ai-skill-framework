@@ -1,6 +1,6 @@
 # CLI Architecture
 
-Version: 0.1
+Version: 0.2
 Status: Draft
 
 Last updated: 2026-07-04
@@ -83,10 +83,15 @@ Extension points are the stable seams plugins implement against:
 
 | Extension point | Purpose | Related architecture |
 | --- | --- | --- |
-| Validator adapter | Parse/normalize/validate one artifact source format | [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md) |
-| Generator template source | Supply templates for one artifact kind | Milestone 10/11 Template and Generator architecture |
+| IR adapter | Parse and normalize one artifact source format into IR, shared by `validate`, `generate`, and Runtime commands | [IR Architecture](IR_ARCHITECTURE.md), [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md) |
+| Generator template source | Supply templates for one artifact kind | [Template Engine Architecture](TEMPLATE_ENGINE_ARCHITECTURE.md), future Generator Engine architecture |
 | Command group | Register a namespaced set of commands | This document |
 | Reporter | Render diagnostics or results in one output format | [Validation Guide](../guides/VALIDATION_GUIDE.md) |
+
+An IR adapter's structural validation step still runs the schema in
+`schemas/` for its artifact type; this table names the adapter once so
+`validate` and `generate` commands both wrap it instead of each owning a
+separate parser (see ADR-0005).
 
 Each extension point is a narrow interface (inputs, outputs, and failure
 contract) versioned independently of `AISkill.CLI` core, so core releases do
@@ -154,7 +159,9 @@ contract.
 ## References
 
 - [System Architecture](SYSTEM_ARCHITECTURE.md)
+- [IR Architecture](IR_ARCHITECTURE.md)
 - [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md)
+- [Template Engine Architecture](TEMPLATE_ENGINE_ARCHITECTURE.md)
 - [Validation Guide](../guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](../roadmaps/VALIDATOR_ROADMAP.md)
 - [Design Principles](../principles/DESIGN_PRINCIPLES.md)
@@ -165,3 +172,4 @@ contract.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established CLI architecture: commands, plugins, extension points, DI, configuration, logging, error handling |
+| 0.2 | 2026-07-04 | Broadened the Validator adapter extension point to the shared IR adapter (ADR-0005) |

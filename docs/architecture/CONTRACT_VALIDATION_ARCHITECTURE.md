@@ -1,6 +1,6 @@
 # Contract Validation Architecture
 
-Version: 0.1
+Version: 0.2
 Status: Active
 Last updated: 2026-07-04
 
@@ -20,7 +20,12 @@ or CLI.
 - **Structural validation:** JSON Schema checks over a parsed artifact.
 - **Semantic validation:** rules not expressible reliably in JSON Schema.
 - **Repository validation:** cross-file identity, reference, path, and lifecycle checks.
-- **Normalized model:** tool-neutral object produced from YAML or Markdown.
+- **Normalized model / IR:** tool-neutral object produced from YAML or
+  Markdown. Sprint 11 names this concept the Intermediate Representation
+  (IR); see the [IR Architecture](IR_ARCHITECTURE.md) and
+  [IR Specification](../specifications/IR_SPECIFICATION.md) for its pipeline
+  position, lifecycle, and object model. This architecture keeps ownership
+  of validation layers and diagnostics.
 - **Diagnostic:** stable error or warning with artifact path and rule location.
 
 ## Design
@@ -112,9 +117,12 @@ repository validation because its ID is missing from the Knowledge Index.
 - [AI Skill Specification](../specifications/AI_SKILL_SPECIFICATION.md)
 - [Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md)
 - [Knowledge Architecture](KNOWLEDGE_ARCHITECTURE.md)
+- [IR Architecture](IR_ARCHITECTURE.md)
+- [IR Specification](../specifications/IR_SPECIFICATION.md)
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established layered contract validation architecture |
+| 0.2 | 2026-07-04 | Aligned "normalized model" terminology with the Sprint 11 IR |

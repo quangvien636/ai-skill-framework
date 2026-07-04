@@ -1,6 +1,6 @@
 # AI Skill Framework Specifications
 
-Version: 0.1
+Version: 0.2
 Status: Active
 Last updated: 2026-07-04
 
@@ -35,6 +35,7 @@ implement an artifact loader, execution engine, generator, CLI, or actual Skill.
 | [Metadata Specification](METADATA_SPECIFICATION.md) | Shared artifact identity and metadata |
 | [Version Specification](VERSION_SPECIFICATION.md) | Versions, compatibility, and deprecation |
 | [Naming Convention](../principles/NAMING_CONVENTION.md) | Framework-wide names, IDs, and paths |
+| [IR Specification](IR_SPECIFICATION.md) | Shared Intermediate Representation object model and graphs |
 
 Authority stays narrow: a specification references another contract instead of
 copying its rules. Existing Knowledge Architecture documents remain authoritative
@@ -61,9 +62,11 @@ specifications.
 - [Design Principles](../principles/DESIGN_PRINCIPLES.md)
 - [ADR-0001](../adr/ADR-0001-repository-is-the-source-of-truth.md)
 - [Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
+- [IR Architecture](../architecture/IR_ARCHITECTURE.md)
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established the specification registry |
+| 0.2 | 2026-07-04 | Registered the IR Specification |
