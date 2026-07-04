@@ -1,6 +1,6 @@
 # CLI Architecture
 
-Version: 0.2
+Version: 0.3
 Status: Draft
 
 Last updated: 2026-07-04
@@ -84,7 +84,8 @@ Extension points are the stable seams plugins implement against:
 | Extension point | Purpose | Related architecture |
 | --- | --- | --- |
 | IR adapter | Parse and normalize one artifact source format into IR, shared by `validate`, `generate`, and Runtime commands | [IR Architecture](IR_ARCHITECTURE.md), [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md) |
-| Generator template source | Supply templates for one artifact kind | [Template Engine Architecture](TEMPLATE_ENGINE_ARCHITECTURE.md), future Generator Engine architecture |
+| Generator template source | Supply templates for one artifact kind | [Template Engine Architecture](TEMPLATE_ENGINE_ARCHITECTURE.md), [Generator Architecture](GENERATOR_ARCHITECTURE.md) |
+| Renderer | Serialize one artifact kind's target IR back to its authoring format | [Generator Architecture](GENERATOR_ARCHITECTURE.md) |
 | Command group | Register a namespaced set of commands | This document |
 | Reporter | Render diagnostics or results in one output format | [Validation Guide](../guides/VALIDATION_GUIDE.md) |
 
@@ -162,6 +163,7 @@ contract.
 - [IR Architecture](IR_ARCHITECTURE.md)
 - [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md)
 - [Template Engine Architecture](TEMPLATE_ENGINE_ARCHITECTURE.md)
+- [Generator Architecture](GENERATOR_ARCHITECTURE.md)
 - [Validation Guide](../guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](../roadmaps/VALIDATOR_ROADMAP.md)
 - [Design Principles](../principles/DESIGN_PRINCIPLES.md)
@@ -173,3 +175,4 @@ contract.
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established CLI architecture: commands, plugins, extension points, DI, configuration, logging, error handling |
 | 0.2 | 2026-07-04 | Broadened the Validator adapter extension point to the shared IR adapter (ADR-0005) |
+| 0.3 | 2026-07-04 | Added the Renderer extension point for the Generator Architecture |

@@ -1,6 +1,6 @@
 # Template Engine Architecture
 
-Version: 0.1
+Version: 0.2
 Status: Active
 
 Last updated: 2026-07-04
@@ -84,13 +84,13 @@ Every template, regardless of category, follows the same rules:
 
 ### Relationship to the Generator Engine and CLI
 
-A template is input, not a tool. The Generator Engine (Milestone 11)
-consumes templates and producer-supplied values to emit a filled artifact;
-this architecture does not define that pipeline. The CLI Architecture's
-"Generator template source" extension point (see
-[CLI Architecture](CLI_ARCHITECTURE.md)) is the future seam through which a
-generator command discovers templates from this registry — this document
-does not implement that command.
+A template is input, not a tool. The [Generator Architecture](GENERATOR_ARCHITECTURE.md)
+consumes templates and producer-supplied values to emit a filled artifact
+through its Template Resolver; this document does not define that
+pipeline. The CLI Architecture's "Generator template source" extension
+point (see [CLI Architecture](CLI_ARCHITECTURE.md)) is the seam through
+which a generator command discovers templates from this registry — this
+document does not implement that command.
 
 ### Adding a New Template Kind
 
@@ -128,3 +128,4 @@ validates.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established shared Template Engine conventions and registry |
+| 0.2 | 2026-07-04 | Linked the now-defined Generator Architecture (Sprint 12) |

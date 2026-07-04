@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.11
+Version: 0.12
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,38 +12,36 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 11 - Intermediate Representation (IR)**
+**Sprint 12 - Generator Engine Architecture**
 
-Goal: name and generalize the existing "normalized model" concept into a
-cross-cutting IR that the Validator, Generator, CLI, and future Runtime all
-consume, and define the Dependency Graph / Version Graph built from it.
+Goal: define the Generator's pipeline, template/dependency resolution,
+overwrite/conflict policy, extension model, validation, and diagnostics,
+consuming IR and the Template Registry, without implementing a Generator.
 
 Status: **Completed**
 
-### Sprint 11 Backlog
+### Sprint 12 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define IR pipeline, lifecycle, serialization, parser/normalization strategy | Done | `docs/architecture/IR_ARCHITECTURE.md` |
-| Define Skill/Workflow/Knowledge/Metadata/Reference IR object model | Done | `docs/specifications/IR_SPECIFICATION.md` |
-| Define Dependency Graph and Version Graph | Done | `docs/specifications/IR_SPECIFICATION.md`, `docs/architecture/IR_ARCHITECTURE.md` |
-| Record the authoring-format-vs-IR decision | Done | `docs/adr/ADR-0005-markdown-authoring-ir-internal-contract.md` |
-| Align existing terminology ("normalized model") with IR | Done | `docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md`, `schemas/README.md`, `docs/architecture/CLI_ARCHITECTURE.md` |
-| Register IR Specification and update navigation | Done | `docs/specifications/README.md`, `docs/architecture/SYSTEM_ARCHITECTURE.md`, `README.md` |
-| Consolidate tracker history to stop repeated "Previous Sprint" sections | Done | This document |
+| Define generation pipeline and stages | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
+| Define Template Resolver and Dependency Resolution | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
+| Define Incremental Generation, Overwrite Policy, Conflict Resolution | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
+| Define Generator extension model, validation, diagnostics | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` |
+| Record the safe-overwrite decision | Done | `docs/adr/ADR-0006-generator-safe-overwrite-policy.md` |
+| Add Renderer extension point and cross-link CLI/Template/IR/System architectures | Done | `docs/architecture/CLI_ARCHITECTURE.md`, `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, `docs/architecture/SYSTEM_ARCHITECTURE.md`, `README.md` |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-### Sprint 11 Exit Criteria
+### Sprint 12 Exit Criteria
 
-- IR Architecture and IR Specification exist and reference, without
-  duplicating, the Contract Validation, Metadata, Version, Knowledge
-  Dependency, and Workflow contracts.
-- Every existing reference to "normalized model" is aligned with the IR term
-  without breaking a cross-reference.
-- Dependency Graph and Version Graph are specified as derived, read-only
-  constructs; no graph implementation or storage is added.
-- No parser, Generator, or Runtime code is added.
-- Review passes and Sprint 11 is pushed to `main`.
+- Generator Architecture covers pipeline, template/dependency resolution,
+  overwrite/conflict policy, extension model, validation, and diagnostics.
+- The Generator is specified to consume IR and the Template Registry only —
+  no direct Markdown/YAML parsing.
+- The overwrite-safety decision (no silent or forced overwrite of diverging
+  content) is recorded in an ADR.
+- No Generator implementation or CLI command is added.
+- Review passes and Sprint 12 is pushed to `main`.
 
 ## Sprint History
 
@@ -65,6 +63,7 @@ sprint indefinitely.
 | 9 | CLI Architecture | `docs/architecture/CLI_ARCHITECTURE.md`, ADR-0003 |
 | 10 | Template Engine | `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, `templates/README.md`, ADR-0004 |
 | 11 | Intermediate Representation (IR) | `docs/architecture/IR_ARCHITECTURE.md`, `docs/specifications/IR_SPECIFICATION.md`, ADR-0005 |
+| 12 | Generator Engine Architecture | `docs/architecture/GENERATOR_ARCHITECTURE.md`, ADR-0006 |
 
 ## Risks and Guardrails
 
@@ -79,15 +78,16 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Design the Generator Engine architecture (next sprint): the pipeline that
-   consumes IR, `templates/`, and producer values to emit filled artifacts.
+1. Expand the CLI Architecture (next sprint): command registry, plugin
+   discovery, service container, workspace/project/template discovery, and
+   Generator/Validator integration built on Sprints 9-12.
 2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
    normalization (IR) adapters with preserved source locations.
 3. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
 4. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
-5. When the Generator Engine architecture lands, implement the Dependency
+5. When a Generator implementation sprint starts, build the Dependency
    Graph / Version Graph construction the IR Specification describes.
 
 ## Revision History
@@ -105,3 +105,4 @@ sprint indefinitely.
 | 0.9 | 2026-07-04 | Completed Sprint 9 CLI architecture |
 | 0.10 | 2026-07-04 | Completed Sprint 10 Template Engine |
 | 0.11 | 2026-07-04 | Completed Sprint 11 IR; consolidated sprint history table |
+| 0.12 | 2026-07-04 | Completed Sprint 12 Generator Engine architecture |

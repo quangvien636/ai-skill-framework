@@ -42,6 +42,7 @@ Under Development
 - [Template Registry](templates/README.md)
 - [IR Architecture](docs/architecture/IR_ARCHITECTURE.md)
 - [IR Specification](docs/specifications/IR_SPECIFICATION.md)
+- [Generator Architecture](docs/architecture/GENERATOR_ARCHITECTURE.md)
 
 ## Validator Prototype
 

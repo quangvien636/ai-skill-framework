@@ -168,9 +168,9 @@ evaluation, and reflection are indexed in the
 Machine-readable structure and layered validation follow the
 [Contract Validation Architecture](CONTRACT_VALIDATION_ARCHITECTURE.md).
 
-The Validator, Generator, CLI, and future Runtime consume one shared
-[Intermediate Representation](IR_ARCHITECTURE.md) instead of parsing
-Markdown or YAML independently.
+The Validator, [Generator](GENERATOR_ARCHITECTURE.md), CLI, and future
+Runtime consume one shared [Intermediate Representation](IR_ARCHITECTURE.md)
+instead of parsing Markdown or YAML independently.
 
 ---
 

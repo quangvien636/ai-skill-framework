@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.11
+Version: 0.12
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,12 +88,12 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 11 - Intermediate Representation (IR)**. The
-focus is naming and generalizing the existing "normalized model" concept
-into a shared IR that the Validator, Generator, CLI, and future Runtime all
-consume, plus the Dependency Graph and Version Graph built from it. See
-`PROJECT_TRACKER.md`, `docs/architecture/IR_ARCHITECTURE.md`,
-`docs/specifications/IR_SPECIFICATION.md`, and ADR-0005.
+The project is in **Sprint 12 - Generator Engine Architecture**. The focus
+is the generation pipeline, template/dependency resolution, safe overwrite
+and conflict policy, extension model, validation, and diagnostics for a
+future Generator that consumes IR and the Template Registry. See
+`PROJECT_TRACKER.md`, `docs/architecture/GENERATOR_ARCHITECTURE.md`, and
+ADR-0006.
 
 ## Definition of Done
 
@@ -121,3 +121,4 @@ A change is complete when:
 | 0.9 | 2026-07-04 | Set Sprint 9 CLI architecture as current focus |
 | 0.10 | 2026-07-04 | Set Sprint 10 Template Engine as current focus |
 | 0.11 | 2026-07-04 | Set Sprint 11 Intermediate Representation as current focus |
+| 0.12 | 2026-07-04 | Set Sprint 12 Generator Engine architecture as current focus |
