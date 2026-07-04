@@ -9,3 +9,5 @@ Replace every angle-bracket placeholder, keep `status: "draft"`, complete
 The generated target is `skills/<skill-name>/`. Follow the
 [Skill Architecture](../../docs/architecture/SKILL_ARCHITECTURE.md) and
 [AI Skill Specification](../../docs/specifications/AI_SKILL_SPECIFICATION.md).
+See the [Template Engine Architecture](../../docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md)
+for the conventions shared across all templates.

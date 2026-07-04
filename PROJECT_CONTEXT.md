@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.9
+Version: 0.10
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,11 +88,11 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 9 - CLI Architecture**. The focus is the command
-system, plugin model, extension points, configuration, dependency injection,
-logging, and error handling for `AISkill.CLI`, documented before any CLI code
-or implementation language is chosen. See `PROJECT_TRACKER.md`,
-`docs/architecture/CLI_ARCHITECTURE.md`, and ADR-0003.
+The project is in **Sprint 10 - Template Engine**. The focus is formalizing
+the shared conventions Skill, Workflow, and Knowledge templates already
+follow, adding ADR and Documentation templates, and registering every
+template kind in `templates/README.md`. See `PROJECT_TRACKER.md`,
+`docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md`, and ADR-0004.
 
 ## Definition of Done
 
@@ -118,3 +118,4 @@ A change is complete when:
 | 0.7 | 2026-07-04 | Set Sprint 7 schema and validation focus |
 | 0.8 | 2026-07-04 | Set Sprint 8 validator prototype as current focus |
 | 0.9 | 2026-07-04 | Set Sprint 9 CLI architecture as current focus |
+| 0.10 | 2026-07-04 | Set Sprint 10 Template Engine as current focus |

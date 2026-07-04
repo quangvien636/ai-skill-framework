@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.9
+Version: 0.10
 Status: Active
 Last updated: 2026-07-04
 
@@ -11,6 +11,39 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 10 - Template Engine**
+
+Goal: formalize the shared template conventions Skill, Workflow, and
+Knowledge templates already follow, add the missing ADR and Documentation
+templates, and register every template kind in one index.
+
+Status: **Completed**
+
+## Sprint 10 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Document shared template conventions (placeholders, lifecycle, categories) | Done | `docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md` |
+| Add ADR template | Done | `docs/adr/ADR_TEMPLATE.md` |
+| Add generic Documentation template | Done | `docs/_templates/DOCUMENTATION_TEMPLATE.md` |
+| Register every template kind in one index | Done | `templates/README.md` |
+| Record the registry/category decision | Done | `docs/adr/ADR-0004-template-engine-registry.md` |
+| Update tracker, context, and README | Done | This document, `PROJECT_CONTEXT.md`, `README.md` |
+| Review, commit, and push | Done | Git history and `origin/main` |
+
+## Sprint 10 Exit Criteria
+
+- Every template kind named in Milestone 10 (Skill, Workflow, Knowledge, ADR,
+  Documentation, Examples, Tests) is covered by an existing template or a new
+  one, and listed in `templates/README.md`.
+- No existing template file moved; no repository reference broken.
+- The reusable-executable vs. governance template split is recorded in an
+  ADR.
+- No Generator or CLI code is added.
+- Review passes and Sprint 10 is pushed to `main`.
+
+## Previous Sprint
 
 **Sprint 9 - CLI Architecture**
 
@@ -159,8 +192,8 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 
 ## Next Actions
 
-1. Design the Template Engine architecture (Milestone 10): reusable templates
-   for Skill, Workflow, Knowledge, ADR, documentation, examples, and tests.
+1. Design the Generator Engine architecture (Milestone 11): the pipeline that
+   consumes `templates/` and producer values to emit filled artifacts.
 2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
    normalization adapters with preserved source locations.
 3. Extend the fixture-conformance script toward Phase 3 semantic validators
@@ -181,3 +214,4 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 | 0.7 | 2026-07-04 | Completed Sprint 7 schemas and validation foundation |
 | 0.8 | 2026-07-04 | Completed Sprint 8 validator prototype |
 | 0.9 | 2026-07-04 | Completed Sprint 9 CLI architecture |
+| 0.10 | 2026-07-04 | Completed Sprint 10 Template Engine |

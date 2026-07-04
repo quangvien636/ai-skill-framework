@@ -3,4 +3,5 @@
 Canonical neutral skeleton for a future Workflow generator; it is not a
 production Workflow. Replace every placeholder, keep status `draft`, and add
 examples/tests before validation. See the
-[Workflow Architecture](../../docs/architecture/WORKFLOW_ARCHITECTURE.md).
+[Workflow Architecture](../../docs/architecture/WORKFLOW_ARCHITECTURE.md) and the
+[Template Engine Architecture](../../docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md).

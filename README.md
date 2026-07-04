@@ -38,6 +38,8 @@ Under Development
 - [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
 - [CLI Architecture](docs/architecture/CLI_ARCHITECTURE.md)
+- [Template Engine Architecture](docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md)
+- [Template Registry](templates/README.md)
 
 ## Validator Prototype
 
