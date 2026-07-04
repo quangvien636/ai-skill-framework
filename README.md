@@ -35,3 +35,17 @@ Under Development
 - [AI Skill Framework Specifications](docs/specifications/README.md)
 - [Machine-Readable Schemas](schemas/README.md)
 - [Contract Validation Architecture](docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
+- [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
+- [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
+
+## Validator Prototype
+
+A minimal, offline conformance check for the schemas in `schemas/`:
+
+```bash
+pip install -r requirements-validator.txt
+python scripts/validate_contracts.py
+```
+
+See the [Validation Guide](docs/guides/VALIDATION_GUIDE.md) and
+`docs/adr/ADR-0002-prototype-contract-validator.md` for scope and rationale.

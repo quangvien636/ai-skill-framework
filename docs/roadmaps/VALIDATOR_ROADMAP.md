@@ -1,7 +1,7 @@
 # Contract Validator Roadmap
 
-Version: 0.1
-Status: Planned
+Version: 0.2
+Status: In Progress
 Last updated: 2026-07-04
 
 ## Purpose
@@ -24,9 +24,18 @@ language are intentionally undecided.
 
 ### Phase 1 - Conformance Fixtures
 
-- Add positive and negative fixtures for every schema.
-- Select and pin a Draft 2020-12 implementation.
-- Test local `$ref` resolution and expected diagnostic paths.
+Status: **Done** (Sprint 8, `scripts/validate_contracts.py`, ADR-0002)
+
+- Added positive and negative fixtures for the Skill, Workflow, Knowledge,
+  Evaluation, and Reflection schemas under `tests/fixtures/contracts/`.
+- Pinned `jsonschema` and `referencing` (via `requirements-validator.txt`) as
+  the Draft 2020-12 implementation.
+- Verified local `$ref` resolution through a schema `Registry` and expected
+  diagnostic paths for each negative fixture (10/10 cases pass).
+
+Metadata and Version have no standalone fixtures because they are shared
+`$defs` consumed through the other five schemas' fixtures, not standalone
+repository artifacts (see the Validation Guide's Schema Selection table).
 
 Exit: each schema has representative automated conformance cases.
 
@@ -72,9 +81,11 @@ reject one missing `responsibility`; it should not generate or execute either.
 - [Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
 - [Validation Guide](../guides/VALIDATION_GUIDE.md)
 - [Schema Registry](../../schemas/README.md)
+- ADR-0002: Prototype Contract Validator
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established phased validator implementation roadmap |
+| 0.2 | 2026-07-04 | Closed Phase 1 with fixtures for all five standalone schemas |

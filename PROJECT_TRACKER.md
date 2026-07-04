@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.7
+Version: 0.8
 Status: Active
 Last updated: 2026-07-04
 
@@ -11,6 +11,40 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 8 - Validator Prototype**
+
+Goal: implement Validator Roadmap Phase 1 (conformance fixtures pinned to a
+Draft 2020-12 implementation) as a minimal offline script, without a CLI or
+Runtime.
+
+Status: **Completed**
+
+## Sprint 8 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Pin a Draft 2020-12 implementation | Done | `requirements-validator.txt` (`jsonschema`, `referencing`, `PyYAML`) |
+| Build a minimal fixture-conformance script | Done | `scripts/validate_contracts.py`, `scripts/validate-contracts.ps1` |
+| Add positive/negative fixtures for every standalone schema | Done | `tests/fixtures/contracts/{skill,workflow,knowledge,evaluation,reflection}/` |
+| Declare fixture cases and expected outcomes | Done | `tests/fixtures/contracts/cases.json` |
+| Verify all fixtures match expectations | Done | `python scripts/validate_contracts.py` -> 10/10 |
+| Record the prototype's scope and rationale as an ADR | Done | `docs/adr/ADR-0002-prototype-contract-validator.md` |
+| Update Validation Guide and Validator Roadmap | Done | `docs/guides/VALIDATION_GUIDE.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md` |
+| Fix broken arrow glyphs in System Architecture | Done | `docs/architecture/SYSTEM_ARCHITECTURE.md` |
+| Review, commit, and push | Done | Git history and `origin/main` |
+
+## Sprint 8 Exit Criteria
+
+- `python scripts/validate_contracts.py` passes for every declared fixture.
+- Every standalone schema (Skill, Workflow, Knowledge, Evaluation, Reflection)
+  has at least one valid and one invalid fixture.
+- The prototype's scope, dependencies, and boundaries are recorded in an ADR.
+- Validator Roadmap Phase 1 is marked Done; no semantic, repository, or CLI
+  logic was added.
+- Review passes and Sprint 8 is pushed to `main`.
+
+## Previous Sprint
 
 **Sprint 7 - Machine-Readable Schemas and Contract Validators**
 
@@ -94,9 +128,12 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 
 ## Next Actions
 
-1. Plan schema conformance fixtures as the next Sprint.
-2. Select and pin a Draft 2020-12 validator implementation.
-3. Implement safe YAML and Knowledge Markdown normalization adapters.
+1. Design the CLI architecture (Sprint 9): command system, plugin model,
+   configuration, dependency injection, logging, and error handling.
+2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
+   normalization adapters with preserved source locations.
+3. Extend the fixture-conformance script toward Phase 3 semantic validators
+   (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
 
 ## Revision History
 
@@ -109,3 +146,4 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 | 0.5 | 2026-07-04 | Completed Sprint 5 Workflow Architecture |
 | 0.6 | 2026-07-04 | Completed Sprint 6 quality architecture |
 | 0.7 | 2026-07-04 | Completed Sprint 7 schemas and validation foundation |
+| 0.8 | 2026-07-04 | Completed Sprint 8 validator prototype |

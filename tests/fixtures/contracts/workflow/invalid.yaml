@@ -1,0 +1,14 @@
+schema_version: "1.0.0"
+id: "workflow:invalid-mapping"
+name: "invalid-mapping"
+display_name: "Invalid Mapping"
+description: "Intentionally invalid Workflow fixture."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+entrypoint: "Invalid_Step"
+inputs: {}
+steps: []
+outputs: {}
+error_handling:
+  default: "ignore"

@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "max_attempts": 2,
+  "minimum_improvement": 5,
+  "on_exhausted": "manual-review",
+  "reflectable_hard_gates": ["output-schema-valid"]
+}

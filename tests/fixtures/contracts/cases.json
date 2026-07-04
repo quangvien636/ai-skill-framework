@@ -1,0 +1,64 @@
+{
+  "cases": [
+    {
+      "name": "valid-skill",
+      "fixture": "tests/fixtures/contracts/skill/valid.yaml",
+      "schema": "skill.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-skill",
+      "fixture": "tests/fixtures/contracts/skill/invalid.yaml",
+      "schema": "skill.schema.json",
+      "expected": "invalid"
+    },
+    {
+      "name": "valid-workflow",
+      "fixture": "tests/fixtures/contracts/workflow/valid.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-workflow",
+      "fixture": "tests/fixtures/contracts/workflow/invalid.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "invalid"
+    },
+    {
+      "name": "valid-knowledge",
+      "fixture": "tests/fixtures/contracts/knowledge/valid.json",
+      "schema": "knowledge.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-knowledge",
+      "fixture": "tests/fixtures/contracts/knowledge/invalid.json",
+      "schema": "knowledge.schema.json",
+      "expected": "invalid"
+    },
+    {
+      "name": "valid-evaluation",
+      "fixture": "tests/fixtures/contracts/evaluation/valid.json",
+      "schema": "evaluation.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-evaluation",
+      "fixture": "tests/fixtures/contracts/evaluation/invalid.json",
+      "schema": "evaluation.schema.json",
+      "expected": "invalid"
+    },
+    {
+      "name": "valid-reflection",
+      "fixture": "tests/fixtures/contracts/reflection/valid.json",
+      "schema": "reflection.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-reflection",
+      "fixture": "tests/fixtures/contracts/reflection/invalid.json",
+      "schema": "reflection.schema.json",
+      "expected": "invalid"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "not-a-knowledge-id",
+  "title": "Invalid Knowledge",
+  "status": "unknown",
+  "version": "0.1",
+  "summary": "Intentionally invalid Knowledge fixture."
+}

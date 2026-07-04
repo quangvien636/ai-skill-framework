@@ -1,0 +1,32 @@
+{
+  "id": "kb:technical:databases:indexing:index-selection",
+  "title": "Index Selection",
+  "status": "draft",
+  "category": "technical",
+  "domain": "databases",
+  "topic": "indexing",
+  "version": "0.1.0",
+  "last_updated": "2026-07-04",
+  "summary": "Explains how to select an index.",
+  "applies_to": ["skill:optimize-query"],
+  "scope": {
+    "includes": ["Index selection."],
+    "excludes": ["Query rewriting."]
+  },
+  "guidance": "Choose indexes from observed query patterns.",
+  "decision_rules": ["Measure query patterns before selection."],
+  "examples": {
+    "good": "Measure before adding an index.",
+    "counterexample": "Index every column."
+  },
+  "limitations_and_risks": ["Indexes add write cost."],
+  "related_knowledge": [],
+  "sources": ["None - repository-authored guidance"],
+  "revision_history": [
+    {
+      "version": "0.1.0",
+      "date": "2026-07-04",
+      "description": "Initial fixture."
+    }
+  ]
+}

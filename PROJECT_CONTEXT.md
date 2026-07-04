@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.7
+Version: 0.8
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,10 +88,11 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 7 - Machine-Readable Schemas and Contract Validators**.
-The focus is Draft 2020-12 schemas, normalized artifact models, layered contract
-validation, and a roadmap for future validator tooling. See `PROJECT_TRACKER.md`,
-`schemas/README.md`, and the Contract Validation Architecture.
+The project is in **Sprint 8 - Validator Prototype**. The focus is a minimal,
+offline fixture-conformance script (`scripts/validate_contracts.py`) that
+proves the Sprint 7 schemas against pinned Draft 2020-12 tooling, ahead of any
+CLI or Runtime. See `PROJECT_TRACKER.md`, `docs/guides/VALIDATION_GUIDE.md`,
+`docs/roadmaps/VALIDATOR_ROADMAP.md`, and ADR-0002.
 
 ## Definition of Done
 
@@ -115,3 +116,4 @@ A change is complete when:
 | 0.5 | 2026-07-04 | Set Sprint 5 Workflow Architecture as current focus |
 | 0.6 | 2026-07-04 | Set Sprint 6 quality architecture as current focus |
 | 0.7 | 2026-07-04 | Set Sprint 7 schema and validation focus |
+| 0.8 | 2026-07-04 | Set Sprint 8 validator prototype as current focus |

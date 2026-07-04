@@ -11,19 +11,19 @@ The framework avoids one giant prompt. Instead, it separates responsibilities in
 ## 2. High-Level Architecture
 
 User
-  ?
+  ->
 Master Skill
-  ?
+  ->
 Workflow Engine
-  ?
+  ->
 Skill Library
-  ?
+  ->
 Knowledge Base
-  ?
+  ->
 Evaluation Engine
-  ?
+  ->
 Reflection Engine
-  ?
+  ->
 Final Output
 
 ---
@@ -54,7 +54,7 @@ The Workflow Engine defines the order of work.
 
 Example:
 
-Research ? Plan ? Write ? Review ? Improve ? Deliver
+Research -> Plan -> Write -> Review -> Improve -> Deliver
 
 A workflow should not contain deep domain knowledge.
 

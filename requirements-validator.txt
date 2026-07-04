@@ -1,0 +1,3 @@
+# Minimal dependencies for the Sprint 8 validator prototype.
+jsonschema>=4.18,<5
+PyYAML>=6,<7

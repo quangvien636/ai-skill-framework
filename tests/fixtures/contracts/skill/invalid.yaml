@@ -1,0 +1,19 @@
+schema_version: "1.0.0"
+id: "skill:missing-responsibility"
+name: "missing-responsibility"
+display_name: "Missing Responsibility"
+description: "Intentionally invalid Skill fixture."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+inputs: {}
+outputs: {}
+dependencies:
+  runtime: []
+  tools: []
+  knowledge: []
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation: {}
+reflection: {}

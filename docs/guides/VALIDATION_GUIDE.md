@@ -1,18 +1,19 @@
 # Contract Validation Guide
 
-Version: 0.1
+Version: 0.2
 Status: Active
 Last updated: 2026-07-04
 
 ## Purpose
 
-Explain how contributors and future tools apply schemas and interpret contract
-validation without implying that a full validator already exists.
+Explain how contributors and tools apply schemas and interpret contract
+validation, including the Sprint 8 fixture-conformance prototype, without
+implying that a full validator, CLI, or Runtime already exists.
 
 ## Scope
 
-This guide covers current schema review and the future validation flow. It does
-not provide a production command or CLI.
+This guide covers current schema review, the fixture-conformance prototype,
+and the future validation flow. It does not provide a production CLI.
 
 ## Definitions
 
@@ -23,20 +24,40 @@ not provide a production command or CLI.
 
 ## Design
 
-### Current Sprint 7 Checks
+### Sprint 8 Fixture-Conformance Prototype
 
-Contributors must:
+`scripts/validate_contracts.py` (invoked directly, or via
+`scripts/validate-contracts.ps1` on Windows) checks that every schema in
+`schemas/` is a valid Draft 2020-12 schema and that the fixtures declared in
+`tests/fixtures/contracts/cases.json` validate as expected:
 
-1. validate every `schemas/*.json` file as JSON;
-2. verify local `$ref` targets and fragments;
-3. compare schema fields with the owning Markdown specification and template;
-4. validate schema examples against their schema when tooling is available;
-5. review semantic rules not encoded in JSON Schema;
-6. check links, paths, duplicate IDs, secrets, and Git diff.
+```text
+pip install -r requirements-validator.txt
+python scripts/validate_contracts.py
+```
 
-PowerShell `ConvertFrom-Json` proves JSON syntax only; it is not a JSON Schema
-validator. Until the validator is implemented, activation requires documented
-manual semantic and repository review.
+Each fixture case names a fixture file under `tests/fixtures/contracts/<type>/`,
+the schema to check it against, and the expected outcome (`valid` or
+`invalid`). The script resolves local `$ref` values through a schema
+registry, reports the first diagnostic for each case, and exits nonzero if
+any case does not match its expected outcome. It performs no network access
+and never rewrites a fixture or schema.
+
+This prototype only proves schema-level (structural) conformance for the
+fixtures it is told about. It does not walk `skills/` or `workflows/`, and it
+implements none of the semantic or repository-integrity rules in the
+[Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md).
+See ADR-0002 for the scope and rationale of this increment.
+
+### Current Manual Checks
+
+Contributors must still:
+
+1. compare schema fields with the owning Markdown specification and template;
+2. review semantic rules not yet encoded in JSON Schema or the prototype;
+3. check links, paths, duplicate IDs, secrets, and Git diff;
+4. run the fixture-conformance prototype above and add fixtures for new or
+   changed schemas.
 
 ### Future Validator Flow
 
@@ -76,9 +97,11 @@ fail semantic validation because their sum is not `1.0`.
 - [Schema Registry](../../schemas/README.md)
 - [Validator Roadmap](../roadmaps/VALIDATOR_ROADMAP.md)
 - [Version Specification](../specifications/VERSION_SPECIFICATION.md)
+- ADR-0002: Prototype Contract Validator
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established validation usage and review guidance |
+| 0.2 | 2026-07-04 | Documented the Sprint 8 fixture-conformance prototype |
