@@ -116,6 +116,7 @@ and that reflection is declared only when evaluation can route failures to it.
 
 ## References
 
+- [Reflection Engine Architecture](../architecture/REFLECTION_ARCHITECTURE.md)
 - [Evaluation Specification](EVALUATION_SPECIFICATION.md)
 - [AI Skill Specification](AI_SKILL_SPECIFICATION.md)
 - [Workflow Specification](WORKFLOW_SPECIFICATION.md)

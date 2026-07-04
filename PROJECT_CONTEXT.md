@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.5
+Version: 0.6
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,10 +88,10 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 5 - Workflow Architecture**. The focus is Workflow
-lifecycle, package templates, deterministic graph execution, Skill orchestration,
-mapping, failures, and validation. See `PROJECT_TRACKER.md` and
-`docs/architecture/WORKFLOW_ARCHITECTURE.md`.
+The project is in **Sprint 6 - Evaluation and Reflection Architecture**. The focus
+is consistent metrics, scoring, acceptance thresholds, failure routing, bounded
+improvement, retry, and termination. See `PROJECT_TRACKER.md` and the Evaluation
+and Reflection architecture documents.
 
 ## Definition of Done
 
@@ -113,3 +113,4 @@ A change is complete when:
 | 0.3 | 2026-07-04 | Set Sprint 3 AI Skill Specification as current focus |
 | 0.4 | 2026-07-04 | Set Sprint 4 Skill Architecture as current focus |
 | 0.5 | 2026-07-04 | Set Sprint 5 Workflow Architecture as current focus |
+| 0.6 | 2026-07-04 | Set Sprint 6 quality architecture as current focus |

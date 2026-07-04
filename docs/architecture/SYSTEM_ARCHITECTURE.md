@@ -129,6 +129,9 @@ Common criteria:
 - Risk
 - Actionability
 
+Pipeline, scoring, thresholds, and failure routing follow the
+[Evaluation Engine Architecture](EVALUATION_ARCHITECTURE.md).
+
 ---
 
 ### 3.6 Reflection Engine
@@ -142,6 +145,9 @@ It asks:
 - What is unclear?
 - What may be inaccurate?
 - What can be improved?
+
+Triggers, improvement rules, retry policy, and termination follow the
+[Reflection Engine Architecture](REFLECTION_ARCHITECTURE.md).
 
 ---
 

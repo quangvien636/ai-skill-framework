@@ -134,6 +134,7 @@ artifact's output schema.
 
 ## References
 
+- [Evaluation Engine Architecture](../architecture/EVALUATION_ARCHITECTURE.md)
 - [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
 - [Reflection Specification](REFLECTION_SPECIFICATION.md)
 - [Metadata Specification](METADATA_SPECIFICATION.md)
