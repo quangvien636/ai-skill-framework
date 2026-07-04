@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.3
+Version: 0.4
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,11 +88,10 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 3 - AI Skill Specification**. The focus is establishing
-the normative contracts for Skills, Workflows, Knowledge dependencies,
-evaluation, reflection, artifact metadata, naming, and version compatibility.
-See `PROJECT_TRACKER.md` for progress and `docs/specifications/README.md` for the
-canonical specification registry.
+The project is in **Sprint 4 - Skill Architecture**. The focus is the Skill
+lifecycle, package standard, canonical authoring template, validation, testing,
+and examples. See `PROJECT_TRACKER.md` for progress and
+`docs/architecture/SKILL_ARCHITECTURE.md` for the detailed design.
 
 ## Definition of Done
 
@@ -112,3 +111,4 @@ A change is complete when:
 | 0.1 | 2026-07-04 | Established shared context and contributor rules |
 | 0.2 | 2026-07-04 | Set Sprint 2 Knowledge Architecture as current focus |
 | 0.3 | 2026-07-04 | Set Sprint 3 AI Skill Specification as current focus |
+| 0.4 | 2026-07-04 | Set Sprint 4 Skill Architecture as current focus |

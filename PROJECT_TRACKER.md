@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.3
+Version: 0.4
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,11 +12,10 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 3 - AI Skill Specification**
+**Sprint 4 - Skill Architecture**
 
-Goal: establish normative, machine-consumable contracts for Skills, Workflows,
-Knowledge dependencies, quality control, artifact metadata, naming, and versions
-without implementing actual Skills.
+Goal: make the Skill specification authorable and generator-ready through a
+lifecycle, package architecture, neutral template, validation, tests, and examples.
 
 Status: **Completed**
 
@@ -36,35 +35,32 @@ Status: **Completed**
 Sprint 2 established the Knowledge hierarchy, taxonomy, document template,
 discovery index, and naming rules.
 
-## Sprint 3 Backlog
+## Sprint 3 - AI Skill Specification
+
+Status: **Completed**
+
+Sprint 3 established the normative artifact contracts and specification registry.
+
+## Sprint 4 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Define AI Skill package and behavior contract | Done | `docs/specifications/AI_SKILL_SPECIFICATION.md` |
-| Define Workflow execution and mapping contract | Done | `docs/specifications/WORKFLOW_SPECIFICATION.md` |
-| Define Knowledge dependency and reuse contract | Done | `docs/specifications/KNOWLEDGE_DEPENDENCY_SPECIFICATION.md` |
-| Define evaluation pipeline and scoring | Done | `docs/specifications/EVALUATION_SPECIFICATION.md` |
-| Define reflection and retry contract | Done | `docs/specifications/REFLECTION_SPECIFICATION.md` |
-| Standardize artifact metadata | Done | `docs/specifications/METADATA_SPECIFICATION.md` |
-| Standardize framework naming | Done | `docs/principles/NAMING_CONVENTION.md` |
-| Define versions and compatibility | Done | `docs/specifications/VERSION_SPECIFICATION.md` |
-| Create canonical specification registry | Done | `docs/specifications/README.md` |
-| Align architecture, context, and Knowledge template | Done | Updated repository contracts |
-| Review consistency, links, and duplication | Done | Sprint 3 acceptance review |
-| Commit and push reviewed documentation | Done | Git history and `origin/main` |
+| Define Skill lifecycle | Done | `docs/architecture/SKILL_ARCHITECTURE.md` |
+| Define Skill folder and template standards | Done | Architecture and `templates/skill/` |
+| Define input/output architecture | Done | Skill Architecture and Skill Specification |
+| Define validation rules | Done | `docs/architecture/SKILL_ARCHITECTURE.md` |
+| Define testing and example standards | Done | Architecture and template guidance |
+| Add generator-ready neutral template | Done | `templates/skill/` |
+| Confirm no production Skill exists | Done | Empty `skills/` |
+| Review, commit, and push | Done | Git history and `origin/main` |
 
 ## Sprint Exit Criteria
 
-- Every requested specification has purpose, scope, definitions, design,
-  examples, references, and revision history.
-- Skill and Workflow contracts preserve One Skill = One Responsibility and keep
-  the Master Skill limited to orchestration.
-- Knowledge references reuse Sprint 2 taxonomy, index, template, and naming
-  authorities without duplicating them.
-- Metadata, naming, version, evaluation, and reflection rules are internally
-  consistent and testable.
-- No actual Skill is implemented.
-- Review passes and all Sprint 3 changes are committed and pushed to `main`.
+- A generator can create the required Skill package from `templates/skill/`.
+- Lifecycle, folders, contracts, validation, testing, and examples are explicit.
+- The architecture preserves One Skill = One Responsibility and Knowledge reuse.
+- No production Skill is implemented.
+- Review passes and all Sprint 4 changes are committed and pushed to `main`.
 
 ## Risks and Guardrails
 
@@ -78,11 +74,9 @@ discovery index, and naming rules.
 
 ## Next Actions
 
-1. Plan Sprint 4 as contract validation and tooling.
-2. Define machine-readable schemas for `skill.yaml` and `workflow.yaml`.
-3. Implement validators for metadata, naming, versions, mappings, and Knowledge
-   references.
-4. Add specification conformance fixtures before generating actual Skills.
+1. Design Sprint 5 Workflow Architecture.
+2. Add a neutral Workflow package template.
+3. Define deterministic execution, mapping, and failure architecture.
 
 ## Revision History
 
@@ -91,3 +85,4 @@ discovery index, and naming rules.
 | 0.1 | 2026-07-04 | Established the Sprint 1 Foundation tracker |
 | 0.2 | 2026-07-04 | Added Sprint 2 Knowledge Architecture progress |
 | 0.3 | 2026-07-04 | Completed Sprint 3 AI Skill Specification |
+| 0.4 | 2026-07-04 | Completed Sprint 4 Skill Architecture |

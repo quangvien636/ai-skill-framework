@@ -272,6 +272,7 @@ field or contract rule and MUST NOT be silently repaired.
 
 ## References
 
+- [Skill Architecture](../architecture/SKILL_ARCHITECTURE.md)
 - [Specification Registry](README.md)
 - [Workflow Specification](WORKFLOW_SPECIFICATION.md)
 - [Knowledge Dependency Specification](KNOWLEDGE_DEPENDENCY_SPECIFICATION.md)

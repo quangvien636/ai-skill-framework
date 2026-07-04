@@ -83,6 +83,8 @@ One Skill = One Responsibility.
 
 Every Skill package follows the
 [AI Skill Specification](../specifications/AI_SKILL_SPECIFICATION.md).
+Its lifecycle, folder structure, template, and validation process follow the
+[Skill Architecture](SKILL_ARCHITECTURE.md).
 
 ---
 

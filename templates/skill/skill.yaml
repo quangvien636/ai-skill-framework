@@ -1,0 +1,58 @@
+schema_version: "1.0.0"
+id: "skill:<skill-name>"
+name: "<skill-name>"
+display_name: "<Skill Display Name>"
+description: "<One retrieval-oriented description.>"
+version: "0.1.0"
+status: "draft"
+owners:
+  - "<owner>"
+tags: []
+responsibility: "<One observable responsibility.>"
+inputs:
+  <input-name>:
+    type: "string"
+    required: true
+    description: "<Input meaning.>"
+outputs:
+  <output-name>:
+    type: "string"
+    required: true
+    description: "<Output meaning.>"
+dependencies:
+  runtime: []
+  tools: []
+  knowledge: []
+procedure:
+  - id: "validate-input"
+    action: "Validate declared inputs."
+  - id: "perform-task"
+    action: "<Perform only the declared responsibility.>"
+  - id: "validate-output"
+    action: "Validate declared outputs."
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation:
+  metrics:
+    - name: "<metric-name>"
+      description: "<Observable quality dimension.>"
+      weight: 1.0
+      rubric:
+        "0": "<Failure evidence.>"
+        "50": "<Partial evidence.>"
+        "100": "<Complete evidence.>"
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 80
+    hard_gates:
+      - "output-schema-valid"
+  on_failure: "fail"
+reflection:
+  enabled: false
+  max_attempts: 0
+  minimum_improvement: 0
+  on_exhausted: "fail"
+  reflectable_hard_gates: []
