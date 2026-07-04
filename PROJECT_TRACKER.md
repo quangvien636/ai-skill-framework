@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.8
+Version: 0.9
 Status: Active
 Last updated: 2026-07-04
 
@@ -11,6 +11,37 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 9 - CLI Architecture**
+
+Goal: design the command system, plugin model, extension points, dependency
+injection, configuration, logging, and error handling for `AISkill.CLI`,
+without implementing a CLI or choosing its language.
+
+Status: **Completed**
+
+## Sprint 9 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Design command system and plugin/extension model | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Design dependency injection and configuration strategy | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Design logging and error/exit-code handling | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
+| Record the architecture-first, language-deferred decision | Done | `docs/adr/ADR-0003-cli-architecture-before-implementation.md` |
+| No CLI code or dependency added | Done | No `AISkill.CLI` package added this sprint |
+| Update tracker, context, and README | Done | This document, `PROJECT_CONTEXT.md`, `README.md` |
+| Review, commit, and push | Done | Git history and `origin/main` |
+
+## Sprint 9 Exit Criteria
+
+- CLI Architecture document covers command system, plugin model, extension
+  points, DI, configuration precedence, logging, and error handling.
+- The architecture references, but does not duplicate, the Contract
+  Validation Architecture's diagnostics shape.
+- No CLI implementation, package manifest, or language choice is committed.
+- Review passes and Sprint 9 is pushed to `main`.
+
+## Previous Sprint
 
 **Sprint 8 - Validator Prototype**
 
@@ -128,12 +159,14 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 
 ## Next Actions
 
-1. Design the CLI architecture (Sprint 9): command system, plugin model,
-   configuration, dependency injection, logging, and error handling.
+1. Design the Template Engine architecture (Milestone 10): reusable templates
+   for Skill, Workflow, Knowledge, ADR, documentation, examples, and tests.
 2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
    normalization adapters with preserved source locations.
 3. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
+4. When a CLI implementation sprint starts, choose and record its language
+   and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
 
 ## Revision History
 
@@ -147,3 +180,4 @@ Sprint 6 established consistent quality evaluation and bounded reflection.
 | 0.6 | 2026-07-04 | Completed Sprint 6 quality architecture |
 | 0.7 | 2026-07-04 | Completed Sprint 7 schemas and validation foundation |
 | 0.8 | 2026-07-04 | Completed Sprint 8 validator prototype |
+| 0.9 | 2026-07-04 | Completed Sprint 9 CLI architecture |

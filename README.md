@@ -37,6 +37,7 @@ Under Development
 - [Contract Validation Architecture](docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
 - [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
+- [CLI Architecture](docs/architecture/CLI_ARCHITECTURE.md)
 
 ## Validator Prototype
 

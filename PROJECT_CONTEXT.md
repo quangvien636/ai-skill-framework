@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.8
+Version: 0.9
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,11 +88,11 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 8 - Validator Prototype**. The focus is a minimal,
-offline fixture-conformance script (`scripts/validate_contracts.py`) that
-proves the Sprint 7 schemas against pinned Draft 2020-12 tooling, ahead of any
-CLI or Runtime. See `PROJECT_TRACKER.md`, `docs/guides/VALIDATION_GUIDE.md`,
-`docs/roadmaps/VALIDATOR_ROADMAP.md`, and ADR-0002.
+The project is in **Sprint 9 - CLI Architecture**. The focus is the command
+system, plugin model, extension points, configuration, dependency injection,
+logging, and error handling for `AISkill.CLI`, documented before any CLI code
+or implementation language is chosen. See `PROJECT_TRACKER.md`,
+`docs/architecture/CLI_ARCHITECTURE.md`, and ADR-0003.
 
 ## Definition of Done
 
@@ -117,3 +117,4 @@ A change is complete when:
 | 0.6 | 2026-07-04 | Set Sprint 6 quality architecture as current focus |
 | 0.7 | 2026-07-04 | Set Sprint 7 schema and validation focus |
 | 0.8 | 2026-07-04 | Set Sprint 8 validator prototype as current focus |
+| 0.9 | 2026-07-04 | Set Sprint 9 CLI architecture as current focus |
