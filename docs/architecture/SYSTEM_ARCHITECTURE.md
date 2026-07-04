@@ -58,6 +58,9 @@ Research ? Plan ? Write ? Review ? Improve ? Deliver
 
 A workflow should not contain deep domain knowledge.
 
+Workflow manifests, step ordering, mappings, and failure behavior follow the
+[Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md).
+
 ---
 
 ### 3.3 Skill Library
@@ -77,6 +80,9 @@ Examples:
 Rule:
 
 One Skill = One Responsibility.
+
+Every Skill package follows the
+[AI Skill Specification](../specifications/AI_SKILL_SPECIFICATION.md).
 
 ---
 
@@ -144,6 +150,10 @@ Business logic belongs to Skills.
 Reusable knowledge belongs to the Knowledge Base.
 
 Quality control belongs to Evaluation and Reflection.
+
+The contracts for artifact metadata, versions, Knowledge dependencies,
+evaluation, and reflection are indexed in the
+[Specification Registry](../specifications/README.md).
 
 ---
 

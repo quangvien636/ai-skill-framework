@@ -24,4 +24,12 @@ v0.1
 
 ## Status
 
-?? Under Development
+Under Development
+
+## Documentation
+
+- [Project Context](PROJECT_CONTEXT.md)
+- [System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)
+- [Design Principles](docs/principles/DESIGN_PRINCIPLES.md)
+- [Knowledge Architecture](docs/architecture/KNOWLEDGE_ARCHITECTURE.md)
+- [AI Skill Framework Specifications](docs/specifications/README.md)

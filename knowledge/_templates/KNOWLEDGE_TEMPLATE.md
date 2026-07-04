@@ -5,7 +5,7 @@
 - **Category:** `<category>`
 - **Domain:** `<domain>`
 - **Topic:** `<topic>`
-- **Version:** 0.1
+- **Version:** 0.1.0
 - **Last updated:** YYYY-MM-DD
 
 ## Summary
@@ -77,4 +77,4 @@ on external claims.
 
 | Version | Date | Description |
 | --- | --- | --- |
-| 0.1 | YYYY-MM-DD | Initial draft |
+| 0.1.0 | YYYY-MM-DD | Initial draft |

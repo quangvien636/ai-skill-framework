@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,10 +88,11 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 2 - Knowledge Architecture**. The focus is establishing
-the scalable hierarchy, taxonomy, document contract, discovery index, and naming
-rules for reusable knowledge. See `PROJECT_TRACKER.md` for current progress and
-`docs/architecture/KNOWLEDGE_ARCHITECTURE.md` for the detailed design.
+The project is in **Sprint 3 - AI Skill Specification**. The focus is establishing
+the normative contracts for Skills, Workflows, Knowledge dependencies,
+evaluation, reflection, artifact metadata, naming, and version compatibility.
+See `PROJECT_TRACKER.md` for progress and `docs/specifications/README.md` for the
+canonical specification registry.
 
 ## Definition of Done
 
@@ -110,3 +111,4 @@ A change is complete when:
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established shared context and contributor rules |
 | 0.2 | 2026-07-04 | Set Sprint 2 Knowledge Architecture as current focus |
+| 0.3 | 2026-07-04 | Set Sprint 3 AI Skill Specification as current focus |
