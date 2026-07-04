@@ -1,382 +1,124 @@
-\# AI Skill Framework - Design Principles
-
-
+# AI Skill Framework - Design Principles
 
 Version: 0.1
+Status: Active
+Last updated: 2026-07-04
 
-Status: Draft
+## Purpose
 
+These principles govern the design and evolution of Skills, Workflows, the
+Knowledge Base, templates, quality engines, and the Master Skill. New work must
+follow them or document an explicit exception through an ADR.
 
+## 1. Repository Is the Source of Truth
 
-\---
+The version-controlled repository is the authoritative record for project
+context, architecture, decisions, implementation, knowledge, tests, and status.
+Conversation history and AI model memory are temporary inputs, not project state.
 
+**Implications:**
 
+- Durable decisions and knowledge must be committed to the repository.
+- Conflicts are resolved in favor of current repository documentation.
+- Significant architecture changes require an ADR.
 
-\# 1. Purpose
+## 2. Documentation First
 
+Documentation is part of the product. Define intent, boundaries, interfaces, and
+architectural impact before implementation. Update affected documentation in the
+same change set as implementation.
 
+Documentation First means creating enough clarity to guide a change; it does not
+mean producing speculative documentation for work that has not been selected.
 
-This document defines the core design principles of the AI Skill Framework.
+## 3. AI Models Are Contributors
 
+AI models read, propose, implement, and review changes under the same documented
+rules as other contributors. They do not own project context and cannot replace
+repository history with remembered conversation.
 
+AI-generated changes must remain inspectable, attributable through Git, and
+subject to human direction and review.
 
-Every component, including Skills, Workflows, Knowledge Base, Templates, and the Master Skill, must follow these principles.
+## 4. Master Skill Only Orchestrates
 
+The Master Skill stays thin. It understands the request, selects the workflow and
+skills, coordinates execution, combines outputs, and invokes quality checks.
 
+Specialized business logic, reusable domain knowledge, and deep task execution
+belong in Skills, the Knowledge Base, or dedicated engines, not in the Master
+Skill.
 
-These principles serve as the foundation for all future development.
+## 5. One Skill = One Responsibility
 
+Each Skill performs one cohesive capability with a clear input, output, and
+success criterion. A Skill should have one primary reason to change.
 
+A focused Research Skill or Review Skill is valid. A single Skill that researches,
+writes, reviews, and publishes is a workflow disguised as a Skill and must be
+decomposed.
 
-\---
+## 6. Separate Knowledge from Prompts
 
+Reusable facts, policies, examples, patterns, and domain guidance belong in the
+Knowledge Base. Prompts should contain only the focused instructions and context
+needed to perform a task.
 
+Skills reference shared knowledge rather than duplicating it. This separation
+makes knowledge versionable, reusable, reviewable, and independently testable.
 
-\# 2. Core Philosophy
+## 7. Separate Architectural Responsibilities
 
+- Workflows define execution order.
+- Skills perform specialized work.
+- The Knowledge Base supplies reusable knowledge.
+- The Evaluation Engine measures quality against explicit criteria.
+- The Reflection Engine identifies and applies improvements.
+- The Master Skill coordinates these components.
 
+No component should absorb another component's core responsibility.
 
-The framework is built around the following ideas:
+## 8. Design for Reuse and Composition
 
+Prefer composing existing focused components over duplicating logic or creating a
+larger component. Skills should be reusable across workflows, and workflows
+should express business processes by composing Skills.
 
+## 9. Make Quality Testable
 
-\* Modular
+Every reusable module must define its contract and quality expectations. As
+applicable, provide:
 
-\* Reusable
+- defined inputs and outputs;
+- validation and failure behavior;
+- examples and test cases;
+- a review checklist or quality rubric.
 
-\* Maintainable
+Evaluation checks quality; Reflection uses those findings to improve the result.
 
-\* Testable
+## 10. Evolve Through Explicit Decisions
 
-\* Scalable
+Use Git for every meaningful change and ADRs for significant architectural
+choices. Prefer small, coherent, reviewable changes. Improve the framework through
+the cycle:
 
-\* Consistent
+```text
+Plan -> Document -> Implement -> Evaluate -> Reflect -> Improve -> Release
+```
 
+## Decision Checklist
 
+Before accepting a design, confirm:
 
-The objective is to build a long-term framework rather than a collection of prompts.
+- Is it consistent with repository documentation and existing ADRs?
+- Is the Master Skill limited to orchestration?
+- Does each Skill have one responsibility?
+- Is reusable knowledge outside the prompt?
+- Are component boundaries and quality criteria testable?
+- Are affected documents and tracker entries current?
 
+## Revision History
 
-
-\---
-
-
-
-\# 3. Single Responsibility Principle
-
-
-
-Each Skill must perform only one responsibility.
-
-
-
-Examples:
-
-
-
-✓ Research Skill
-
-
-
-✓ Writing Skill
-
-
-
-✓ Coding Skill
-
-
-
-✓ Review Skill
-
-
-
-✗ One Skill that performs every task.
-
-
-
-\---
-
-
-
-\# 4. Separation of Responsibilities
-
-
-
-Responsibilities are divided into independent layers.
-
-
-
-\* Master Skill orchestrates.
-
-\* Workflow defines execution order.
-
-\* Skills perform specialized work.
-
-\* Knowledge Base stores reusable knowledge.
-
-\* Evaluation Engine measures quality.
-
-\* Reflection Engine improves results.
-
-
-
-No component should take over another component's responsibility.
-
-
-
-\---
-
-
-
-\# 5. Knowledge First
-
-
-
-Reusable knowledge must be stored in the Knowledge Base.
-
-
-
-Knowledge should never be duplicated across multiple Skills.
-
-
-
-Skills reference knowledge instead of embedding it.
-
-
-
-\---
-
-
-
-\# 6. Prompt Minimalism
-
-
-
-Prompts should remain concise and focused.
-
-
-
-Do not create one giant prompt containing all logic and knowledge.
-
-
-
-Complexity should be managed through architecture, not prompt length.
-
-
-
-\---
-
-
-
-\# 7. Reusability
-
-
-
-Every module should be reusable.
-
-
-
-A Skill should work across multiple Workflows.
-
-
-
-A Workflow should be able to reuse multiple Skills.
-
-
-
-Templates should be reusable across the entire framework.
-
-
-
-\---
-
-
-
-\# 8. Testability
-
-
-
-Every Skill must be testable.
-
-
-
-Minimum requirements:
-
-
-
-\* Defined input
-
-\* Expected output
-
-\* Test cases
-
-\* Review checklist
-
-\* Quality rubric
-
-
-
-\---
-
-
-
-\# 9. Documentation First
-
-
-
-Architecture decisions should be documented before implementation.
-
-
-
-Documentation is part of the product, not an afterthought.
-
-
-
-\---
-
-
-
-\# 10. Continuous Improvement
-
-
-
-Every release follows this cycle:
-
-
-
-Plan
-
-
-
-↓
-
-
-
-Implement
-
-
-
-↓
-
-
-
-Evaluate
-
-
-
-↓
-
-
-
-Reflect
-
-
-
-↓
-
-
-
-Improve
-
-
-
-↓
-
-
-
-Release
-
-
-
-The framework evolves continuously through feedback and testing.
-
-
-
-\---
-
-
-
-\# 11. Version Control
-
-
-
-Every meaningful change must be committed to Git.
-
-
-
-Major architectural decisions should be recorded using ADR (Architecture Decision Records).
-
-
-
-\---
-
-
-
-\# 12. Definition of Done
-
-
-
-A task is considered complete only when:
-
-
-
-\* Documentation is updated.
-
-\* The implementation follows the architecture.
-
-\* Review has been completed.
-
-\* Tests are available when applicable.
-
-\* Changes have been committed.
-
-\* Changes have been pushed to the remote repository.
-
-
-
-\---
-
-
-
-\# 13. Golden Rules
-
-
-
-1\. Architecture before implementation.
-
-2\. One Skill = One Responsibility.
-
-3\. Keep the Master Skill lightweight.
-
-4\. Reuse before creating new modules.
-
-5\. Keep knowledge centralized.
-
-6\. Evaluate every output.
-
-7\. Reflect before final delivery.
-
-8\. Design for long-term maintainability.
-
-9\. Document important decisions.
-
-10\. Improve continuously.
-
-
-
-\---
-
-
-
-\# Revision History
-
-
-
-| Version | Date       | Description               |
-
-| ------- | ---------- | ------------------------- |
-
-| 0.1     | 2026-07-04 | Initial Design Principles |
-
-
-
+| Version | Date | Description |
+| --- | --- | --- |
+| 0.1 | 2026-07-04 | Established the framework design principles |
