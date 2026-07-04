@@ -96,6 +96,12 @@ Examples:
 
 Knowledge should not be hard-coded into one giant prompt.
 
+Knowledge is organized by category, domain, topic, and focused knowledge
+document. The Knowledge Index provides discovery while the repository remains
+the authoritative source. See
+[Knowledge Architecture](KNOWLEDGE_ARCHITECTURE.md) for hierarchy, governance,
+lifecycle, and consumption rules.
+
 ---
 
 ### 3.5 Evaluation Engine
