@@ -22,6 +22,7 @@ from .diagnostics import (
     Severity,
     has_errors,
 )
+from .graph import detect_cycle
 from .metadata_ir import MetadataIR, extract_metadata_ir
 from .reference_ir import ReferenceIR, build_reference_ir
 from .skill_ir import FieldIR, build_fields
@@ -62,35 +63,6 @@ class WorkflowIR:
     outputs: dict[str, WorkflowOutputIR]
     error_handling: dict[str, Any]
     graph: dict[str, tuple[str, ...]]
-
-
-def _detect_cycle(graph: dict[str, tuple[str, ...]]) -> Optional[list[str]]:
-    """Return one cycle (list of step ids) if the depends_on graph has one."""
-    WHITE, GRAY, BLACK = 0, 1, 2
-    color: dict[str, int] = {node: WHITE for node in graph}
-    path: list[str] = []
-
-    def visit(node: str) -> Optional[list[str]]:
-        color[node] = GRAY
-        path.append(node)
-        for dependency in graph.get(node, ()):
-            if color.get(dependency) == GRAY:
-                cycle_start = path.index(dependency)
-                return path[cycle_start:] + [dependency]
-            if color.get(dependency) == WHITE:
-                result = visit(dependency)
-                if result is not None:
-                    return result
-        path.pop()
-        color[node] = BLACK
-        return None
-
-    for node in graph:
-        if color[node] == WHITE:
-            cycle = visit(node)
-            if cycle is not None:
-                return cycle
-    return None
 
 
 def build_workflow_ir(doc: dict[str, Any], artifact: str) -> tuple[Optional[WorkflowIR], list[Diagnostic]]:
@@ -180,7 +152,7 @@ def build_workflow_ir(doc: dict[str, Any], artifact: str) -> tuple[Optional[Work
             type=output_doc["type"], source=source, description=output_doc.get("description")
         )
 
-    cycle = _detect_cycle(graph)
+    cycle = detect_cycle(graph)
     if cycle is not None:
         diagnostics.append(
             Diagnostic(

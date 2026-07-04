@@ -2,7 +2,12 @@ import unittest
 
 import _bootstrap  # noqa: F401
 
-from asf_validator.version_ir import parse_version, parse_version_range
+from asf_validator.version_ir import (
+    parse_version,
+    parse_version_range,
+    range_is_self_contradictory,
+    version_satisfies_range,
+)
 
 
 class ParseVersionTests(unittest.TestCase):
@@ -49,6 +54,38 @@ class ParseVersionRangeTests(unittest.TestCase):
         version_range, error = parse_version_range("latest")
         self.assertIsNone(version_range)
         self.assertIsNotNone(error)
+
+
+class VersionSatisfiesRangeTests(unittest.TestCase):
+    def test_exact_pin_matches_only_itself(self):
+        version, _ = parse_version("1.4.2")
+        other, _ = parse_version("1.4.3")
+        version_range, _ = parse_version_range("1.4.2")
+        self.assertTrue(version_satisfies_range(version, version_range))
+        self.assertFalse(version_satisfies_range(other, version_range))
+
+    def test_comparator_range_bounds(self):
+        version_range, _ = parse_version_range(">=1.2.0 <2.0.0")
+        inside, _ = parse_version("1.5.0")
+        below, _ = parse_version("1.1.9")
+        at_upper_bound, _ = parse_version("2.0.0")
+        self.assertTrue(version_satisfies_range(inside, version_range))
+        self.assertFalse(version_satisfies_range(below, version_range))
+        self.assertFalse(version_satisfies_range(at_upper_bound, version_range))  # < is exclusive
+
+
+class RangeIsSelfContradictoryTests(unittest.TestCase):
+    def test_normal_range_is_not_contradictory(self):
+        version_range, _ = parse_version_range(">=1.2.0 <2.0.0")
+        self.assertFalse(range_is_self_contradictory(version_range))
+
+    def test_lower_bound_above_upper_bound_is_contradictory(self):
+        version_range, _ = parse_version_range(">=2.0.0 <1.0.0")
+        self.assertTrue(range_is_self_contradictory(version_range))
+
+    def test_exact_pin_is_never_contradictory(self):
+        version_range, _ = parse_version_range("1.0.0")
+        self.assertFalse(range_is_self_contradictory(version_range))
 
 
 if __name__ == "__main__":

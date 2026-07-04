@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.16
+Version: 0.17
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,14 +88,17 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 16 - Validator Roadmap Phase 2**. This is the
-first sprint to ship executable product code: `scripts/asf_validator/`
-implements typed IR adapters for Skill, Workflow, Knowledge, Evaluation,
-and Reflection, with a reusable loader/schema/IR/diagnostics pipeline,
-16/16 fixture cases (`scripts/build_ir.py`), and 30 passing unit tests
-(`tests/unit/`). The Sprint 8 validator prototype is unchanged (still
-10/10). See `PROJECT_TRACKER.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md`,
-and ADR-0009.
+The project is in **Sprint 17 - Validator Roadmap Phase 3 (Dependency
+Graph + Version Graph)**. Built on Sprint 16's IR adapters:
+`scripts/asf_validator/dependency_graph.py` and `version_graph.py`
+construct the Dependency Graph and Version Graph
+`docs/specifications/IR_SPECIFICATION.md` defines, detecting missing
+dependencies, reference cycles, duplicate artifact IDs, unsatisfiable
+version ranges, ambiguous version references, and deprecated/archived
+dependencies. 10/10 multi-artifact fixture scenarios
+(`scripts/build_graph.py`) and 53 passing unit tests (`tests/unit/`).
+Sprints 8 and 16's validators are unchanged (10/10 and 16/16). See
+`PROJECT_TRACKER.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md`, and ADR-0010.
 
 ## Definition of Done
 
@@ -128,3 +131,4 @@ A change is complete when:
 | 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |
 | 0.15 | 2026-07-04 | Set Sprint 15 AI Team Architecture as current focus |
 | 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters) |
+| 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |

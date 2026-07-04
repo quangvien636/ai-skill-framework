@@ -2,7 +2,8 @@
 
 Matches docs/architecture/CONTRACT_VALIDATION_ARCHITECTURE.md's diagnostic
 fields (code, severity, artifact, location, message, rule_reference,
-suggestion) and the ASF-PARSE-* prefix allocated by ADR-0009.
+suggestion), the ASF-PARSE-* prefix allocated by ADR-0009, and the
+ASF-GRAPH-* prefix allocated by ADR-0010.
 """
 
 from __future__ import annotations
@@ -43,3 +44,14 @@ PARSE_MISSING_KNOWLEDGE_SECTION = "ASF-PARSE-003"
 PARSE_UNRESOLVED_WORKFLOW_REFERENCE = "ASF-PARSE-004"
 PARSE_METADATA_ID_NAME_MISMATCH = "ASF-PARSE-005"
 PARSE_WORKFLOW_GRAPH_CYCLE = "ASF-PARSE-006"
+
+# ASF-GRAPH-* code allocations (ADR-0010). Cross-artifact Dependency Graph
+# and Version Graph diagnostics -- these fire after IR construction already
+# succeeded for each artifact individually.
+GRAPH_MISSING_DEPENDENCY = "ASF-GRAPH-001"
+GRAPH_REFERENCE_CYCLE = "ASF-GRAPH-002"
+GRAPH_DUPLICATE_ARTIFACT_ID = "ASF-GRAPH-003"
+GRAPH_VERSION_UNSATISFIABLE = "ASF-GRAPH-004"
+GRAPH_DEPRECATED_DEPENDENCY = "ASF-GRAPH-005"
+GRAPH_AMBIGUOUS_VERSION_REFERENCE = "ASF-GRAPH-006"
+GRAPH_SELF_CONTRADICTORY_RANGE = "ASF-GRAPH-007"

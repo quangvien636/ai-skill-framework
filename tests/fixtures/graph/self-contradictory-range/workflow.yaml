@@ -1,0 +1,29 @@
+schema_version: "1.0.0"
+id: "workflow:summarize-document"
+name: "summarize-document"
+display_name: "Summarize Document"
+description: "Invokes one summary Skill with a self-contradictory version range."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+entrypoint: "summarize"
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document text."
+steps:
+  - id: "summarize"
+    skill:
+      id: "skill:summarize-document"
+      version: ">=2.0.0 <1.0.0"
+    depends_on: []
+    input_mapping:
+      document: "workflow.inputs.document"
+    on_error: "fail"
+outputs:
+  summary:
+    type: "string"
+    from: "steps.summarize.outputs.summary"
+error_handling:
+  default: "fail"

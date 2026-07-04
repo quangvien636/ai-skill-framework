@@ -1,6 +1,6 @@
 # Contract Validator Roadmap
 
-Version: 0.4
+Version: 0.5
 Status: In Progress
 Last updated: 2026-07-04
 
@@ -89,25 +89,64 @@ Exit: source artifacts normalize into IR without mutation or execution.
 
 ### Phase 3 - Semantic Validators
 
-- Implement ID/path, weight sum, graph, mapping, routing, and version rules.
-- Assign stable diagnostic codes (`ASF-SEMANTIC-*`, already reserved in
-  `CLI_ARCHITECTURE.md`'s Diagnostics table).
+Status: **In Progress** — Dependency Graph and Version Graph construction
+done (Sprint 17, `scripts/asf_validator/{graph,dependency_graph,version_graph}.py`,
+ADR-0010); ID/path, weight-sum, mapping, and routing rules remain.
+
+**Done (Sprint 17):**
+
+- Built the Dependency Graph (`dependency_graph.py`): nodes from every
+  loaded Skill/Workflow/Knowledge IR, edges for Skill -> Knowledge,
+  Workflow step -> Skill, and Knowledge -> Knowledge (`related_knowledge`),
+  per `docs/specifications/IR_SPECIFICATION.md`'s node/edge shape.
+- Built the Version Graph (`version_graph.py`) on top of the Dependency
+  Graph: version-range satisfaction (`version_satisfies_range`, added to
+  `version_ir.py`), self-contradictory ranges, ambiguous version
+  references, and deprecated/archived dependency detection.
+- Factored cycle detection into a shared `graph.py` utility, reused by both
+  the Dependency Graph and the Sprint 16 Workflow IR adapter (no duplicated
+  cycle-detection logic).
+- Added the `ASF-GRAPH-*` diagnostic prefix (`CLI_ARCHITECTURE.md`) for
+  cross-artifact, graph-stage diagnostics, distinct from `ASF-PARSE-*`.
+- Added `scripts/build_graph.py` (10/10 multi-artifact fixture scenarios)
+  and 23 new `unittest` unit tests (53 total across all phases).
+
+**Assumptions and documented gaps** (ADR-0010):
+
+- Evaluation and Reflection are **not** Dependency/Version Graph nodes —
+  they have no `id` and are embedded fields of a Skill's IR, not
+  independent artifacts. Their graph edges "if specified" in an earlier
+  sprint's brief are not specified anywhere, so they are not built.
+- Skill `dependencies.runtime`/`.tools` references exist on the IR but are
+  **not** Dependency Graph edges, since no Runtime/Tool IR adapter exists
+  yet (`runtime/` is an empty placeholder; `tool` is not a defined artifact
+  kind).
+- Version comparison uses `(major, minor, patch)` only; SemVer 2.0.0
+  pre-release precedence is not implemented (no current fixture or
+  repository artifact uses a pre-release version).
+- `range_is_self_contradictory` is a coarse check: it catches a lower bound
+  exceeding an upper bound (`>=2.0.0 <1.0.0`) but not a range that excludes
+  every version by squeezing between two adjacent versions with no integer
+  triple between them (`>1.0.0 <1.0.1`).
+
+**Remaining:**
+
+- Implement ID/path, weight-sum, mapping, and routing rules.
+- Assign stable `ASF-SEMANTIC-*` diagnostic codes for those rules.
 - Add cross-rule tests.
-- Build the Dependency Graph and Version Graph
-  (`docs/specifications/IR_SPECIFICATION.md`) on top of the Phase 2
-  adapters' IR objects; this is the natural next consumer of
-  `scripts/asf_validator`.
-- Implement version-range satisfaction (`parse_version_range`'s
-  comparators currently structure a range but do not check whether a
-  given version satisfies it).
 
 Exit: all rules in Contract Validation Architecture are executable.
 
 ### Phase 4 - Repository Integrity
 
-- Resolve local artifact references and lifecycle.
+- Resolve local artifact references and lifecycle using the Sprint 17
+  Dependency Graph as the underlying structure, extended with real
+  filesystem discovery (Project Discovery, `CLI_ARCHITECTURE.md`) instead
+  of an explicit fixture list.
 - Validate Knowledge Index and package structure.
-- Check case collisions, links, and duplicate IDs.
+- Check case collisions, links, and duplicate IDs (duplicate-ID detection
+  already exists at the fixture-set level in `dependency_graph.py`; Phase 4
+  extends it to a full repository scan).
 
 Exit: repository-wide validation is deterministic and offline.
 
@@ -124,8 +163,10 @@ Exit: interfaces delegate to one tested core.
 The first implementation checkpoint validated a good Skill fixture and
 rejected one missing `responsibility` (Phase 1); Phase 2 extended this to
 building a typed `SkillIR` from that same fixture and rejecting one whose
-`id` does not match its `name`. Neither phase generates or executes an
-artifact.
+`id` does not match its `name` (Phase 2); Phase 3's graph work connects a
+Skill and a Knowledge document loaded together, detects that the Skill
+requires a Knowledge version range no loaded version satisfies, and reports
+`ASF-GRAPH-004` without generating or executing anything.
 
 ## References
 
@@ -137,6 +178,7 @@ artifact.
 - ADR-0002: Prototype Contract Validator
 - ADR-0005: Markdown Authoring Format, IR Internal Contract
 - ADR-0009: IR Adapter Package and Scope
+- ADR-0010: Dependency and Version Graph Scope
 
 ## Revision History
 
@@ -146,3 +188,4 @@ artifact.
 | 0.2 | 2026-07-04 | Closed Phase 1 with fixtures for all five standalone schemas |
 | 0.3 | 2026-07-04 | Aligned Phase 2 terminology with the Sprint 11 IR adapter concept |
 | 0.4 | 2026-07-04 | Closed Phase 2 with implemented IR adapters (Sprint 16, ADR-0009) |
+| 0.5 | 2026-07-04 | Phase 3 Dependency/Version Graph construction done (Sprint 17, ADR-0010); ID/path, weight-sum, mapping, routing rules remain |

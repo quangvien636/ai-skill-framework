@@ -1,0 +1,52 @@
+schema_version: "1.0.0"
+id: "skill:summarize-document"
+name: "summarize-document"
+display_name: "Summarize Document (duplicate)"
+description: "A second, conflicting definition of the same skill id."
+version: "1.1.0"
+status: "draft"
+owners: ["framework-maintainers"]
+tags: ["summarization"]
+responsibility: "Summarize one document without external research."
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document text."
+outputs:
+  summary:
+    type: "string"
+    required: true
+    description: "Bounded summary."
+dependencies:
+  runtime: []
+  tools: []
+  knowledge: []
+procedure:
+  - id: "summarize"
+    action: "Produce only the declared summary."
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation:
+  metrics:
+    - name: "accuracy"
+      description: "Claims match the input."
+      weight: 1.0
+      rubric:
+        "0": "Claims contradict input."
+        "50": "Some claims are unsupported."
+        "100": "All claims are supported."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 80
+    hard_gates: ["output-schema-valid"]
+  on_failure: "fail"
+reflection:
+  enabled: false
+  max_attempts: 0
+  minimum_improvement: 0
+  on_exhausted: "fail"
+  reflectable_hard_gates: []

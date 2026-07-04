@@ -1,6 +1,6 @@
 # CLI Architecture
 
-Version: 0.5
+Version: 0.6
 Status: Draft
 
 Last updated: 2026-07-04
@@ -281,6 +281,7 @@ group or filter without guessing intent:
 | Prefix | Owner |
 | --- | --- |
 | `ASF-PARSE-*` | IR adapter parse/normalization failures (before or during IR construction), IR Architecture (ADR-0009) |
+| `ASF-GRAPH-*` | Dependency Graph / Version Graph failures (cross-artifact, after IR construction succeeds), IR Specification (ADR-0010) |
 | `ASF-SCHEMA-*` | Structural (JSON Schema) validation, Contract Validation Architecture |
 | `ASF-SEMANTIC-*` | Semantic validation, Contract Validation Architecture |
 | `ASF-REPO-*` | Repository-integrity validation, Contract Validation Architecture |
@@ -315,6 +316,7 @@ contract.
 - [Template Registry](../../templates/README.md)
 - ADR-0007
 - ADR-0009
+- ADR-0010
 
 ## Revision History
 
@@ -325,3 +327,4 @@ contract.
 | 0.3 | 2026-07-04 | Added the Renderer extension point for the Generator Architecture |
 | 0.4 | 2026-07-04 | Added Command Registry, Plugin Discovery, Service Container, Workspace/Project/Template Discovery, Generator/Validator Integration, Exit Codes, and Diagnostics (ADR-0007) |
 | 0.5 | 2026-07-04 | Added the ASF-PARSE-* diagnostic prefix for IR adapters (ADR-0009) |
+| 0.6 | 2026-07-04 | Added the ASF-GRAPH-* diagnostic prefix for the Dependency/Version Graph (ADR-0010) |

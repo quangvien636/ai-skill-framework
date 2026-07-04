@@ -1,6 +1,6 @@
 # Intermediate Representation (IR) Specification
 
-Version: 0.1
+Version: 0.2
 Status: Active
 Last updated: 2026-07-04
 
@@ -126,6 +126,13 @@ for Knowledge edges, Workflow Architecture for step edges); the Dependency
 Graph itself only reports structure, not the resolution rule that made an
 edge invalid.
 
+Node kinds are exactly `skill:*`, `workflow:*`, `kb:*` — Evaluation and
+Reflection are not graph nodes (they have no `id` and are validated as
+fields embedded in a Skill's IR, not independent artifacts), and a Skill's
+`dependencies.runtime`/`.tools` references are not graph edges because no
+Runtime/Tool IR adapter exists yet. See ADR-0010 for the full resolution
+and its alternatives.
+
 ### Version Graph
 
 The Version Graph is a Graph IR built from every declared version
@@ -147,6 +154,11 @@ Consumers use it to:
 The Version Graph does not define compatibility rules itself; it applies
 the [Version Specification](VERSION_SPECIFICATION.md)'s existing rules
 across every known edge at once instead of one dependency at a time.
+
+Version-range satisfaction (`version_satisfies_range` in
+`scripts/asf_validator/version_ir.py`) compares `(major, minor, patch)`
+only; SemVer pre-release precedence is not implemented (ADR-0010, a
+documented simplification, not a silent gap).
 
 ## Examples
 
@@ -170,9 +182,11 @@ an error, not a warning.
 - [Workflow Architecture](../architecture/WORKFLOW_ARCHITECTURE.md)
 - [Schema Registry](../../schemas/README.md)
 - ADR-0005
+- ADR-0010
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established the IR object model and graph-level constructs |
+| 0.2 | 2026-07-04 | Clarified Dependency/Version Graph node kinds and version-satisfaction scope (Sprint 17, ADR-0010) |

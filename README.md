@@ -75,17 +75,20 @@ python scripts/validate_contracts.py
 See the [Validation Guide](docs/guides/VALIDATION_GUIDE.md) and
 `docs/adr/ADR-0002-prototype-contract-validator.md` for scope and rationale.
 
-## IR Adapters
+## IR Adapters and Dependency/Version Graph
 
 `scripts/asf_validator/` turns a schema-validated Skill/Workflow/Knowledge/
 Evaluation/Reflection document into the typed IR object
-`docs/specifications/IR_SPECIFICATION.md` defines:
+`docs/specifications/IR_SPECIFICATION.md` defines, and builds the
+Dependency Graph / Version Graph across multiple loaded artifacts:
 
 ```bash
-python scripts/build_ir.py               # 16 fixture cases
-python -m unittest discover -s tests/unit  # 30 unit tests
+python scripts/build_ir.py                 # 16 IR fixture cases
+python scripts/build_graph.py              # 10 multi-artifact graph scenarios
+python -m unittest discover -s tests/unit  # 53 unit tests
 ```
 
-See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phase 2) and
-`docs/adr/ADR-0009-ir-adapter-package-and-scope.md` for scope, assumptions,
-and deferred work.
+See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),
+`docs/adr/ADR-0009-ir-adapter-package-and-scope.md`, and
+`docs/adr/ADR-0010-dependency-and-version-graph-scope.md` for scope,
+assumptions, and deferred work.

@@ -1,0 +1,82 @@
+{
+  "cases": [
+    {
+      "name": "valid-multi-artifact",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/valid-multi-artifact/skill.yaml" },
+        { "kind": "knowledge", "fixture": "tests/fixtures/graph/valid-multi-artifact/knowledge.md" },
+        { "kind": "workflow", "fixture": "tests/fixtures/graph/valid-multi-artifact/workflow.yaml" }
+      ],
+      "expected_codes": []
+    },
+    {
+      "name": "missing-dependency",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/missing-dependency/skill.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-001"]
+    },
+    {
+      "name": "unresolved-workflow-reference",
+      "artifacts": [
+        { "kind": "workflow", "fixture": "tests/fixtures/graph/unresolved-workflow-reference/workflow.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-001"]
+    },
+    {
+      "name": "cycle",
+      "artifacts": [
+        { "kind": "knowledge", "fixture": "tests/fixtures/graph/cycle/knowledge-a.md" },
+        { "kind": "knowledge", "fixture": "tests/fixtures/graph/cycle/knowledge-b.md" }
+      ],
+      "expected_codes": ["ASF-GRAPH-002"]
+    },
+    {
+      "name": "duplicate-id",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/duplicate-id/skill-1.yaml" },
+        { "kind": "skill", "fixture": "tests/fixtures/graph/duplicate-id/skill-2.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-003"]
+    },
+    {
+      "name": "version-unsatisfiable",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/version-unsatisfiable/skill.yaml" },
+        { "kind": "workflow", "fixture": "tests/fixtures/graph/version-unsatisfiable/workflow.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-004"]
+    },
+    {
+      "name": "ambiguous-version",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/ambiguous-version/skill.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-001", "ASF-GRAPH-006"]
+    },
+    {
+      "name": "deprecated-dependency",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/deprecated-dependency/skill.yaml" },
+        { "kind": "knowledge", "fixture": "tests/fixtures/graph/deprecated-dependency/knowledge.md" }
+      ],
+      "expected_codes": ["ASF-GRAPH-005"]
+    },
+    {
+      "name": "self-contradictory-range",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/self-contradictory-range/skill.yaml" },
+        { "kind": "workflow", "fixture": "tests/fixtures/graph/self-contradictory-range/workflow.yaml" }
+      ],
+      "expected_codes": ["ASF-GRAPH-007"]
+    },
+    {
+      "name": "archived-dependency-required",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/graph/archived-dependency-required/skill.yaml" },
+        { "kind": "knowledge", "fixture": "tests/fixtures/graph/archived-dependency-required/knowledge.md" }
+      ],
+      "expected_codes": ["ASF-GRAPH-005"]
+    }
+  ]
+}

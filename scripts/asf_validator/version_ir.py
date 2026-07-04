@@ -1,13 +1,18 @@
-"""Version IR: parse SemVer and version-range strings into structured values.
+"""Version IR: parse SemVer and version-range strings into structured values,
+and (Sprint 17 / Phase 3) check whether a version satisfies a range.
 
 Not a standalone file adapter -- Version has no source file of its own
 (docs/guides/VALIDATION_GUIDE.md's Schema Selection table). These are pure,
-reusable functions the Skill and Workflow adapters call wherever a version
-or version-range string appears (ADR-0009).
+reusable functions the Skill and Workflow adapters, and the Version Graph,
+call wherever a version or version-range string appears (ADR-0009).
 
-Resolving whether a given exact version satisfies a range is Validator
-Roadmap Phase 3 ("version rules") and is intentionally not implemented here;
-this module only parses and structures the strings schemas already validate.
+Version comparison uses (major, minor, patch) only -- SemVer 2.0.0's
+pre-release precedence algorithm is not implemented, a documented
+simplification (ADR-0010). `range_is_self_contradictory` is a coarse check:
+it catches a lower bound exceeding an upper bound (e.g. ">=2.0.0 <1.0.0")
+but does not detect a range that excludes every version by squeezing
+between two adjacent versions with no integer triple between them (e.g.
+">1.0.0 <1.0.1"); that is out of scope for this sprint.
 """
 
 from __future__ import annotations
@@ -81,3 +86,45 @@ def parse_version_range(raw: str) -> tuple[Optional[VersionRangeIR], Optional[st
     if not comparators:
         return None, f"'{raw}' is not a valid version or comparator range."
     return VersionRangeIR(raw=raw, comparators=tuple(comparators)), None
+
+
+def _core(version: VersionIR) -> tuple[int, int, int]:
+    return (version.major, version.minor, version.patch)
+
+
+def _comparator_holds(operator: str, candidate: tuple[int, int, int], bound: tuple[int, int, int]) -> bool:
+    if operator == "=":
+        return candidate == bound
+    if operator == ">=":
+        return candidate >= bound
+    if operator == ">":
+        return candidate > bound
+    if operator == "<=":
+        return candidate <= bound
+    if operator == "<":
+        return candidate < bound
+    raise ValueError(f"unknown comparator operator: {operator!r}")  # pragma: no cover
+
+
+def version_satisfies_range(version: VersionIR, version_range: VersionRangeIR) -> bool:
+    """True if `version` satisfies every comparator in `version_range` (AND semantics)."""
+    candidate = _core(version)
+    return all(
+        _comparator_holds(c.operator, candidate, _core(c.version)) for c in version_range.comparators
+    )
+
+
+def range_is_self_contradictory(version_range: VersionRangeIR) -> bool:
+    """Coarse check: does this range's lower bound exceed its upper bound?
+
+    See this module's docstring for the precision this check does not cover.
+    """
+    lower_bounds = [
+        _core(c.version) for c in version_range.comparators if c.operator in (">=", ">", "=")
+    ]
+    upper_bounds = [
+        _core(c.version) for c in version_range.comparators if c.operator in ("<=", "<", "=")
+    ]
+    if not lower_bounds or not upper_bounds:
+        return False
+    return max(lower_bounds) > min(upper_bounds)
