@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.14
+Version: 0.15
 Status: Active
 Last updated: 2026-07-04
 
@@ -88,11 +88,13 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 14 - Repository Engineering Review**. This is a
-corrective pass, not new architecture: README navigation was regrouped, a
-broken relative link in the Generator Architecture was fixed, and Validator
-Roadmap / Validation Guide terminology was aligned with the Sprint 11 IR.
-See `PROJECT_TRACKER.md`.
+The project is in **Sprint 15 - AI Team Architecture**. The focus is `.ai/`:
+seven contributor roles (Chief Architect, Principal Engineer, Framework
+Engineer, Quality Engineer, Test Engineer, Documentation Engineer,
+Automation Engineer), the Sprint Workflow and Handover playbooks,
+collaboration standards, and human/AI decision rights — governance
+documentation, not executable Skills. See `PROJECT_TRACKER.md`,
+`.ai/README.md`, and ADR-0008.
 
 ## Definition of Done
 
@@ -123,3 +125,4 @@ A change is complete when:
 | 0.12 | 2026-07-04 | Set Sprint 12 Generator Engine architecture as current focus |
 | 0.13 | 2026-07-04 | Set Sprint 13 CLI Design Expansion as current focus |
 | 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |
+| 0.15 | 2026-07-04 | Set Sprint 15 AI Team Architecture as current focus |

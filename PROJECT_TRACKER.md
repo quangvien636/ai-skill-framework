@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.14
+Version: 0.15
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,37 +12,37 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 14 - Repository Engineering Review**
+**Sprint 15 - AI Team Architecture**
 
-Goal: a corrective, non-additive pass across the documents Sprints 8-13
-produced: terminology, ADR cross-links, navigation, duplication, and broken
-references.
+Goal: document human/AI collaboration on this repository itself — roles,
+playbooks, standards, and governance — under `.ai/`, as governance
+documentation rather than executable Skills.
 
 Status: **Completed**
 
-### Sprint 14 Backlog
+### Sprint 15 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Verify every ADR is referenced and every ADR reference resolves | Done | Repository-wide `ADR-\d{4}` grep against `docs/adr/` |
-| Restructure README navigation into Foundation/Architecture/Specifications/Validation groups; add missing Skill/Workflow/Evaluation/Reflection/CLI/Generator/IR links | Done | `README.md` |
-| Align Validator Roadmap Phase 2 and its Adapter definition with the Sprint 11 IR adapter term | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md` |
-| Cross-link the Validation Guide to the IR Architecture and ADR-0005 | Done | `docs/guides/VALIDATION_GUIDE.md` |
-| Scan every Markdown file for broken relative links/anchors; fix the one found | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` (bad relative path to `IR_SPECIFICATION.md`) |
-| Spot-check extension-point tables across CLI/Generator/Template Engine architectures for drift | Done | No drift found |
+| Define seven roles (responsibility, inputs, outputs, one decision right, boundaries) | Done | `.ai/roles/*.md` |
+| Define the Sprint Workflow and Handover playbooks | Done | `.ai/playbooks/SPRINT_WORKFLOW.md`, `.ai/playbooks/HANDOVER.md` |
+| Define collaboration standards (ADR/tracker ownership, review gates) | Done | `.ai/standards/COLLABORATION_STANDARDS.md` |
+| Define human vs. AI decision rights, consistent with ADR-0001 | Done | `.ai/governance/DECISION_RIGHTS.md` |
+| Record the documentation-not-executable boundary decision | Done | `docs/adr/ADR-0008-ai-team-is-documentation-not-executable.md` |
+| Add `.ai/README.md` index and link it from the repository README | Done | `.ai/README.md`, `README.md` |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-### Sprint 14 Exit Criteria
+### Sprint 15 Exit Criteria
 
-- No dangling ADR reference; every existing ADR is linked from at least one
-  architecture document.
-- README's Documentation section reaches every Sprint 1-13 architecture
-  document directly or via one clearly named hop.
-- No broken relative Markdown link or heading anchor remains in `docs/`,
-  `README.md`, `templates/`, or `schemas/`.
-- Validator Roadmap and Validation Guide terminology agrees with the IR
-  Architecture (ADR-0005) without deleting the "normalized model" synonym.
-- No new architecture is introduced this sprint; changes are corrective only.
+- Every role names one responsibility, its inputs/outputs, exactly one
+  decision right, and explicit boundaries against the roles it could
+  overlap with.
+- No role has a `skill.yaml` or is referenced from a Workflow step or the
+  Dependency Graph.
+- The documentation-vs-executable boundary is recorded in an ADR that does
+  not contradict ADR-0001.
+- `.ai/README.md`'s links all resolve to files actually created.
+- Review passes and Sprint 15 is pushed to `main`.
 - Review passes and Sprint 14 is pushed to `main`.
 - No CLI implementation is added.
 - Review passes and Sprint 13 is pushed to `main`.
@@ -70,6 +70,7 @@ sprint indefinitely.
 | 12 | Generator Engine Architecture | `docs/architecture/GENERATOR_ARCHITECTURE.md`, ADR-0006 |
 | 13 | CLI Design Expansion | `docs/architecture/CLI_ARCHITECTURE.md` v0.4, ADR-0007 |
 | 14 | Repository Engineering Review | README navigation rework, broken-link fix, IR terminology alignment |
+| 15 | AI Team Architecture | `.ai/roles/`, `.ai/playbooks/`, `.ai/standards/`, `.ai/governance/`, ADR-0008 |
 
 ## Risks and Guardrails
 
@@ -84,19 +85,21 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Design the AI Team Architecture (`.ai/`): roles, playbooks, standards,
-   and governance for human/AI collaboration on this repository.
-2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown IR
+1. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown IR
    adapters with preserved source locations.
-3. Extend the fixture-conformance script toward Phase 3 semantic validators
+2. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
-4. When a CLI implementation sprint starts, choose and record its language
+3. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
-5. When a Generator implementation sprint starts, build the Dependency
+4. When a Generator implementation sprint starts, build the Dependency
    Graph / Version Graph construction the IR Specification describes.
-6. Add a lightweight link/anchor check to the fixture-conformance script (or
+5. Add a lightweight link/anchor check to the fixture-conformance script (or
    a sibling script) so Sprint 14's manual broken-link scan does not need to
-   be repeated by hand every sprint.
+   be repeated by hand every sprint — an Automation Engineer task per
+   `.ai/roles/AUTOMATION_ENGINEER.md`.
+6. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+   convention needs a lighter-weight mechanical check (e.g., an ADR
+   "Status" field the validator confirms is one of the allowed values).
 
 ## Revision History
 
@@ -116,3 +119,4 @@ sprint indefinitely.
 | 0.12 | 2026-07-04 | Completed Sprint 12 Generator Engine architecture |
 | 0.13 | 2026-07-04 | Completed Sprint 13 CLI Design Expansion |
 | 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |
+| 0.15 | 2026-07-04 | Completed Sprint 15 AI Team Architecture |

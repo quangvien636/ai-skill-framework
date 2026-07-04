@@ -35,6 +35,7 @@ Under Development
 - [Design Principles](docs/principles/DESIGN_PRINCIPLES.md)
 - [Naming Convention](docs/principles/NAMING_CONVENTION.md)
 - [Architecture Decision Records](docs/adr/) (start at `ADR-0001-repository-is-the-source-of-truth.md`)
+- [AI Team](.ai/README.md) (roles, playbooks, standards, governance)
 
 ### Architecture
 
