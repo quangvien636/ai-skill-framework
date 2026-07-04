@@ -1,6 +1,6 @@
 # Contract Validator Roadmap
 
-Version: 0.2
+Version: 0.3
 Status: In Progress
 Last updated: 2026-07-04
 
@@ -18,7 +18,9 @@ language are intentionally undecided.
 
 - **Core:** tool-neutral validation library.
 - **Fixture:** valid or invalid artifact with expected diagnostics.
-- **Adapter:** parser/normalizer for one source format.
+- **IR adapter:** parser/normalizer for one source format, producing the
+  [Intermediate Representation](../architecture/IR_ARCHITECTURE.md) shared
+  by the Validator, Generator, CLI, and future Runtime (see ADR-0005).
 
 ## Design
 
@@ -39,13 +41,15 @@ repository artifacts (see the Validation Guide's Schema Selection table).
 
 Exit: each schema has representative automated conformance cases.
 
-### Phase 2 - Parser and Normalization Adapters
+### Phase 2 - IR Adapters (Parser and Normalization)
 
-- Add safe YAML adapters for Skill and Workflow manifests.
-- Add a deterministic Knowledge Markdown adapter.
-- Preserve source locations for diagnostics.
+- Add safe YAML IR adapters for Skill and Workflow manifests.
+- Add a deterministic Knowledge Markdown IR adapter.
+- Preserve source locations for diagnostics, per the
+  [IR Architecture](../architecture/IR_ARCHITECTURE.md)'s Parser and
+  Normalization Strategy.
 
-Exit: source artifacts normalize without mutation or execution.
+Exit: source artifacts normalize into IR without mutation or execution.
 
 ### Phase 3 - Semantic Validators
 
@@ -79,9 +83,11 @@ reject one missing `responsibility`; it should not generate or execute either.
 ## References
 
 - [Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
+- [IR Architecture](../architecture/IR_ARCHITECTURE.md)
 - [Validation Guide](../guides/VALIDATION_GUIDE.md)
 - [Schema Registry](../../schemas/README.md)
 - ADR-0002: Prototype Contract Validator
+- ADR-0005: Markdown Authoring Format, IR Internal Contract
 
 ## Revision History
 
@@ -89,3 +95,4 @@ reject one missing `responsibility`; it should not generate or execute either.
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established phased validator implementation roadmap |
 | 0.2 | 2026-07-04 | Closed Phase 1 with fixtures for all five standalone schemas |
+| 0.3 | 2026-07-04 | Aligned Phase 2 terminology with the Sprint 11 IR adapter concept |

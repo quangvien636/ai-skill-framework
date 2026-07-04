@@ -1,6 +1,6 @@
 # Contract Validation Guide
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-04
 
@@ -94,10 +94,12 @@ fail semantic validation because their sum is not `1.0`.
 ## References
 
 - [Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md)
+- [IR Architecture](../architecture/IR_ARCHITECTURE.md)
 - [Schema Registry](../../schemas/README.md)
 - [Validator Roadmap](../roadmaps/VALIDATOR_ROADMAP.md)
 - [Version Specification](../specifications/VERSION_SPECIFICATION.md)
 - ADR-0002: Prototype Contract Validator
+- ADR-0005: Markdown Authoring Format, IR Internal Contract
 
 ## Revision History
 
@@ -105,3 +107,4 @@ fail semantic validation because their sum is not `1.0`.
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established validation usage and review guidance |
 | 0.2 | 2026-07-04 | Documented the Sprint 8 fixture-conformance prototype |
+| 0.3 | 2026-07-04 | Cross-linked the IR Architecture (normalized object = IR, per ADR-0005) |

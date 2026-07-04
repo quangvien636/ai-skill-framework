@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.13
+Version: 0.14
 Status: Active
 Last updated: 2026-07-04
 
@@ -12,37 +12,38 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 13 - CLI Design Expansion**
+**Sprint 14 - Repository Engineering Review**
 
-Goal: extend the CLI Architecture with the concrete Command Registry,
-Plugin Discovery, Service Container, Workspace/Project/Template Discovery,
-Generator/Validator Integration, Exit Codes, and Diagnostics mechanics,
-without implementing a CLI.
+Goal: a corrective, non-additive pass across the documents Sprints 8-13
+produced: terminology, ADR cross-links, navigation, duplication, and broken
+references.
 
 Status: **Completed**
 
-### Sprint 13 Backlog
+### Sprint 14 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Add Command Registry and Plugin Discovery | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Formalize the Service Container | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Add Workspace, Project, and Template Discovery | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Add Generator and Validator Integration | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Add a concrete Exit Codes table and Diagnostics code-prefix allocation | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Record the workspace-root marker-file decision | Done | `docs/adr/ADR-0007-workspace-discovery-marker-files.md` |
+| Verify every ADR is referenced and every ADR reference resolves | Done | Repository-wide `ADR-\d{4}` grep against `docs/adr/` |
+| Restructure README navigation into Foundation/Architecture/Specifications/Validation groups; add missing Skill/Workflow/Evaluation/Reflection/CLI/Generator/IR links | Done | `README.md` |
+| Align Validator Roadmap Phase 2 and its Adapter definition with the Sprint 11 IR adapter term | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md` |
+| Cross-link the Validation Guide to the IR Architecture and ADR-0005 | Done | `docs/guides/VALIDATION_GUIDE.md` |
+| Scan every Markdown file for broken relative links/anchors; fix the one found | Done | `docs/architecture/GENERATOR_ARCHITECTURE.md` (bad relative path to `IR_SPECIFICATION.md`) |
+| Spot-check extension-point tables across CLI/Generator/Template Engine architectures for drift | Done | No drift found |
 | Review, commit, and push | Done | Git history and `origin/main` |
 
-### Sprint 13 Exit Criteria
+### Sprint 14 Exit Criteria
 
-- CLI Architecture defines a concrete, deterministic build order for the
-  Service Container (Configuration -> Workspace Discovery -> Plugin
-  Discovery -> Command Registry -> extension-point instantiation).
-- Workspace Discovery's marker-file decision is recorded in an ADR.
-- Generator/Validator Integration sections add no logic beyond argument
-  parsing and Reporter output — they delegate to the Generator and Contract
-  Validation architectures.
-- Exit Codes and Diagnostics are concrete tables, not prose only.
+- No dangling ADR reference; every existing ADR is linked from at least one
+  architecture document.
+- README's Documentation section reaches every Sprint 1-13 architecture
+  document directly or via one clearly named hop.
+- No broken relative Markdown link or heading anchor remains in `docs/`,
+  `README.md`, `templates/`, or `schemas/`.
+- Validator Roadmap and Validation Guide terminology agrees with the IR
+  Architecture (ADR-0005) without deleting the "normalized model" synonym.
+- No new architecture is introduced this sprint; changes are corrective only.
+- Review passes and Sprint 14 is pushed to `main`.
 - No CLI implementation is added.
 - Review passes and Sprint 13 is pushed to `main`.
 
@@ -68,6 +69,7 @@ sprint indefinitely.
 | 11 | Intermediate Representation (IR) | `docs/architecture/IR_ARCHITECTURE.md`, `docs/specifications/IR_SPECIFICATION.md`, ADR-0005 |
 | 12 | Generator Engine Architecture | `docs/architecture/GENERATOR_ARCHITECTURE.md`, ADR-0006 |
 | 13 | CLI Design Expansion | `docs/architecture/CLI_ARCHITECTURE.md` v0.4, ADR-0007 |
+| 14 | Repository Engineering Review | README navigation rework, broken-link fix, IR terminology alignment |
 
 ## Risks and Guardrails
 
@@ -82,19 +84,19 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Perform a Repository Engineering Review (next sprint): terminology
-   normalization, ADR cross-link audit, navigation, and duplication check
-   across the documents Sprints 8-13 added.
-2. Design the AI Team Architecture (`.ai/`): roles, playbooks, standards,
+1. Design the AI Team Architecture (`.ai/`): roles, playbooks, standards,
    and governance for human/AI collaboration on this repository.
-3. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown
-   normalization (IR) adapters with preserved source locations.
-4. Extend the fixture-conformance script toward Phase 3 semantic validators
+2. Begin Validator Roadmap Phase 2: safe YAML and Knowledge Markdown IR
+   adapters with preserved source locations.
+3. Extend the fixture-conformance script toward Phase 3 semantic validators
    (weight sums, graph acyclicity, ID/path agreement) once adapters exist.
-5. When a CLI implementation sprint starts, choose and record its language
+4. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`.
-6. When a Generator implementation sprint starts, build the Dependency
+5. When a Generator implementation sprint starts, build the Dependency
    Graph / Version Graph construction the IR Specification describes.
+6. Add a lightweight link/anchor check to the fixture-conformance script (or
+   a sibling script) so Sprint 14's manual broken-link scan does not need to
+   be repeated by hand every sprint.
 
 ## Revision History
 
@@ -113,3 +115,4 @@ sprint indefinitely.
 | 0.11 | 2026-07-04 | Completed Sprint 11 IR; consolidated sprint history table |
 | 0.12 | 2026-07-04 | Completed Sprint 12 Generator Engine architecture |
 | 0.13 | 2026-07-04 | Completed Sprint 13 CLI Design Expansion |
+| 0.14 | 2026-07-04 | Completed Sprint 14 Repository Engineering Review |

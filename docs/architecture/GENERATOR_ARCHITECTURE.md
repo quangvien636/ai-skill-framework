@@ -83,7 +83,7 @@ to the registry makes it resolvable without Generator changes.
 
 When a generation request declares references (a Skill's `dependencies`, a
 Workflow step's `skill`), the Generator MUST resolve them against the
-[Dependency Graph](IR_SPECIFICATION.md#dependency-graph) before finalizing
+[Dependency Graph](../specifications/IR_SPECIFICATION.md#dependency-graph) before finalizing
 the plan: a required reference to a nonexistent or archived ID is a request
 error, not a warning. The Generator does not implement its own reference
 resolution — it queries the same Dependency Graph the Validator and future
