@@ -1,0 +1,4 @@
+# mcp_tools adapter dependencies. Pinned to the v1 API surface per ADR-0013;
+# v2 (stable 2026-07-27) renames FastMCP to MCPServer and is tracked as a
+# separate migration, not adopted here.
+mcp>=1.27,<2

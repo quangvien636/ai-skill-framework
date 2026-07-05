@@ -81,17 +81,27 @@ LangGraph-native object and drives it with LangGraph's own `.invoke()` /
 
 ```python
 class ToolBinding(Protocol):
-    def bind(self, tool: ToolIR, connector: ConnectorIR | None) -> None: ...
+    def bind(
+        self,
+        tool: ToolIR,
+        handler: ToolHandler,
+        connector: ConnectorIR | None = None,
+    ) -> None: ...
 ```
 
-Takes a validated `ToolIR` (and its resolved `ConnectorIR`, if the tool
-declares one) and registers it against a running MCP server/client. The
-`mcp_tools` adapter implements this by generating an `@mcp.tool()`-decorated
-function whose signature and JSON-schema come from `ToolIR.inputs` /
-`ToolIR.outputs`, and whose connection/auth setup comes from
-`ConnectorIR.authentication` / `ConnectorIR.configuration`. The adapter never
-defines a tool's operation outside of what the Tool contract already
-declares — it binds, it does not invent behavior.
+Takes a validated `ToolIR`, a caller-supplied `handler` (the tool's actual
+operation — ASF Tool contracts are declarative only and never contain one,
+per `TOOL_CONNECTOR_ARCHITECTURE.md`), and its resolved `ConnectorIR` if the
+tool declares one. The `mcp_tools` adapter implements this by translating
+`ToolIR.inputs` / `ToolIR.outputs` into an MCP wire-level `types.Tool`
+(name, description, `inputSchema`, `outputSchema`) and dispatching
+`call_tool` requests to the bound handler. `ConnectorIR.authentication` /
+`ConnectorIR.configuration` are carried alongside the binding for a deployer
+to wire into MCP's own auth primitives (`TokenVerifier`,
+`OAuthAuthorizationServerProvider`); establishing a live connection is a
+deployment concern this adapter does not perform. The adapter never defines
+a tool's operation itself — it binds shape to behavior, it does not invent
+the behavior.
 
 #### `KnowledgeRetriever`
 
