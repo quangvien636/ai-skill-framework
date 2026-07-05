@@ -1,0 +1,14 @@
+schema_version: "1.0.0"
+id: "runtime:missing-req"
+name: "missing-req"
+display_name: "Missing Req"
+description: "Missing req"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Missing"
+execution_profile: "sync"
+model:
+  enabled: false
+# missing retriever, tools, publisher, timeout_policy, retry_policy,
+# safety_profile, audit_profile, concurrency_profile, fallback_profile

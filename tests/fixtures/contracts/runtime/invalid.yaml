@@ -1,0 +1,14 @@
+schema_version: "1.0.0"
+id: "runtime:invalid"
+name: "invalid"
+display_name: "Invalid Runtime"
+description: "Invalid"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Invalid"
+execution_profile: "sync"
+model:
+  enabled: false
+# missing retriever, tools, publisher, timeout_policy, retry_policy,
+# safety_profile, audit_profile, concurrency_profile, fallback_profile

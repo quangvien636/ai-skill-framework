@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/runtime.schema.json",
+  "title": "Runtime Contract Manifest",
+  "description": "Machine-readable contract for runtime/<runtime-name>/runtime.yaml (or contracts/runtime/<runtime-name>/runtime.yaml). Binds a Skill to the model, retriever, tools, and publisher it needs, plus operational policy. Declarative only -- see ADR-0014.",
+  "allOf": [{ "$ref": "metadata.schema.json#/$defs/commonArtifact" }],
+  "type": "object",
+  "required": [
+    "responsibility",
+    "execution_profile",
+    "model",
+    "retriever",
+    "tools",
+    "publisher",
+    "timeout_policy",
+    "retry_policy",
+    "safety_profile",
+    "audit_profile",
+    "concurrency_profile",
+    "fallback_profile"
+  ],
+  "properties": {
+    "schema_version": true,
+    "id": {
+      "type": "string",
+      "pattern": "^runtime:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "name": true,
+    "display_name": true,
+    "description": true,
+    "version": true,
+    "status": true,
+    "owners": true,
+    "tags": true,
+    "responsibility": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Runtime Contract's single observable binding responsibility."
+    },
+    "execution_profile": {
+      "type": "string",
+      "enum": ["sync", "async", "streaming", "batch"],
+      "description": "Declarative execution mode label. Carries no scheduler behavior."
+    },
+    "model": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "provider": {
+          "type": "string",
+          "enum": ["openai", "anthropic", "google", "ollama"]
+        },
+        "model": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object", "default": {} },
+        "endpoint": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false,
+      "description": "Inline declarative model descriptor. No model: artifact kind exists to reference (ADR-0014)."
+    },
+    "retriever": {
+      "type": "object",
+      "required": ["enabled", "knowledge"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "knowledge": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "version", "required", "purpose"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^kb:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+:(?:[a-z0-9]+-?)+$"
+              },
+              "version": { "$ref": "version.schema.json#/$defs/versionRange" },
+              "required": { "type": "boolean" },
+              "purpose": { "type": "string", "minLength": 1 },
+              "sections": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "similarity_top_k": { "type": "integer", "minimum": 1, "default": 5 }
+      },
+      "additionalProperties": false,
+      "description": "knowledge references real, resolvable Knowledge artifacts (Dependency Graph edge runtime-knowledge)."
+    },
+    "tools": {
+      "type": "object",
+      "required": ["enabled", "refs"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "metadata.schema.json#/$defs/versionedReference" }
+        }
+      },
+      "additionalProperties": false,
+      "description": "refs reference real, resolvable Tool artifacts (Dependency Graph edge runtime-tool)."
+    },
+    "publisher": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "target": {
+          "type": "string",
+          "enum": ["youtube", "tiktok", "facebook", "wordpress", "markdown"]
+        },
+        "metadata": { "type": "object", "default": {} }
+      },
+      "additionalProperties": false,
+      "description": "Inline declarative export descriptor. No publisher: artifact kind exists to reference (ADR-0014)."
+    },
+    "timeout_policy": {
+      "type": "object",
+      "required": ["timeout_seconds", "on_timeout"],
+      "properties": {
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "on_timeout": { "type": "string", "enum": ["fail", "retry", "fallback"] }
+      },
+      "additionalProperties": false
+    },
+    "retry_policy": {
+      "type": "object",
+      "required": ["max_attempts", "backoff"],
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "backoff": { "type": "string", "enum": ["none", "fixed", "exponential"] }
+      },
+      "additionalProperties": false
+    },
+    "safety_profile": {
+      "type": "object",
+      "required": ["content_filter"],
+      "properties": {
+        "content_filter": { "type": "string", "enum": ["none", "standard", "strict"] },
+        "blocked_terms": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "audit_profile": {
+      "type": "object",
+      "required": ["log_level"],
+      "properties": {
+        "log_level": { "type": "string", "enum": ["none", "basic", "detailed"] },
+        "redact_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "concurrency_profile": {
+      "type": "object",
+      "required": ["max_parallel_steps", "max_parallel_tool_calls"],
+      "properties": {
+        "max_parallel_steps": { "type": "integer", "minimum": 1 },
+        "max_parallel_tool_calls": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "fallback_profile": {
+      "type": "object",
+      "required": ["enabled", "max_fallback_depth"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "fallback_runtime": { "$ref": "metadata.schema.json#/$defs/versionedReference" },
+        "max_fallback_depth": { "type": "integer", "minimum": 1, "maximum": 5 }
+      },
+      "additionalProperties": false,
+      "description": "fallback_runtime references another real, resolvable Runtime artifact (Dependency Graph edge runtime-runtime)."
+    }
+  },
+  "unevaluatedProperties": false,
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "runtime:simple",
+    "name": "simple",
+    "display_name": "Simple Runtime",
+    "description": "Minimal single-model runtime with no retriever, tools, or publisher.",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"],
+    "responsibility": "Bind a Skill to a single model with conservative operational policy.",
+    "execution_profile": "sync",
+    "model": {
+      "enabled": true,
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "parameters": { "temperature": 0.2 }
+    },
+    "retriever": { "enabled": false, "knowledge": [] },
+    "tools": { "enabled": false, "refs": [] },
+    "publisher": { "enabled": false },
+    "timeout_policy": { "timeout_seconds": 30, "on_timeout": "fail" },
+    "retry_policy": { "max_attempts": 1, "backoff": "none" },
+    "safety_profile": { "content_filter": "standard" },
+    "audit_profile": { "log_level": "basic" },
+    "concurrency_profile": { "max_parallel_steps": 1, "max_parallel_tool_calls": 1 },
+    "fallback_profile": { "enabled": false, "max_fallback_depth": 1 }
+  }]
+}

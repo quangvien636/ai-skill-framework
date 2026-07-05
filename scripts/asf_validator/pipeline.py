@@ -24,13 +24,23 @@ from .evaluation_ir import EvaluationIR, build_evaluation_ir
 from .knowledge_ir import build_knowledge_ir
 from .loader import load_json, load_markdown, load_yaml
 from .reflection_ir import ReflectionIR, build_reflection_ir
+from .runtime_ir import RuntimeIR, build_runtime_ir
 from .schema_registry import SchemaRegistry
 from .skill_ir import SkillIR, build_skill_ir
 from .tool_ir import ToolIR, build_tool_ir
 from .connector_ir import ConnectorIR, build_connector_ir
 from .workflow_ir import WorkflowIR, build_workflow_ir
 
-SUPPORTED_KINDS = ("skill", "workflow", "knowledge", "evaluation", "reflection", "tool", "connector")
+SUPPORTED_KINDS = (
+    "skill",
+    "workflow",
+    "knowledge",
+    "evaluation",
+    "reflection",
+    "tool",
+    "connector",
+    "runtime",
+)
 
 _SCHEMA_BY_KIND = {
     "skill": "skill.schema.json",
@@ -40,6 +50,7 @@ _SCHEMA_BY_KIND = {
     "reflection": "reflection.schema.json",
     "tool": "tool.schema.json",
     "connector": "connector.schema.json",
+    "runtime": "runtime.schema.json",
 }
 
 
@@ -64,7 +75,7 @@ def build_ir(kind: str, path: Path, schema_registry: SchemaRegistry) -> AdapterR
 
     if kind == "knowledge":
         return _build_knowledge(path, artifact, schema_registry, schema_name)
-    if kind in ("skill", "workflow", "tool", "connector"):
+    if kind in ("skill", "workflow", "tool", "connector", "runtime"):
         return _build_yaml_artifact(kind, path, artifact, schema_registry, schema_name)
     return _build_json_artifact(kind, path, artifact, schema_registry, schema_name)
 
@@ -90,6 +101,8 @@ def _build_yaml_artifact(
         ir, adapter_diagnostics = build_tool_ir(loaded.document, artifact)
     elif kind == "connector":
         ir, adapter_diagnostics = build_connector_ir(loaded.document, artifact)
+    elif kind == "runtime":
+        ir, adapter_diagnostics = build_runtime_ir(loaded.document, artifact)
     else:
         ir, adapter_diagnostics = build_workflow_ir(loaded.document, artifact)
     result.diagnostics.extend(adapter_diagnostics)

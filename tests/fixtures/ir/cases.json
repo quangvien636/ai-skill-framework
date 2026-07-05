@@ -1,6 +1,19 @@
 {
   "cases": [
     {
+      "name": "valid-runtime",
+      "fixture": "tests/fixtures/ir/runtime/valid.yaml",
+      "kind": "runtime",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-runtime",
+      "fixture": "tests/fixtures/ir/runtime/missing_required.yaml",
+      "kind": "runtime",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
       "name": "valid-connector",
       "fixture": "tests/fixtures/ir/connector/valid.yaml",
       "kind": "connector",
