@@ -39,8 +39,9 @@ scripts/asf_runtime/     # catalog, context, planning — no execution deps
 adapters/                # NEW: one package per reuse target, each importing exactly one external framework
   langgraph_runtime/     # ExecutionPlan -> StateGraph compiler
   mcp_tools/             # ToolIR/ConnectorIR -> MCP server tool/resource bindings
-  llamaindex_retrieval/  # Knowledge IR -> index/query engine
-  model_invokers/        # Skill runtime dependency -> provider SDK call (Anthropic, OpenAI, Ollama, ...)
+  llamaindex_retrieval/  # Knowledge IR -> retrieval configuration (compile half only)
+  model_invokers/        # declarative provider/model descriptors (compile half only)
+  publisher_adapters/    # declarative cross-platform export descriptors (compile half only)
 ```
 
 Each `adapters/<name>/` package:
@@ -56,9 +57,13 @@ Each `adapters/<name>/` package:
 
 ### Protocol Seams
 
-Four seams cover the excluded responsibilities from ADR-0013. Each is a
-`Protocol` owned by ASF (defined alongside the IR/models it takes as input),
-implemented by exactly one adapter package today.
+Five seams cover the excluded responsibilities from ADR-0013 plus the
+"Export planning" area ASF owns. Each is a `Protocol` owned by ASF (defined
+alongside the IR/models it takes as input), implemented by exactly one
+adapter package today. Three of the five (`KnowledgeRetriever`,
+`ModelInvoker`, `PublisherAdapter`) split into a compile half (implemented)
+and an execute half (deliberately not — out of scope for the milestone that
+introduced them).
 
 #### `PlanCompiler`
 
@@ -176,6 +181,40 @@ precedent). `ModelInvoker.invoke` — actually calling a provider — is
 unimplemented; when built, each provider's official SDK (or Ollama's local
 API) is the reuse target, never a hand-rolled HTTP client.
 
+#### `PublisherAdapter` (descriptor half implemented; publish half is not)
+
+A fifth seam, added for the "Export planning" area ASF owns
+(ADR-0013/PROJECT_TRACKER). Same split as `KnowledgeRetriever` and
+`ModelInvoker`:
+
+```python
+class ExportDescriptorCompiler(Protocol):
+    def compile(
+        self, target: str, title: str, body: str, metadata: Mapping[str, Any] | None = None
+    ) -> ExportDescriptor: ...
+
+
+class PublisherAdapter(Protocol):
+    def publish(self, descriptor: ExportDescriptor) -> PublishResult: ...
+```
+
+`adapters/publisher_adapters/descriptors.py` implements
+`ExportDescriptorCompiler.compile` (as `compile_export_descriptor`, plus one
+convenience wrapper per target: `youtube_export`, `tiktok_export`,
+`facebook_export`, `wordpress_export`, `markdown_export`). It builds an
+immutable `ExportDescriptor` (target, title, body, platform-specific
+declarative metadata) and makes **no network call, imports no platform SDK,
+and performs no filesystem write** — even the `markdown` target only
+produces a descriptor, not a written file. It rejects any metadata key
+(recursively, including nested mappings like a Markdown target's
+`front_matter`) that looks like a credential or session token, enforcing
+"no authentication." There is no mature OSS project that declaratively
+plans a cross-platform export without also performing it, so this is ASF's
+own "Export planning" intellectual property, not a wrapped reuse target.
+`PublisherAdapter.publish` — actually publishing — is unimplemented; when
+built, each platform's official SDK/API (e.g. google-api-python-client for
+YouTube) is the reuse target, never a hand-rolled HTTP client.
+
 ### What Stays Unchanged
 
 - `ArtifactLoader`, `CatalogBuilder`, `WorkflowPlanner`, `PlanStore`
@@ -216,3 +255,4 @@ API) is the reuse target, never a hand-rolled HTTP client.
 | 0.2 | 2026-07-05 | Implemented `PlanCompiler` (`adapters/langgraph_runtime/`); finalized its signature with a caller-supplied `step_executor` and documented the state-merge reducer needed for parallel batches |
 | 0.3 | 2026-07-05 | Split `KnowledgeRetriever` into `RetrievalConfigCompiler` (implemented, `adapters/llamaindex_retrieval/`) and an unimplemented `query` half, per Priority 2's configuration-only scope |
 | 0.4 | 2026-07-05 | Split `ModelInvoker` into `ModelDescriptorCompiler` (implemented, `adapters/model_invokers/`, zero SDK dependency) and an unimplemented `invoke` half, per Priority 3's declarative-only scope |
+| 0.5 | 2026-07-05 | Added a fifth seam, `PublisherAdapter`, split into `ExportDescriptorCompiler` (implemented, `adapters/publisher_adapters/`, zero SDK dependency) and an unimplemented `publish` half, per Priority 4's declarative-only scope |
