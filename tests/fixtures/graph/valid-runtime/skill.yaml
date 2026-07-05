@@ -1,0 +1,41 @@
+schema_version: "1.0.0"
+id: "skill:use-runtime"
+name: "use-runtime"
+display_name: "Use Runtime"
+description: "Use runtime"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Use Runtime"
+inputs: {}
+outputs:
+  result:
+    type: "string"
+    required: true
+    description: "Result."
+dependencies:
+  runtime:
+    - id: "runtime:primary"
+      required: true
+      version: "1.0.0"
+  tools: []
+  knowledge: []
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation:
+  metrics:
+    - name: "accuracy"
+      description: "Result matches expectation."
+      weight: 1
+      rubric: { "0": "False.", "50": "Partial.", "100": "Supported." }
+  scoring: { scale: "0..100", aggregate: "weighted-mean" }
+  acceptance:
+    minimum_score: 80
+  on_failure: "fail"
+reflection:
+  enabled: false
+  max_attempts: 0
+  minimum_improvement: 0
+  on_exhausted: "fail"
+  reflectable_hard_gates: []

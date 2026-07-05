@@ -1,12 +1,12 @@
 """Dependency Graph: docs/specifications/IR_SPECIFICATION.md's Dependency
 Graph, built from already-produced IR objects (never re-parses source).
 
-Node kinds and which references become edges are fixed by ADR-0010:
-nodes are Skill/Workflow/Knowledge/Tool/Connector IDs only; edges are Skill -> Knowledge,
-Workflow step -> Skill, Knowledge -> Knowledge (related_knowledge), Skill -> Tool,
-and Tool -> Connector.
-Skill -> Runtime references exist on the IR but are not graph edges,
-since no Runtime node kind exists yet.
+Node kinds and which references become edges are fixed by ADR-0010 and
+extended by ADR-0014: nodes are Skill/Workflow/Knowledge/Tool/Connector/
+Runtime IDs; edges are Skill -> Knowledge, Workflow step -> Skill,
+Knowledge -> Knowledge (related_knowledge), Skill -> Tool, Tool -> Connector,
+Skill -> Runtime, Runtime -> Knowledge (retriever), Runtime -> Tool, and
+Runtime -> Runtime (fallback).
 """
 
 from __future__ import annotations
@@ -25,6 +25,7 @@ from .diagnostics import (
 from .graph import detect_cycle
 from .knowledge_ir import KnowledgeIR
 from .pipeline import AdapterResult
+from .runtime_ir import RuntimeIR
 from .skill_ir import SkillIR
 from .tool_ir import ToolIR
 from .connector_ir import ConnectorIR
@@ -35,7 +36,7 @@ from .workflow_ir import WorkflowIR
 @dataclass(frozen=True)
 class DependencyGraphNode:
     id: str
-    kind: str  # "skill" | "workflow" | "knowledge" | "tool" | "connector"
+    kind: str  # "skill" | "workflow" | "knowledge" | "tool" | "connector" | "runtime"
     version: Optional[VersionIR]
     status: str
     artifact: str  # source path, for diagnostics
@@ -45,7 +46,8 @@ class DependencyGraphNode:
 class DependencyEdge:
     source: str
     target: str
-    kind: str  # "skill-knowledge" | "workflow-skill" | "knowledge-knowledge" | "skill-tool" | "tool-connector"
+    kind: str  # "skill-knowledge" | "workflow-skill" | "knowledge-knowledge" | "skill-tool"
+    # | "tool-connector" | "skill-runtime" | "runtime-knowledge" | "runtime-tool" | "runtime-runtime"
     required: bool
     version: Optional[VersionRangeIR] = None
 
@@ -80,6 +82,9 @@ def _node_info(result: AdapterResult) -> tuple[str, str, Optional[VersionIR], st
     if result.kind == "connector":
         assert isinstance(ir, ConnectorIR)
         return ir.metadata.id, "connector", ir.metadata.version, ir.metadata.status
+    if result.kind == "runtime":
+        assert isinstance(ir, RuntimeIR)
+        return ir.metadata.id, "runtime", ir.metadata.version, ir.metadata.status
     assert result.kind == "knowledge" and isinstance(ir, KnowledgeIR)
     version, _error = parse_version(ir.version)
     return ir.id, "knowledge", version, ir.status
@@ -92,7 +97,7 @@ def build_dependency_graph(results: list[AdapterResult]) -> tuple[DependencyGrap
     for result in results:
         if not result.ok:
             continue  # Sprint 16 already reported this artifact's own diagnostics
-        if result.kind not in ("skill", "workflow", "knowledge", "tool", "connector"):
+        if result.kind not in ("skill", "workflow", "knowledge", "tool", "connector", "runtime"):
             continue  # Evaluation/Reflection are not graph nodes (ADR-0010)
 
         artifact_id, kind, version, status = _node_info(result)
@@ -140,6 +145,16 @@ def build_dependency_graph(results: list[AdapterResult]) -> tuple[DependencyGrap
                         version=tool_ref.version,
                     )
                 )
+            for runtime_ref in ir.dependencies.runtime:
+                edges.append(
+                    DependencyEdge(
+                        source=ir.metadata.id,
+                        target=runtime_ref.id,
+                        kind="skill-runtime",
+                        required=runtime_ref.required,
+                        version=runtime_ref.version,
+                    )
+                )
         elif isinstance(ir, WorkflowIR):
             for step in ir.steps:
                 edges.append(
@@ -171,6 +186,38 @@ def build_dependency_graph(results: list[AdapterResult]) -> tuple[DependencyGrap
                         kind="tool-connector",
                         required=conn_ref.required,
                         version=conn_ref.version,
+                    )
+                )
+        elif isinstance(ir, RuntimeIR):
+            for knowledge_ref in ir.retriever.knowledge:
+                edges.append(
+                    DependencyEdge(
+                        source=ir.metadata.id,
+                        target=knowledge_ref.id,
+                        kind="runtime-knowledge",
+                        required=knowledge_ref.required,
+                        version=knowledge_ref.version,
+                    )
+                )
+            for tool_ref in ir.tools.refs:
+                edges.append(
+                    DependencyEdge(
+                        source=ir.metadata.id,
+                        target=tool_ref.id,
+                        kind="runtime-tool",
+                        required=tool_ref.required,
+                        version=tool_ref.version,
+                    )
+                )
+            if ir.fallback_profile.fallback_runtime is not None:
+                fallback_ref = ir.fallback_profile.fallback_runtime
+                edges.append(
+                    DependencyEdge(
+                        source=ir.metadata.id,
+                        target=fallback_ref.id,
+                        kind="runtime-runtime",
+                        required=fallback_ref.required,
+                        version=fallback_ref.version,
                     )
                 )
 

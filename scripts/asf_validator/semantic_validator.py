@@ -17,6 +17,13 @@ from .diagnostics import (
     SEMANTIC_INVALID_METRIC_WEIGHT_TOTAL,
     SEMANTIC_REFLECTABLE_GATE_UNKNOWN,
     SEMANTIC_REFLECTION_ROUTING_INCONSISTENT,
+    SEMANTIC_RUNTIME_FALLBACK_CHAIN_INVALID,
+    SEMANTIC_RUNTIME_MODEL_MISSING,
+    SEMANTIC_RUNTIME_PUBLISHER_INVALID,
+    SEMANTIC_RUNTIME_RETRIEVER_MISSING,
+    SEMANTIC_RUNTIME_RETRY_POLICY_INCOMPATIBLE,
+    SEMANTIC_RUNTIME_TIMEOUT_PROFILE_INVALID,
+    SEMANTIC_RUNTIME_TOOLS_MISSING,
     SEMANTIC_WORKFLOW_MAPPING_SOURCE_INVALID,
     SEMANTIC_WORKFLOW_MAPPING_TARGET_INVALID,
     SEMANTIC_WORKFLOW_MAPPING_TYPE_MISMATCH,
@@ -25,6 +32,7 @@ from .diagnostics import (
     Severity,
 )
 from .pipeline import AdapterResult
+from .runtime_ir import RuntimeIR
 from .skill_ir import FieldIR, SkillIR
 from .workflow_ir import WorkflowIR, WorkflowStepIR
 
@@ -48,6 +56,8 @@ def validate_semantics(results: list[AdapterResult]) -> list[Diagnostic]:
             diagnostics.extend(_validate_skill(result.artifact, result.ir))
         elif isinstance(result.ir, WorkflowIR):
             workflows.append((result.artifact, result.ir))
+        elif isinstance(result.ir, RuntimeIR):
+            diagnostics.extend(_validate_runtime(result.artifact, result.ir))
 
     for artifact, workflow in workflows:
         diagnostics.extend(_validate_workflow(artifact, workflow, skills))
@@ -118,6 +128,147 @@ def _validate_skill(artifact: str, skill: SkillIR) -> list[Diagnostic]:
                     suggestion="Declare the gate in evaluation.acceptance.hard_gates or remove it.",
                 )
             )
+    return diagnostics
+
+
+def _validate_runtime(artifact: str, runtime: RuntimeIR) -> list[Diagnostic]:
+    """Single-artifact internal consistency for Runtime Contracts (ADR-0014).
+
+    Cross-artifact reference resolution (does a referenced Knowledge/Tool/
+    Runtime id actually exist) is the Dependency Graph's job
+    (runtime-knowledge/runtime-tool/runtime-runtime edges); this function
+    only checks that a section's own `enabled` flag agrees with its
+    configured content, and that policy fields agree with each other.
+    """
+    diagnostics: list[Diagnostic] = []
+
+    if runtime.model.enabled and not runtime.model.model:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_MODEL_MISSING,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="model",
+                message="model.enabled is true but no model.model is configured.",
+                suggestion="Set model.model, or set model.enabled to false.",
+            )
+        )
+
+    if runtime.retriever.enabled and not runtime.retriever.knowledge:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_RETRIEVER_MISSING,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="retriever",
+                message="retriever.enabled is true but retriever.knowledge is empty.",
+                suggestion="Reference at least one Knowledge document, or set retriever.enabled to false.",
+            )
+        )
+
+    if runtime.tools.enabled and not runtime.tools.refs:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_TOOLS_MISSING,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="tools",
+                message="tools.enabled is true but tools.refs is empty.",
+                suggestion="Reference at least one Tool, or set tools.enabled to false.",
+            )
+        )
+
+    if runtime.publisher.enabled and not runtime.publisher.target:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_PUBLISHER_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="publisher",
+                message="publisher.enabled is true but no publisher.target is configured.",
+                suggestion="Set publisher.target, or set publisher.enabled to false.",
+            )
+        )
+
+    if runtime.retry_policy.backoff == "exponential" and runtime.retry_policy.max_attempts < 2:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_RETRY_POLICY_INCOMPATIBLE,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="retry_policy",
+                message="retry_policy.backoff is 'exponential' but max_attempts < 2.",
+                suggestion="Raise max_attempts to at least 2, or use backoff 'none'/'fixed'.",
+            )
+        )
+
+    if (
+        runtime.timeout_policy.on_timeout == "retry"
+        and runtime.retry_policy.max_attempts < 2
+    ):
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_TIMEOUT_PROFILE_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="timeout_policy.on_timeout",
+                message="timeout_policy.on_timeout is 'retry' but retry_policy.max_attempts < 2.",
+                suggestion="Raise retry_policy.max_attempts, or choose a different on_timeout.",
+            )
+        )
+    if (
+        runtime.timeout_policy.on_timeout == "fallback"
+        and not runtime.fallback_profile.enabled
+    ):
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_TIMEOUT_PROFILE_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="timeout_policy.on_timeout",
+                message="timeout_policy.on_timeout is 'fallback' but fallback_profile.enabled is false.",
+                suggestion="Enable fallback_profile, or choose a different on_timeout.",
+            )
+        )
+
+    fallback = runtime.fallback_profile
+    if fallback.enabled and fallback.fallback_runtime is None:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_FALLBACK_CHAIN_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="fallback_profile",
+                message="fallback_profile.enabled is true but no fallback_runtime is configured.",
+                suggestion="Set fallback_profile.fallback_runtime, or set enabled to false.",
+            )
+        )
+    elif not fallback.enabled and fallback.fallback_runtime is not None:
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_FALLBACK_CHAIN_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="fallback_profile",
+                message="fallback_profile.fallback_runtime is set but enabled is false.",
+                suggestion="Set fallback_profile.enabled to true, or remove fallback_runtime.",
+            )
+        )
+    elif (
+        fallback.fallback_runtime is not None
+        and fallback.fallback_runtime.id == runtime.metadata.id
+    ):
+        diagnostics.append(
+            Diagnostic(
+                code=SEMANTIC_RUNTIME_FALLBACK_CHAIN_INVALID,
+                severity=Severity.ERROR,
+                artifact=artifact,
+                location="fallback_profile.fallback_runtime",
+                message=f"Runtime '{runtime.metadata.id}' declares itself as its own fallback.",
+                suggestion="Reference a different Runtime Contract as the fallback.",
+            )
+        )
+
     return diagnostics
 
 

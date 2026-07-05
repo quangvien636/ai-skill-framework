@@ -1,0 +1,38 @@
+schema_version: "1.0.0"
+id: "runtime:fallback-target"
+name: "fallback-target"
+display_name: "Fallback Target Runtime"
+description: "Fallback target runtime"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Fallback runtime binding"
+execution_profile: "sync"
+model:
+  enabled: true
+  provider: "ollama"
+  model: "llama3"
+retriever:
+  enabled: false
+  knowledge: []
+tools:
+  enabled: false
+  refs: []
+publisher:
+  enabled: false
+timeout_policy:
+  timeout_seconds: 60
+  on_timeout: "fail"
+retry_policy:
+  max_attempts: 1
+  backoff: "none"
+safety_profile:
+  content_filter: "standard"
+audit_profile:
+  log_level: "basic"
+concurrency_profile:
+  max_parallel_steps: 1
+  max_parallel_tool_calls: 1
+fallback_profile:
+  enabled: false
+  max_fallback_depth: 1

@@ -35,6 +35,23 @@ class SemanticValidatorTests(unittest.TestCase):
             },
         )
 
+    def test_runtime_semantic_rules(self):
+        results = self.load([("runtime", "invalid-runtime.yaml")])
+        self.assertTrue(all(result.ok for result in results))
+        diagnostics = validate_semantics(results)
+        self.assertEqual(
+            {diagnostic.code for diagnostic in diagnostics},
+            {
+                "ASF-SEMANTIC-010",
+                "ASF-SEMANTIC-011",
+                "ASF-SEMANTIC-012",
+                "ASF-SEMANTIC-013",
+                "ASF-SEMANTIC-014",
+                "ASF-SEMANTIC-015",
+                "ASF-SEMANTIC-016",
+            },
+        )
+
     def test_mapping_routing_type_and_topology_rules(self):
         results = self.load(
             [

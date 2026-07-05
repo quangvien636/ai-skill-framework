@@ -27,6 +27,21 @@
       ]
     },
     {
+      "name": "invalid-runtime-semantics",
+      "artifacts": [
+        { "kind": "runtime", "fixture": "tests/fixtures/semantic/invalid-runtime.yaml" }
+      ],
+      "expected_codes": [
+        "ASF-SEMANTIC-010",
+        "ASF-SEMANTIC-011",
+        "ASF-SEMANTIC-012",
+        "ASF-SEMANTIC-013",
+        "ASF-SEMANTIC-014",
+        "ASF-SEMANTIC-015",
+        "ASF-SEMANTIC-016"
+      ]
+    },
+    {
       "name": "production-skill-workflow-semantics",
       "artifacts": [
         { "kind": "skill", "fixture": "skills/content-creation/skill.yaml" },

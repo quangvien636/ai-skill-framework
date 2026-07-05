@@ -1,0 +1,23 @@
+schema_version: "1.0.0"
+id: "tool:read-file"
+name: "read-file"
+display_name: "Read File"
+description: "Read file"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Read"
+inputs:
+  path:
+    type: "string"
+    required: true
+    description: "Absolute path to the file."
+outputs:
+  content:
+    type: "string"
+    required: true
+    description: "The file content."
+dependencies:
+  connectors: []
+constraints:
+  side_effects: "none"

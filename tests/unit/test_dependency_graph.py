@@ -66,6 +66,35 @@ class DependencyGraphTests(unittest.TestCase):
         self.assertIn(("skill:use-tool", "tool:read-file"), edge_pairs)
         self.assertIn(("tool:read-file", "connector:local-fs"), edge_pairs)
 
+    def test_valid_runtime_graph_has_expected_nodes_and_edges(self):
+        results = self._load(
+            "valid-runtime/skill.yaml",
+            "valid-runtime/runtime.yaml",
+            "valid-runtime/runtime-fallback.yaml",
+            "valid-runtime/tool.yaml",
+            "valid-runtime/knowledge.md",
+            kinds=["skill", "runtime", "runtime", "tool", "knowledge"],
+        )
+        graph, diagnostics = build_dependency_graph(results)
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            set(graph.nodes),
+            {
+                "skill:use-runtime",
+                "runtime:primary",
+                "runtime:fallback-target",
+                "tool:read-file",
+                "kb:technical:writing:summarization:brevity",
+            },
+        )
+        edge_pairs = {(e.source, e.target) for e in graph.edges}
+        self.assertIn(("skill:use-runtime", "runtime:primary"), edge_pairs)
+        self.assertIn(
+            ("runtime:primary", "kb:technical:writing:summarization:brevity"), edge_pairs
+        )
+        self.assertIn(("runtime:primary", "tool:read-file"), edge_pairs)
+        self.assertIn(("runtime:primary", "runtime:fallback-target"), edge_pairs)
+
     def test_missing_dependency_is_detected(self):
         results = self._load("missing-dependency/skill.yaml", kinds=["skill"])
         graph, diagnostics = build_dependency_graph(results)

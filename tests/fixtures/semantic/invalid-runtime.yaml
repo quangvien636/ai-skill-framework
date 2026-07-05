@@ -1,0 +1,36 @@
+schema_version: "1.0.0"
+id: "runtime:invalid-semantics"
+name: "invalid-semantics"
+display_name: "Invalid Semantics Runtime"
+description: "Runtime fixture that triggers every ASF-SEMANTIC runtime rule."
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Trigger every runtime semantic rule."
+execution_profile: "sync"
+model:
+  enabled: true
+retriever:
+  enabled: true
+  knowledge: []
+tools:
+  enabled: true
+  refs: []
+publisher:
+  enabled: true
+timeout_policy:
+  timeout_seconds: 30
+  on_timeout: "retry"
+retry_policy:
+  max_attempts: 1
+  backoff: "exponential"
+safety_profile:
+  content_filter: "standard"
+audit_profile:
+  log_level: "basic"
+concurrency_profile:
+  max_parallel_steps: 1
+  max_parallel_tool_calls: 1
+fallback_profile:
+  enabled: true
+  max_fallback_depth: 1
