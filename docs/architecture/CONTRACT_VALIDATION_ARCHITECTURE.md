@@ -1,8 +1,8 @@
 # Contract Validation Architecture
 
-Version: 0.3
+Version: 0.4
 Status: Active
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -93,6 +93,14 @@ Repository validators handle unique IDs, reference existence, lifecycle,
 Knowledge Index membership, canonical paths, links, case-insensitive collisions,
 secrets, and package file requirements.
 
+The implemented repository layer uses `project_discovery.py` as its only
+filesystem inventory. `repository_validator.py` checks canonical Skill,
+Workflow, and Knowledge paths; required package files; Knowledge Index
+membership/path agreement; and case-insensitive path collisions.
+`validate_repository.py` composes discovery, IR, Dependency/Version Graph,
+semantic, and repository checks without adding validation meaning of its own.
+Link, secret, and broader lifecycle policy automation remain future rules.
+
 ### Diagnostics
 
 Each diagnostic contains `code`, `severity`, `artifact`, `location`, `message`,
@@ -136,3 +144,4 @@ repository validation because its ID is missing from the Knowledge Index.
 | 0.1 | 2026-07-04 | Established layered contract validation architecture |
 | 0.2 | 2026-07-04 | Aligned "normalized model" terminology with the Sprint 11 IR |
 | 0.3 | 2026-07-05 | Documented the implemented IR-level semantic validator and repository-context boundary |
+| 0.4 | 2026-07-05 | Documented Project Discovery integration and implemented repository integrity rules |

@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.21
+Version: 0.22
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,21 +88,20 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 21 - Semantic Validator Core**, returning focus
-to infrastructure. `semantic_validator.py` checks Evaluation metric uniqueness
-and weight totals, Evaluation/Reflection routing and gates, Workflow mapping
-targets, source availability, declared type compatibility, retry routing, and
-entrypoint reachability. `build_semantics.py` provides three offline
-conformance scenarios with nine stable `ASF-SEMANTIC-*` diagnostic codes. The
-existing 16 contract, 40 IR, and 13 graph cases remain green, with 68 passing
-unit tests.
+The project completed **Sprint 22 - Repository Discovery and Integrity**.
+ADR-0007 Workspace Discovery now finds the nearest framework root, and lazy
+Project Discovery builds a deterministic internal index for Skills, Workflows,
+Knowledge, embedded Evaluation/Reflection locations, and examples. The
+integrated repository validator checks canonical paths, package requirements,
+Knowledge Index agreement, and case-insensitive collisions in addition to all
+earlier layers. The repository currently has 42 indexed locations, 24 loaded
+canonical artifacts, and 84 passing unit tests.
 
-The framework still has no Runtime executor, model invocation, or
-repository-wide discovery. The semantic core consumes explicit typed IR sets;
-canonical ID/path/index/package validation therefore remains the next
-infrastructure milestone. No Skill execution, retrieval, or generation occurs.
-Skill behavior remains expressed by contracts, embedded Evaluation/Reflection,
-examples, and Knowledge. See
+The framework still has no Runtime executor or model invocation. Discovery and
+validation are deterministic and offline; no Skill execution, retrieval, or
+generation occurs. The next infrastructure priority is to complete remaining
+repository policies and prepare Runtime models, planning, and execution graphs
+without an LLM executor. See
 `PROJECT_TRACKER.md` for the exact deferred gaps.
 
 ## Definition of Done
@@ -141,3 +140,4 @@ A change is complete when:
 | 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 production package |
 | 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 production package |
 | 0.21 | 2026-07-05 | Completed Sprint 21 IR-level Semantic Validator core |
+| 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |

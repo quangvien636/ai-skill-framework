@@ -1,8 +1,8 @@
 # Contract Validation Guide
 
-Version: 0.4
+Version: 0.5
 Status: Active
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -55,6 +55,7 @@ The current validation core adds three offline layers:
 python scripts/build_ir.py
 python scripts/build_graph.py
 python scripts/build_semantics.py
+python scripts/validate_repository.py
 python -m unittest discover
 ```
 
@@ -66,8 +67,14 @@ Workflow mapping targets, sources, and declared type compatibility; retry
 routing; and step reachability from the entrypoint.
 
 The semantic validator does not discover repository artifacts, execute Skills,
-or infer missing types. Repository ID/path/index/package checks remain pending
-Repository Discovery.
+or infer missing types. The separate repository layer supplies canonical
+filesystem context.
+
+`validate_repository.py` is the first integrated offline repository check. It
+discovers the workspace and project index, builds IR for every canonical Skill,
+Workflow, and Knowledge artifact, then runs graph, version, semantic, canonical
+path, package-file, Knowledge Index, and case-collision validation. It exits
+nonzero when any error is present and never rewrites source.
 
 ### Current Manual Checks
 
@@ -129,3 +136,4 @@ fail semantic validation because their sum is not `1.0`.
 | 0.2 | 2026-07-04 | Documented the Sprint 8 fixture-conformance prototype |
 | 0.3 | 2026-07-04 | Cross-linked the IR Architecture (normalized object = IR, per ADR-0005) |
 | 0.4 | 2026-07-05 | Added IR, graph, and semantic validation commands and current rule coverage |
+| 0.5 | 2026-07-05 | Added integrated Project Discovery and repository validation usage |

@@ -1,8 +1,8 @@
 # Contract Validator Roadmap
 
-Version: 0.6
+Version: 0.7
 Status: In Progress
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -151,6 +151,10 @@ Exit: all rules in Contract Validation Architecture are executable.
 
 ### Phase 4 - Repository Integrity
 
+Status: **In Progress** — deterministic Workspace/Project Discovery, canonical
+path checks, package requirements, Knowledge Index agreement, and
+case-insensitive path collision checks completed in Sprint 22.
+
 - Resolve local artifact references and lifecycle using the Sprint 17
   Dependency Graph as the underlying structure, extended with real
   filesystem discovery (Project Discovery, `CLI_ARCHITECTURE.md`) instead
@@ -159,6 +163,24 @@ Exit: all rules in Contract Validation Architecture are executable.
 - Check case collisions, links, and duplicate IDs (duplicate-ID detection
   already exists at the fixture-set level in `dependency_graph.py`; Phase 4
   extends it to a full repository scan).
+
+**Done (Sprint 22):**
+
+- Implemented ADR-0007 Workspace Discovery and lazy Project Discovery for
+  Skills, Workflows, Knowledge, embedded Evaluation/Reflection locations, and
+  examples.
+- Added an immutable deterministic `ProjectIndex` suitable for reuse by the
+  future Runtime.
+- Added canonical identity/path, package-file, Knowledge Index, and
+  case-insensitive collision diagnostics (`ASF-REPOSITORY-001..005`).
+- Added `validate_repository.py`, which composes all implemented validation
+  layers across the real repository (42 locations, 24 loaded artifacts).
+
+**Remaining:**
+
+- Automate Markdown link/anchor and secret checks.
+- Define any additional lifecycle/orphan policy before enforcing it.
+- Add one stable machine-readable Reporter when thin interfaces begin.
 
 Exit: repository-wide validation is deterministic and offline.
 
@@ -202,3 +224,4 @@ requires a Knowledge version range no loaded version satisfies, and reports
 | 0.4 | 2026-07-04 | Closed Phase 2 with implemented IR adapters (Sprint 16, ADR-0009) |
 | 0.5 | 2026-07-04 | Phase 3 Dependency/Version Graph construction done (Sprint 17, ADR-0010); ID/path, weight-sum, mapping, routing rules remain |
 | 0.6 | 2026-07-05 | Added Sprint 21 IR-level semantic rules; canonical path agreement remains with discovery |
+| 0.7 | 2026-07-05 | Added Sprint 22 Workspace/Project Discovery and initial repository integrity validation |

@@ -119,13 +119,20 @@ Dependency Graph / Version Graph across multiple loaded artifacts:
 python scripts/build_ir.py                 # 40 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
 python scripts/build_semantics.py          # 3 semantic conformance scenarios
-python -m unittest discover -s tests/unit  # 68 unit tests
+python scripts/validate_repository.py       # discover and validate canonical artifacts
+python -m unittest discover -s tests/unit  # 84 unit tests
 ```
 
 The semantic layer checks evaluation metric uniqueness and weight totals,
 Evaluation/Reflection routing, Workflow mapping availability and types, retry
 routing, and unreachable steps. It emits structured `ASF-SEMANTIC-*`
 diagnostics over typed IR and performs no discovery or execution.
+
+`validate_repository.py` finds the workspace using the two ADR-0007 markers,
+builds a deterministic internal index, loads all canonical artifacts, and runs
+every implemented validation layer. The current repository index contains 42
+locations, including embedded Evaluation/Reflection locations and executable
+examples, and loads 24 Skill/Workflow/Knowledge artifacts.
 
 See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),
 `docs/adr/ADR-0009-ir-adapter-package-and-scope.md`, and

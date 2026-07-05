@@ -1,9 +1,9 @@
 # CLI Architecture
 
-Version: 0.6
+Version: 0.7
 Status: Draft
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -205,6 +205,14 @@ eagerly walking and parsing the entire repository on every invocation.
 Enumerated paths are handed to the relevant IR adapter; Project Discovery
 itself does not parse or normalize anything.
 
+The implemented discovery index also exposes embedded `evaluation` and
+`reflection` locations by pointing to their owning `skill.yaml` plus the
+embedded section name; these remain embedded contracts, not standalone files
+or graph nodes. Example discovery enumerates non-README YAML, JSON, and Markdown
+files below Skill and Workflow `examples/` directories. The immutable index is
+sorted deterministically and can be reused by validation and the future Runtime
+instead of rescanning the workspace.
+
 ### Template Discovery
 
 `generate` commands resolve templates by reading the
@@ -328,3 +336,4 @@ contract.
 | 0.4 | 2026-07-04 | Added Command Registry, Plugin Discovery, Service Container, Workspace/Project/Template Discovery, Generator/Validator Integration, Exit Codes, and Diagnostics (ADR-0007) |
 | 0.5 | 2026-07-04 | Added the ASF-PARSE-* diagnostic prefix for IR adapters (ADR-0009) |
 | 0.6 | 2026-07-04 | Added the ASF-GRAPH-* diagnostic prefix for the Dependency/Version Graph (ADR-0010) |
+| 0.7 | 2026-07-05 | Documented the implemented Project Index, embedded quality locations, and example discovery |
