@@ -172,6 +172,24 @@ The Validator, [Generator](GENERATOR_ARCHITECTURE.md), CLI, and future
 Runtime consume one shared [Intermediate Representation](IR_ARCHITECTURE.md)
 instead of parsing Markdown or YAML independently.
 
+### 4.1 Canonical Compiler Boundary
+
+The reference production path is:
+
+```text
+Research -> Content Creation -> Review Quality -> Reviewed Content Package
+```
+
+The composite
+[`workflow:research-content-review`](../../workflows/research-content-review/README.md)
+declares every step dependency and artifact mapping. Runtime resolution,
+binding, planning, and StateGraph compilation are ASF responsibilities.
+
+ASF stops at Reviewed Content Package. Skill invocation, media generation,
+rendering through systems such as CapCut, Remotion, or FFmpeg, and platform
+publishing are external execution concerns. See the
+[Compiler Lifecycle](../guides/COMPILER_LIFECYCLE.md).
+
 ---
 
 ## 5. Initial Architecture Version

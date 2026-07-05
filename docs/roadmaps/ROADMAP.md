@@ -1,6 +1,6 @@
 ﻿# Roadmap
 
-Version: 0.10
+Version: 0.11
 Status: Active
 
 ## Purpose
@@ -47,10 +47,12 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
   semantic validation, lifecycle orphan policy, Runtime Planning resolution,
   adapter binding functions for all five adapters, and five canonical
   examples (Sprint 28, ADR-0014).
-- Next: design a Runtime contract schema extension (or a small resolution
-  convention) so a Skill's `dependencies.runtime` can be wired to a real,
-  active Runtime Contract in production -- the five Sprint 28 examples are
-  intentionally `draft` and not yet consumed by any Skill.
+- Completed: canonical `research-content-review` composite workflow, explicit
+  Research -> Content -> Review artifact flow, Reviewed Content Package
+  boundary, three-step ExecutionPlan/StateGraph compilation, five golden
+  snapshots, and composite CLI surfaces (Sprint 29).
+- Next: implement the first external execution milestone by binding one real
+  step executor to the compiled plan without changing compiler contracts.
 - Later: implement the execute halves every compile-only adapter deferred
   (`KnowledgeRetriever.query`, `ModelInvoker.invoke`,
   `PublisherAdapter.publish`, an actually-invoked `PlanCompiler` graph),
@@ -72,3 +74,4 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
 | 0.8 | 2026-07-05 | Recorded Sprint 25 Tool/Connector contracts and Sprint 26 Build vs Reuse execution strategy. |
 | 0.9 | 2026-07-05 | Recorded Sprint 27 adapter layer build-out (all five Protocol seams, compile/describe half). |
 | 0.10 | 2026-07-05 | Recorded Sprint 28 Runtime Contract milestone (schema, IR, discovery, graph, semantic, planning, adapter binding, five canonical examples). |
+| 0.11 | 2026-07-05 | Recorded Sprint 29 completion of the composite compiler proof and Reviewed Content Package boundary. |

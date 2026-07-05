@@ -65,6 +65,7 @@ Under Development
 ### Validation
 
 - [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
+- [Compiler Lifecycle](docs/guides/COMPILER_LIFECYCLE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
 
 ## Production Skills
@@ -80,6 +81,11 @@ Use the
 [`content-brief-to-package`](workflows/content-brief-to-package/README.md)
 Workflow for the end-to-end path. Its production artifacts are registered
 directly in contract, IR, and graph fixture manifests.
+
+The canonical compiler reference is the composite
+[`research-content-review`](workflows/research-content-review/README.md)
+Workflow. It connects Research -> Content Creation -> Review Quality through
+explicit artifact mappings and stops at a Reviewed Content Package.
 
 The second package, [`skill:research`](skills/research/README.md), turns a topic
 and caller-supplied evidence into research questions, source requirements,
@@ -228,6 +234,10 @@ python scripts/asf.py doctor
 python scripts/asf.py bindings --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
 python scripts/asf.py plan --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
 python scripts/asf.py compile --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
+python scripts/asf.py compile content-workflow
+python scripts/asf.py snapshot
+python scripts/asf.py inspect
+python scripts/asf.py explain
 ```
 
 Use `--format json` before the command for a versioned structured report.

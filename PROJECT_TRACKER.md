@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.28
+Version: 0.29
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,11 +12,43 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 28 - Runtime Contract (Phases 1-7)**
+**Sprint 29 - Canonical Composite Compiler Proof**
 
-Goal: design and implement the Runtime Contract layer that binds Skills to
-Runtime resources — the missing link between Skill, ExecutionPlan, and the
-five adapter descriptors Sprint 27 built.
+Goal: prove one compile-only Research -> Content Creation -> Review Quality
+workflow ending at Reviewed Content Package.
+
+Status: **Completed**
+
+### Sprint 29 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Composite workflow | Done | `workflow:research-content-review` composes the three production Skills |
+| Artifact flow | Done | Research brief -> Content input; Content package -> Review draft |
+| Reviewed Content Package | Done | Canonical editorial output envelope and static shape snapshot |
+| Composite planning | Done | Deterministic three-step, three-batch `ExecutionPlan` |
+| LangGraph compilation | Done | One five-node, four-edge compiled `StateGraph`; never invoked |
+| Golden snapshots | Done | Workflow, binding, plan, graph, and reviewed package snapshots |
+| CLI | Done | `compile content-workflow`, `snapshot`, `inspect`, `explain` |
+| Documentation | Done | `docs/guides/COMPILER_LIFECYCLE.md` |
+
+### Sprint 29 Exit Criteria
+
+- Contract, IR, graph, semantic, repository, core, and adapter suites pass.
+- Artifact mappings are statically validated for ancestry and type.
+- Composite plan, bindings, and StateGraph match deterministic snapshots.
+- No execution, provider call, rendering, media generation, or publishing.
+
+### Sprint 29 Deferred / Documented Gaps
+
+- Skill invocation and value-level artifact validation require an external
+  execution milestone.
+- Reviewed Content Package is editorial structured data; rendering and
+  publishing remain external.
+
+## Previous Sprint
+
+**Sprint 28 - Runtime Contract (Phases 1-7)**
 
 Status: **Completed**
 
@@ -63,7 +95,7 @@ Status: **Completed**
 - The `mcp_tools` adapter remains pinned to MCP SDK v1; v2 (stable
   2026-07-27) migration is still untracked work.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 27 - Adapter Layer Build-Out (Priorities 1-4)**
 
@@ -117,6 +149,7 @@ sprint indefinitely.
 | 26 | Build vs Reuse Execution Strategy | ADR-0013, `EXECUTION_ADAPTER_ARCHITECTURE.md`, `adapters/mcp_tools/` (ToolBinding proof of concept) |
 | 27 | Adapter Layer Build-Out (Priorities 1-4) | `adapters/langgraph_runtime/`, `llamaindex_retrieval/`, `model_invokers/`, `publisher_adapters/` (34 tests total) |
 | 28 | Runtime Contract (Phases 1-7) | `runtime.schema.json`, `runtime_ir.py`, graph/semantic/planning/orphan extensions, 5 adapter bindings, 5 canonical examples, ADR-0014 |
+| 29 | Canonical Composite Compiler Proof | Three-Skill workflow, artifact flow, Reviewed Content Package, golden snapshots, composite CLI |
 
 ## Risks and Guardrails
 
@@ -198,3 +231,4 @@ sprint indefinitely.
 | 0.26 | 2026-07-05 | Completed Sprint 26 Build vs Reuse Execution Strategy (ADR-0013, adapter architecture, mcp_tools proof of concept) |
 | 0.27 | 2026-07-05 | Completed Sprint 27 Adapter Layer Build-Out: langgraph_runtime, llamaindex_retrieval, model_invokers, publisher_adapters (34 adapter tests) |
 | 0.28 | 2026-07-05 | Completed Sprint 28 Runtime Contract: schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples, ADR-0014 |
+| 0.29 | 2026-07-05 | Completed Sprint 29 composite compiler proof, snapshots, CLI, and Reviewed Content Package boundary |
