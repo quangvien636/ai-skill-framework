@@ -63,6 +63,20 @@ Under Development
 - [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
 
+## Production Example: Content Creation v1
+
+The first production-quality framework package is
+[`skill:content-creation`](skills/content-creation/README.md). It creates short
+video scripts, social posts, long-form article outlines, caption and hashtag
+sets, and title and thumbnail ideas. Five canonical
+[Knowledge documents](knowledge/KNOWLEDGE_INDEX.md) supply format, tone,
+platform, hook, and call-to-action guidance.
+
+Use the
+[`content-brief-to-package`](workflows/content-brief-to-package/README.md)
+Workflow for the end-to-end path. Its production artifacts are registered
+directly in contract, IR, and graph fixture manifests.
+
 ## Validator Prototype
 
 A minimal, offline conformance check for the schemas in `schemas/`:
@@ -83,9 +97,9 @@ Evaluation/Reflection document into the typed IR object
 Dependency Graph / Version Graph across multiple loaded artifacts:
 
 ```bash
-python scripts/build_ir.py                 # 16 IR fixture cases
-python scripts/build_graph.py              # 10 multi-artifact graph scenarios
-python -m unittest discover -s tests/unit  # 53 unit tests
+python scripts/build_ir.py                 # 23 IR fixture cases
+python scripts/build_graph.py              # 11 multi-artifact graph scenarios
+python -m unittest discover -s tests/unit  # 56 unit tests
 ```
 
 See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),

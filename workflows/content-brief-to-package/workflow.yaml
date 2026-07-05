@@ -1,0 +1,77 @@
+schema_version: "1.0.0"
+id: "workflow:content-brief-to-package"
+name: "content-brief-to-package"
+display_name: "Content Brief to Package"
+description: "Turns one supplied content brief into a reviewed, platform-ready draft package."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "content"
+  - "generation"
+entrypoint: "create-content"
+inputs:
+  content-type:
+    type: "string"
+    required: true
+    description: "Requested Content Creation v1 deliverable type."
+  brief:
+    type: "string"
+    required: true
+    description: "Topic, objective, offer, and mandatory message."
+  audience:
+    type: "string"
+    required: true
+    description: "Intended audience and relevant need or awareness level."
+  platform:
+    type: "string"
+    required: true
+    description: "Target publishing platform or generic."
+  tone:
+    type: "string"
+    required: false
+    description: "Requested tone."
+    default: "clear and conversational"
+  source-facts:
+    type: "array"
+    required: false
+    description: "Approved factual material."
+    default: []
+  call-to-action:
+    type: "string"
+    required: false
+    description: "Desired audience action."
+    default: ""
+  constraints:
+    type: "array"
+    required: false
+    description: "Additional brand, length, disclosure, or formatting requirements."
+    default: []
+steps:
+  - id: "create-content"
+    skill:
+      id: "skill:content-creation"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      content-type: "workflow.inputs.content-type"
+      brief: "workflow.inputs.brief"
+      audience: "workflow.inputs.audience"
+      platform: "workflow.inputs.platform"
+      tone: "workflow.inputs.tone"
+      source-facts: "workflow.inputs.source-facts"
+      call-to-action: "workflow.inputs.call-to-action"
+      constraints: "workflow.inputs.constraints"
+    on_error: "manual-review"
+outputs:
+  content-package:
+    type: "object"
+    description: "Generated content package."
+    from: "steps.create-content.outputs.content-package"
+  quality-report:
+    type: "object"
+    description: "Embedded quality self-check."
+    from: "steps.create-content.outputs.quality-report"
+error_handling:
+  default: "manual-review"

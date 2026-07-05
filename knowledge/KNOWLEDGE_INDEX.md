@@ -1,8 +1,8 @@
 # Knowledge Index
 
-Version: 0.1
+Version: 0.2
 Status: Active
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -18,11 +18,13 @@ knowledge ID maps to exactly one repository path.
 
 ## Registry
 
-No knowledge documents are registered yet. Governance files and templates are
-not knowledge entries.
-
 | Knowledge ID | Title | Category | Domain | Topic | Status | Path | Summary |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| `kb:creative:content:conversion:call-to-action-patterns` | Call-to-Action Patterns | creative | content | conversion | Active | `knowledge/creative/content/conversion/call-to-action-patterns.md` | Proportional patterns for choosing one clear audience action. |
+| `kb:creative:content:formats:content-structures` | Content Structures | creative | content | formats | Active | `knowledge/creative/content/formats/content-structures.md` | Required structure for every deliverable supported by Content Creation v1. |
+| `kb:creative:content:hooks:hook-formulas` | Hook Formulas | creative | content | hooks | Active | `knowledge/creative/content/hooks/hook-formulas.md` | Honest opening patterns that establish relevance and a fulfilled promise. |
+| `kb:creative:content:platforms:publishing-constraints` | Publishing Constraints | creative | content | platforms | Active | `knowledge/creative/content/platforms/publishing-constraints.md` | Stable packaging guidance for generic, Instagram, LinkedIn, TikTok, and YouTube content. |
+| `kb:creative:content:style:tone-guidelines` | Tone Guidelines | creative | content | style | Active | `knowledge/creative/content/style/tone-guidelines.md` | Observable tone and style choices for audience-appropriate content. |
 
 ## Registration Rules
 
@@ -42,3 +44,4 @@ knowledge documents; replacements are declared in the deprecated document.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established the empty canonical registry |
+| 0.2 | 2026-07-05 | Registered five Content Creation v1 Knowledge documents. |

@@ -1,8 +1,8 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.17
+Version: 0.18
 Status: Active
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -12,58 +12,51 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 17 - Validator Roadmap Phase 3 (Dependency Graph + Version Graph)**
+**Sprint 18 - Content Creation Skill v1**
 
-Goal: build the Dependency Graph and Version Graph on top of the Sprint 16
-IR adapters, so later semantic validators can reason about references,
-version constraints, and cycles across multiple artifacts — without
-implementing Generator, Runtime, SDK, or a full CLI.
+Goal: deliver the framework's first production-quality reusable content
+generation Skill and end-to-end Workflow before resuming the remaining
+Validator Roadmap Phase 3 semantic rules.
 
 Status: **Completed**
 
-### Sprint 17 Backlog
+### Sprint 18 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Record node-kind, excluded-edge, diagnostic-prefix, and SemVer-precedence decisions | Done | `docs/adr/ADR-0010-dependency-and-version-graph-scope.md` |
-| Factor cycle detection into a shared, reusable utility (refactor, not duplicate) | Done | `scripts/asf_validator/graph.py`; `workflow_ir.py` now reuses it |
-| Extend Version IR with range satisfaction and self-contradiction checks | Done | `scripts/asf_validator/version_ir.py` |
-| Implement the Dependency Graph (nodes, edges, missing-dependency, cycle, duplicate-ID) | Done | `scripts/asf_validator/dependency_graph.py` |
-| Implement the Version Graph (unsatisfiable range, ambiguous reference, deprecated/archived) | Done | `scripts/asf_validator/version_graph.py` |
-| Add the ASF-GRAPH-* diagnostic prefix | Done | `docs/architecture/CLI_ARCHITECTURE.md` |
-| Add a graph fixture-conformance script and 10 multi-artifact scenarios | Done | `scripts/build_graph.py`, `tests/fixtures/graph/` (10/10) |
-| Add unit tests for graph/dependency_graph/version_graph | Done | `tests/unit/test_{graph,dependency_graph,version_graph}.py` (23 new tests) |
-| Fix a spec/implementation inconsistency found while documenting (archived+required must be an error, not always a warning) | Done | `scripts/asf_validator/version_graph.py`, `docs/adr/ADR-0010-*.md` |
-| Confirm zero regressions in Phase 1 and Phase 2 | Done | `validate_contracts.py` 10/10, `build_ir.py` 16/16 unchanged |
-| Update Validator Roadmap, IR Specification, CLI Architecture | Done | `docs/roadmaps/VALIDATOR_ROADMAP.md`, `docs/specifications/IR_SPECIFICATION.md`, `docs/architecture/CLI_ARCHITECTURE.md` |
-| Review, commit, and push | Done | Git history and `origin/main` |
+| Add an active Skill with all five requested content capabilities | Done | `skills/content-creation/` |
+| Keep reusable format, tone, platform, hook, and CTA guidance outside the Skill | Done | Five documents under `knowledge/creative/content/`; `KNOWLEDGE_INDEX.md` |
+| Add a complete Workflow mapping a supplied brief into the Skill | Done | `workflows/content-brief-to-package/` |
+| Cover minimal, representative, boundary, and invalid/refusal examples | Done | `skills/content-creation/examples/README.md` |
+| Validate canonical production files without fixture-only copies | Done | `tests/fixtures/{contracts,ir,graph}/cases.json` reference production paths directly |
+| Prove all Knowledge and Skill references resolve together | Done | `content-creation-v1-production-artifacts` graph scenario |
+| Document usage, validation, and execution boundaries | Done | Root and package READMEs; `PROJECT_CONTEXT.md` |
+| Preserve IR architecture boundaries | Done | Empty runtime/tool dependencies; embedded Evaluation/Reflection only |
 
-### Sprint 17 Exit Criteria
+### Sprint 18 Exit Criteria
 
-- Dependency Graph nodes/edges match `docs/specifications/IR_SPECIFICATION.md`
-  exactly (`skill:*`, `workflow:*`, `kb:*`); no Evaluation/Reflection nodes
-  or Runtime/Tool edges were invented.
-- `python scripts/validate_contracts.py` (Phase 1) still passes 10/10.
-- `python scripts/build_ir.py` (Phase 2) still passes 16/16.
-- `python scripts/build_graph.py` (Phase 3 graph) passes all declared
-  multi-artifact scenarios.
-- `python -m unittest discover -s tests/unit` passes all unit tests.
-- No Generator, Runtime, SDK, or full CLI implementation is added.
-- No repository Markdown link or ADR reference is broken.
-- Review passes and Sprint 17 is pushed to `main`.
+- `python scripts/validate_contracts.py` passes 12/12.
+- `python scripts/build_ir.py` passes 23/23, including every production
+  Content Creation artifact.
+- `python scripts/build_graph.py` passes 11/11, including the production package
+  with all required Knowledge and Skill references.
+- `python -m unittest discover` passes all 56 tests.
+- No schema fields, standalone Evaluation/Reflection artifacts, Runtime/Tool
+  graph nodes, publishing behavior, or unrelated refactors are introduced.
+- Repository Markdown links and ADR references remain valid.
 
-### Sprint 17 Deferred / Documented Gaps
+### Sprint 18 Deferred / Documented Gaps
 
-(See `docs/roadmaps/VALIDATOR_ROADMAP.md` Phase 3 for full detail.)
-
-- ID/path, weight-sum, mapping, and routing semantic rules — remaining
-  Phase 3 work.
-- Full repository-wide graph construction (real Project Discovery instead
-  of an explicit fixture list) — Phase 4.
-- SemVer pre-release precedence in version comparison — documented
-  simplification (ADR-0010).
-- `range_is_self_contradictory`'s coarse-only detection (misses adjacent-
-  version squeeze cases like `>1.0.0 <1.0.1`).
+- No Runtime or Generator executes the Skill yet; v1 is a validated framework
+  contract, Knowledge package, examples, and Workflow.
+- Nested field `constraints` remain tool-neutral declarations and are not
+  semantically enforced by the current validator.
+- Creative generation and embedded Evaluation/Reflection cannot run until the
+  planned Runtime exists.
+- Exact volatile platform limits require current official-source verification
+  before publishing; v1 records stable guidance only.
+- Repository-wide discovery remains Phase 4, so production artifacts are
+  explicitly registered in the fixture manifests.
 
 ## Sprint History
 
@@ -91,6 +84,7 @@ sprint indefinitely.
 | 15 | AI Team Architecture | `.ai/roles/`, `.ai/playbooks/`, `.ai/standards/`, `.ai/governance/`, ADR-0008 |
 | 16 | Validator Roadmap Phase 2 (IR Adapters) | `scripts/asf_validator/`, `scripts/build_ir.py` (16/16), 30 unit tests, ADR-0009 |
 | 17 | Validator Roadmap Phase 3 (Dependency/Version Graph) | `dependency_graph.py`, `version_graph.py`, `scripts/build_graph.py` (10/10), 53 unit tests, ADR-0010 |
+| 18 | Content Creation Skill v1 | Active Skill, five Knowledge documents, end-to-end Workflow, production graph scenario |
 
 ## Risks and Guardrails
 
@@ -105,7 +99,7 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Implement the remaining Phase 3 semantic validators (ID/path, weight-sum,
+1. Resume the remaining Phase 3 semantic validators (ID/path, weight-sum,
    mapping, routing rules) using the Sprint 17 Dependency/Version Graph.
 2. Begin Phase 4: extend the Dependency Graph from an explicit fixture list
    to a real repository-wide scan (Project Discovery, `CLI_ARCHITECTURE.md`),
@@ -150,3 +144,4 @@ sprint indefinitely.
 | 0.15 | 2026-07-04 | Completed Sprint 15 AI Team Architecture |
 | 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters); removed a stray duplicated "Previous Sprint" section left over from an earlier edit |
 | 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |
+| 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 |

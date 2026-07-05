@@ -77,6 +77,19 @@
         { "kind": "knowledge", "fixture": "tests/fixtures/graph/archived-dependency-required/knowledge.md" }
       ],
       "expected_codes": ["ASF-GRAPH-005"]
+    },
+    {
+      "name": "content-creation-v1-production-artifacts",
+      "artifacts": [
+        { "kind": "skill", "fixture": "skills/content-creation/skill.yaml" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/formats/content-structures.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/style/tone-guidelines.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/platforms/publishing-constraints.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/hooks/hook-formulas.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md" },
+        { "kind": "workflow", "fixture": "workflows/content-brief-to-package/workflow.yaml" }
+      ],
+      "expected_codes": []
     }
   ]
 }

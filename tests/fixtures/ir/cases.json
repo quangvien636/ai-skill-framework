@@ -106,6 +106,48 @@
       "kind": "reflection",
       "expected": "invalid",
       "expected_code": "ASF-SCHEMA-001"
+    },
+    {
+      "name": "content-creation-v1-skill",
+      "fixture": "skills/content-creation/skill.yaml",
+      "kind": "skill",
+      "expected": "valid"
+    },
+    {
+      "name": "content-brief-to-package-v1-workflow",
+      "fixture": "workflows/content-brief-to-package/workflow.yaml",
+      "kind": "workflow",
+      "expected": "valid"
+    },
+    {
+      "name": "content-structures-v1-knowledge",
+      "fixture": "knowledge/creative/content/formats/content-structures.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "tone-guidelines-v1-knowledge",
+      "fixture": "knowledge/creative/content/style/tone-guidelines.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "publishing-constraints-v1-knowledge",
+      "fixture": "knowledge/creative/content/platforms/publishing-constraints.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "hook-formulas-v1-knowledge",
+      "fixture": "knowledge/creative/content/hooks/hook-formulas.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "call-to-action-patterns-v1-knowledge",
+      "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md",
+      "kind": "knowledge",
+      "expected": "valid"
     }
   ]
 }

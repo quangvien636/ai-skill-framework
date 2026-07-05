@@ -59,6 +59,18 @@
       "fixture": "tests/fixtures/contracts/reflection/invalid.json",
       "schema": "reflection.schema.json",
       "expected": "invalid"
+    },
+    {
+      "name": "content-creation-v1-skill",
+      "fixture": "skills/content-creation/skill.yaml",
+      "schema": "skill.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "content-brief-to-package-v1-workflow",
+      "fixture": "workflows/content-brief-to-package/workflow.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "valid"
     }
   ]
 }

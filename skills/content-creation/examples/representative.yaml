@@ -1,0 +1,31 @@
+case: "representative"
+skill:
+  id: "skill:content-creation"
+  version: "1.0.0"
+knowledge_versions:
+  content-structures: "1.0.0"
+  tone-guidelines: "1.0.0"
+  publishing-constraints: "1.0.0"
+  hook-formulas: "1.0.0"
+  call-to-action-patterns: "1.0.0"
+input:
+  content-type: "short-video-script"
+  brief: "Explain a weekly planning ritual that reduces avoidable handoffs."
+  audience: "Busy independent designers who already use a task list."
+  platform: "tiktok"
+  tone: "practical, warm, and concise"
+  source-facts:
+    - "The ritual takes 20 minutes every Friday."
+    - "The three steps are collect open loops, choose next actions, and reserve focus blocks."
+  call-to-action: "Save this and try the ritual on Friday."
+  constraints:
+    - "Target 45 seconds."
+expected_output_properties:
+  - "primary-content separates spoken copy from visual directions"
+  - "script uses only supplied factual details"
+  - "opening promise is fulfilled by the three script beats"
+  - "production-notes flags recorded duration for final verification"
+  - "quality-report reports platform fit and no unsupported claims"
+expected_evaluation:
+  decision: "pass"
+  minimum_score: 85

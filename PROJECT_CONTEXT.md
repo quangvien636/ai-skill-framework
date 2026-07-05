@@ -1,8 +1,8 @@
 # AI Skill Framework - Project Context
 
-Version: 0.17
+Version: 0.18
 Status: Active
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -88,17 +88,20 @@ component-level description.
 
 ## Current Focus
 
-The project is in **Sprint 17 - Validator Roadmap Phase 3 (Dependency
-Graph + Version Graph)**. Built on Sprint 16's IR adapters:
-`scripts/asf_validator/dependency_graph.py` and `version_graph.py`
-construct the Dependency Graph and Version Graph
-`docs/specifications/IR_SPECIFICATION.md` defines, detecting missing
-dependencies, reference cycles, duplicate artifact IDs, unsatisfiable
-version ranges, ambiguous version references, and deprecated/archived
-dependencies. 10/10 multi-artifact fixture scenarios
-(`scripts/build_graph.py`) and 53 passing unit tests (`tests/unit/`).
-Sprints 8 and 16's validators are unchanged (10/10 and 16/16). See
-`PROJECT_TRACKER.md`, `docs/roadmaps/VALIDATOR_ROADMAP.md`, and ADR-0010.
+The project completed **Sprint 18 - Content Creation Skill v1**, temporarily
+prioritizing a real framework artifact before the remaining semantic validator
+rules. `skill:content-creation` supports five bounded content deliverables and
+depends on five canonical Knowledge documents.
+`workflow:content-brief-to-package` provides the end-to-end composition. The
+production files themselves are registered in the contract, IR, and graph
+fixture manifests, producing 12/12 contract cases, 23/23 IR cases, and 11/11
+graph scenarios, with 56 passing unit tests.
+
+The framework still has no Runtime executor, model invocation, or
+repository-wide discovery. Content behavior is therefore expressed by the
+Skill contract, embedded Evaluation/Reflection, examples, and Knowledge;
+current automated proof covers schema, IR, and graph construction. See
+`PROJECT_TRACKER.md` for the exact deferred gaps.
 
 ## Definition of Done
 
@@ -132,3 +135,4 @@ A change is complete when:
 | 0.15 | 2026-07-04 | Set Sprint 15 AI Team Architecture as current focus |
 | 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters) |
 | 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |
+| 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 production package |

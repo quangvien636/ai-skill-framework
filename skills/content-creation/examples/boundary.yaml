@@ -1,0 +1,28 @@
+case: "boundary"
+skill:
+  id: "skill:content-creation"
+  version: "1.0.0"
+knowledge_versions:
+  content-structures: "1.0.0"
+  tone-guidelines: "1.0.0"
+  publishing-constraints: "1.0.0"
+  hook-formulas: "1.0.0"
+  call-to-action-patterns: "1.0.0"
+input:
+  content-type: "article-outline"
+  brief: "Create a detailed outline comparing synchronous and asynchronous design critique. Cover preparation, feedback quality, inclusion, decision records, facilitation, and a hybrid operating model. Mark every section that needs organization-specific evidence."
+  audience: "Design operations leads evaluating team practices."
+  platform: "generic"
+  tone: "analytical and direct"
+  source-facts: []
+  constraints:
+    - "Do not claim that either method universally improves performance."
+    - "Include an introduction, at least five body sections, and a conclusion."
+expected_output_properties:
+  - "outline contains title, promise, thesis, ordered sections, introduction, and conclusion intent"
+  - "unsupported comparative claims are represented as evidence gaps"
+  - "the outline remains within the Skill output bound"
+  - "quality-report identifies the absence of organization-specific evidence"
+expected_evaluation:
+  decision: "pass"
+  minimum_score: 85

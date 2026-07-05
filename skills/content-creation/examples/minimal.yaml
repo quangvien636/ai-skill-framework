@@ -1,0 +1,24 @@
+case: "minimal"
+skill:
+  id: "skill:content-creation"
+  version: "1.0.0"
+knowledge_versions:
+  content-structures: "1.0.0"
+  tone-guidelines: "1.0.0"
+  publishing-constraints: "1.0.0"
+  hook-formulas: "1.0.0"
+  call-to-action-patterns: "1.0.0"
+input:
+  content-type: "social-media-post"
+  brief: "Share a simple reminder to plan tomorrow's first task before ending work."
+  audience: "Independent knowledge workers."
+  platform: "generic"
+expected_output_properties:
+  - "content-package.content-type equals social-media-post"
+  - "primary-content contains one focused post and no invented factual claim"
+  - "hook and call-to-action are present"
+  - "assumptions lists any interpretation not supplied by the brief"
+  - "quality-report contains all four required checks"
+expected_evaluation:
+  decision: "pass"
+  minimum_score: 85

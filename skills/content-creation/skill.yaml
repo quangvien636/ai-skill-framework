@@ -1,0 +1,204 @@
+schema_version: "1.0.0"
+id: "skill:content-creation"
+name: "content-creation"
+display_name: "Content Creation"
+description: "Creates a platform-ready content package for short video, social post, article outline, caption, or title and thumbnail ideation."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "content"
+  - "generation"
+  - "social-media"
+responsibility: "Create one audience-aligned, platform-aware content package from a supplied brief and source facts."
+inputs:
+  content-type:
+    type: "string"
+    required: true
+    description: "Requested deliverable: short-video-script, social-media-post, article-outline, caption-hashtags, or title-thumbnail-ideas."
+    constraints:
+      enum:
+        - "short-video-script"
+        - "social-media-post"
+        - "article-outline"
+        - "caption-hashtags"
+        - "title-thumbnail-ideas"
+  brief:
+    type: "string"
+    required: true
+    description: "Topic, objective, offer, and any mandatory message for the content."
+    constraints:
+      min_length: 1
+      max_length: 12000
+  audience:
+    type: "string"
+    required: true
+    description: "Intended audience, including relevant needs or awareness level."
+    constraints:
+      min_length: 1
+      max_length: 2000
+  platform:
+    type: "string"
+    required: true
+    description: "Target publishing platform or generic when no platform is selected."
+    constraints:
+      enum:
+        - "generic"
+        - "instagram"
+        - "linkedin"
+        - "tiktok"
+        - "youtube"
+  tone:
+    type: "string"
+    required: false
+    description: "Requested tone using plain descriptive language."
+    default: "clear and conversational"
+    constraints:
+      min_length: 1
+      max_length: 200
+  source-facts:
+    type: "array"
+    required: false
+    description: "Approved factual claims, evidence, quotations, or product details that may be used."
+    default: []
+    constraints:
+      max_items: 50
+      items:
+        type: "string"
+  call-to-action:
+    type: "string"
+    required: false
+    description: "Desired audience action; empty means select a low-friction action appropriate to the objective."
+    default: ""
+    constraints:
+      max_length: 500
+  constraints:
+    type: "array"
+    required: false
+    description: "Additional brand, length, vocabulary, disclosure, or formatting requirements."
+    default: []
+    constraints:
+      max_items: 30
+      items:
+        type: "string"
+outputs:
+  content-package:
+    type: "object"
+    required: true
+    description: "Structured package containing content-type, primary-content, hook, call-to-action, alternatives, production-notes, and assumptions."
+    constraints:
+      required:
+        - "content-type"
+        - "primary-content"
+        - "hook"
+        - "call-to-action"
+        - "alternatives"
+        - "production-notes"
+        - "assumptions"
+      additional_properties: false
+  quality-report:
+    type: "object"
+    required: true
+    description: "Self-check recording constraint compliance, unsupported-claim review, platform fit, and known limitations."
+    constraints:
+      required:
+        - "constraint-compliance"
+        - "unsupported-claims"
+        - "platform-fit"
+        - "limitations"
+      additional_properties: false
+dependencies:
+  runtime: []
+  tools: []
+  knowledge:
+    - id: "kb:creative:content:formats:content-structures"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Select and populate the canonical structure for the requested content type."
+    - id: "kb:creative:content:style:tone-guidelines"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Apply a consistent audience-appropriate tone without imitating a living creator."
+    - id: "kb:creative:content:platforms:publishing-constraints"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Adapt structure and packaging to the selected platform."
+    - id: "kb:creative:content:hooks:hook-formulas"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Choose and write an honest opening suited to the audience and format."
+    - id: "kb:creative:content:conversion:call-to-action-patterns"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Close with one proportional, specific audience action."
+procedure:
+  - id: "validate-brief"
+    action: "Validate all declared inputs and identify missing facts without inventing them."
+  - id: "select-format"
+    action: "Select the requested content structure and applicable platform constraints from resolved knowledge."
+  - id: "draft-package"
+    action: "Draft one complete content package using only the brief, approved source facts, and declared assumptions."
+  - id: "check-quality"
+    action: "Check factual support, format completeness, tone consistency, platform fit, and call-to-action proportionality."
+  - id: "return-package"
+    action: "Return only the declared content-package and quality-report outputs."
+constraints:
+  side_effects: "none; generates draft content but does not publish, schedule, upload, or modify external systems"
+  prohibited:
+    - "Invent factual claims, testimonials, statistics, quotations, or product capabilities."
+    - "Present assumptions as verified facts."
+    - "Imitate a living creator or public figure."
+    - "Use deceptive hooks, fabricated urgency, engagement bait, or irrelevant hashtags."
+    - "Publish or schedule content."
+  max_input_size: 20000
+  max_output_size: 16000
+  deterministic: false
+evaluation:
+  metrics:
+    - name: "brief-alignment"
+      description: "The package serves the stated objective, audience, and mandatory message."
+      weight: 0.30
+      rubric:
+        "0": "The package contradicts or ignores the brief."
+        "50": "The topic is recognizable but important objective or audience details are missed."
+        "100": "Every material choice clearly supports the brief and intended audience."
+    - name: "format-and-platform-fit"
+      description: "The output is complete for its content type and adapted to the selected platform."
+      weight: 0.25
+      rubric:
+        "0": "The requested format is absent or unusable."
+        "50": "The core format exists but required components or platform adaptation are incomplete."
+        "100": "All required components are present and appropriately packaged for the platform."
+    - name: "factual-integrity"
+      description: "Material factual claims are supported by the brief or source-facts and assumptions are labeled."
+      weight: 0.30
+      rubric:
+        "0": "The package contains material fabricated or contradictory claims."
+        "50": "Most claims are supported but ambiguous claims or unlabeled assumptions remain."
+        "100": "All material claims are supported and every assumption is explicit."
+    - name: "clarity-and-actionability"
+      description: "The content is clear, engaging without deception, and closes with a proportional action."
+      weight: 0.15
+      rubric:
+        "0": "The content is confusing, deceptive, or lacks a usable next action."
+        "50": "The message is understandable but generic, uneven, or weakly actionable."
+        "100": "The message is focused, readable, honest, and ends with one specific appropriate action."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 85
+    hard_gates:
+      - "output-schema-valid"
+      - "no-unsupported-material-claims"
+      - "requested-content-type-complete"
+  on_failure: "reflect"
+reflection:
+  enabled: true
+  max_attempts: 2
+  minimum_improvement: 5
+  on_exhausted: "manual-review"
+  reflectable_hard_gates:
+    - "output-schema-valid"
+    - "requested-content-type-complete"
