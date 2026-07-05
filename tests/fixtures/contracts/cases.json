@@ -71,6 +71,18 @@
       "fixture": "workflows/content-brief-to-package/workflow.yaml",
       "schema": "workflow.schema.json",
       "expected": "valid"
+    },
+    {
+      "name": "research-v1-skill",
+      "fixture": "skills/research/skill.yaml",
+      "schema": "skill.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "research-topic-to-brief-v1-workflow",
+      "fixture": "workflows/research-topic-to-brief/workflow.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "valid"
     }
   ]
 }

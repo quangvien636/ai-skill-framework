@@ -1,0 +1,84 @@
+import json
+import unittest
+
+import _bootstrap
+
+from asf_validator.dependency_graph import build_dependency_graph
+from asf_validator.pipeline import build_ir
+from asf_validator.schema_registry import build_schema_registry
+from asf_validator.version_graph import build_version_graph
+
+
+SKILL = "skills/research/skill.yaml"
+WORKFLOW = "workflows/research-topic-to-brief/workflow.yaml"
+KNOWLEDGE = {
+    "knowledge/foundational/research/briefs/research-brief-structure.md",
+    "knowledge/foundational/research/sources/source-reliability-criteria.md",
+    "knowledge/foundational/research/evidence/claim-evidence-mapping.md",
+    "knowledge/foundational/research/uncertainty/uncertainty-language.md",
+    "knowledge/foundational/research/verification/fact-checking-checklist.md",
+    "knowledge/foundational/research/citations/citation-expectations.md",
+}
+
+
+class ResearchProductionArtifactTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+
+    @staticmethod
+    def load_manifest(relative_path):
+        return json.loads(
+            (_bootstrap.REPO_ROOT / relative_path).read_text(encoding="utf-8")
+        )
+
+    def test_contract_and_ir_cases_reference_canonical_production_manifests(self):
+        contract_fixtures = {
+            case["fixture"]
+            for case in self.load_manifest("tests/fixtures/contracts/cases.json")[
+                "cases"
+            ]
+        }
+        ir_fixtures = {
+            case["fixture"]
+            for case in self.load_manifest("tests/fixtures/ir/cases.json")["cases"]
+        }
+
+        self.assertTrue({SKILL, WORKFLOW}.issubset(contract_fixtures))
+        self.assertTrue(({SKILL, WORKFLOW} | KNOWLEDGE).issubset(ir_fixtures))
+
+    def test_graph_case_references_complete_canonical_production_package(self):
+        cases = self.load_manifest("tests/fixtures/graph/cases.json")["cases"]
+        production = next(
+            case for case in cases if case["name"] == "research-v1-production-artifacts"
+        )
+        fixtures = {artifact["fixture"] for artifact in production["artifacts"]}
+
+        self.assertEqual(fixtures, {SKILL, WORKFLOW} | KNOWLEDGE)
+        self.assertEqual(production["expected_codes"], [])
+
+    def test_canonical_production_package_builds_without_graph_diagnostics(self):
+        artifacts = [
+            ("skill", SKILL),
+            *(("knowledge", path) for path in sorted(KNOWLEDGE)),
+            ("workflow", WORKFLOW),
+        ]
+        results = [
+            build_ir(kind, _bootstrap.REPO_ROOT / path, self.registry)
+            for kind, path in artifacts
+        ]
+
+        self.assertTrue(all(result.ok for result in results))
+        dependency_graph, dependency_diagnostics = build_dependency_graph(results)
+        _version_graph, version_diagnostics = build_version_graph(dependency_graph)
+        self.assertEqual(dependency_diagnostics + version_diagnostics, [])
+
+    def test_research_v1_declares_no_runtime_or_tool_dependencies(self):
+        result = build_ir("skill", _bootstrap.REPO_ROOT / SKILL, self.registry)
+        self.assertTrue(result.ok)
+        self.assertEqual(result.ir.dependencies.runtime, ())
+        self.assertEqual(result.ir.dependencies.tools, ())
+
+
+if __name__ == "__main__":
+    unittest.main()

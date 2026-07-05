@@ -1,0 +1,30 @@
+case: "representative"
+skill:
+  id: "skill:research"
+  version: "1.0.0"
+input:
+  topic: "Should a small software team adopt weekly customer interviews?"
+  objective: "Give a product lead a brief for deciding whether to run an eight-week pilot."
+  scope: "Teams under 20 people; decision concerns a pilot, not permanent adoption."
+  supplied-sources:
+    - source-id: "S1"
+      title: "Internal discovery retrospective"
+      source-type: "internal retrospective"
+      date: "2026-06-10"
+      provenance: "Provided by the product lead"
+  evidence-notes:
+    - note-id: "E1"
+      source-id: "S1"
+      locator: "section 3"
+      text: "Three prior interviews revealed terminology problems in onboarding."
+  constraints:
+    - "Separate evidence about interview value from evidence about weekly cadence."
+expected_output_properties:
+  - "research questions distinguish value, cadence, cost, and pilot success criteria"
+  - "S1 reliability is assessed with its internal and retrospective limitations"
+  - "no general causal claim is inferred from the three interviews"
+  - "claim-evidence map links the bounded onboarding finding to E1 and S1"
+  - "gaps request independent and cadence-specific evidence"
+expected_evaluation:
+  decision: "pass"
+  minimum_score: 85

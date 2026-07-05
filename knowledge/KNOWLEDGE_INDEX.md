@@ -1,6 +1,6 @@
 # Knowledge Index
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-05
 
@@ -25,6 +25,12 @@ knowledge ID maps to exactly one repository path.
 | `kb:creative:content:hooks:hook-formulas` | Hook Formulas | creative | content | hooks | Active | `knowledge/creative/content/hooks/hook-formulas.md` | Honest opening patterns that establish relevance and a fulfilled promise. |
 | `kb:creative:content:platforms:publishing-constraints` | Publishing Constraints | creative | content | platforms | Active | `knowledge/creative/content/platforms/publishing-constraints.md` | Stable packaging guidance for generic, Instagram, LinkedIn, TikTok, and YouTube content. |
 | `kb:creative:content:style:tone-guidelines` | Tone Guidelines | creative | content | style | Active | `knowledge/creative/content/style/tone-guidelines.md` | Observable tone and style choices for audience-appropriate content. |
+| `kb:foundational:research:briefs:research-brief-structure` | Research Brief Structure | foundational | research | briefs | Active | `knowledge/foundational/research/briefs/research-brief-structure.md` | Required structure and traceability rules for a decision-useful research brief. |
+| `kb:foundational:research:citations:citation-expectations` | Citation Expectations | foundational | research | citations | Active | `knowledge/foundational/research/citations/citation-expectations.md` | Minimum identity, locator, consistency, and honesty rules for citations. |
+| `kb:foundational:research:evidence:claim-evidence-mapping` | Claim Evidence Mapping | foundational | research | evidence | Active | `knowledge/foundational/research/evidence/claim-evidence-mapping.md` | Atomic claim mapping to supporting, contradicting, or missing evidence. |
+| `kb:foundational:research:sources:source-reliability-criteria` | Source Reliability Criteria | foundational | research | sources | Active | `knowledge/foundational/research/sources/source-reliability-criteria.md` | Explainable fitness assessment for supplied research sources. |
+| `kb:foundational:research:uncertainty:uncertainty-language` | Uncertainty Language | foundational | research | uncertainty | Active | `knowledge/foundational/research/uncertainty/uncertainty-language.md` | Calibrated language for confidence, inference, disagreement, and unknowns. |
+| `kb:foundational:research:verification:fact-checking-checklist` | Fact Checking Checklist | foundational | research | verification | Active | `knowledge/foundational/research/verification/fact-checking-checklist.md` | Pre-delivery checks for material claims against supplied research records. |
 
 ## Registration Rules
 
@@ -45,3 +51,4 @@ knowledge documents; replacements are declared in the deprecated document.
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established the empty canonical registry |
 | 0.2 | 2026-07-05 | Registered five Content Creation v1 Knowledge documents. |
+| 0.3 | 2026-07-05 | Registered six Research v1 methodology documents. |

@@ -63,9 +63,9 @@ Under Development
 - [Validation Guide](docs/guides/VALIDATION_GUIDE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
 
-## Production Example: Content Creation v1
+## Production Skills
 
-The first production-quality framework package is
+The first production-quality framework package,
 [`skill:content-creation`](skills/content-creation/README.md). It creates short
 video scripts, social posts, long-form article outlines, caption and hashtag
 sets, and title and thumbnail ideas. Five canonical
@@ -76,6 +76,15 @@ Use the
 [`content-brief-to-package`](workflows/content-brief-to-package/README.md)
 Workflow for the end-to-end path. Its production artifacts are registered
 directly in contract, IR, and graph fixture manifests.
+
+The second package, [`skill:research`](skills/research/README.md), turns a topic
+and caller-supplied evidence into research questions, source requirements,
+reliability assessments, claim-evidence mappings, calibrated findings, gaps,
+citations, and a structured brief. Its
+[`research-topic-to-brief`](workflows/research-topic-to-brief/README.md)
+Workflow and six methodology Knowledge documents are likewise validated from
+their canonical production paths. Research v1 defines artifact and reasoning
+structure only; it does not browse or fetch external sources.
 
 ## Validator Prototype
 
@@ -97,9 +106,9 @@ Evaluation/Reflection document into the typed IR object
 Dependency Graph / Version Graph across multiple loaded artifacts:
 
 ```bash
-python scripts/build_ir.py                 # 23 IR fixture cases
-python scripts/build_graph.py              # 11 multi-artifact graph scenarios
-python -m unittest discover -s tests/unit  # 56 unit tests
+python scripts/build_ir.py                 # 31 IR fixture cases
+python scripts/build_graph.py              # 12 multi-artifact graph scenarios
+python -m unittest discover -s tests/unit  # 60 unit tests
 ```
 
 See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),

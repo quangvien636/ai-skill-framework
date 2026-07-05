@@ -1,0 +1,197 @@
+schema_version: "1.0.0"
+id: "skill:research"
+name: "research"
+display_name: "Research"
+description: "Turns a supplied topic and evidence notes into a traceable, uncertainty-aware research brief."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "research"
+  - "evidence"
+  - "fact-checking"
+responsibility: "Structure research questions, assess supplied sources and evidence, map claims, identify gaps, and produce one research brief without fetching external material."
+inputs:
+  topic:
+    type: "string"
+    required: true
+    description: "Topic, question, or decision the research should address."
+    constraints:
+      min_length: 1
+      max_length: 4000
+  objective:
+    type: "string"
+    required: true
+    description: "Intended use, audience, and decision the brief should support."
+    constraints:
+      min_length: 1
+      max_length: 4000
+  scope:
+    type: "string"
+    required: false
+    description: "Included and excluded boundaries, geography, population, or time period."
+    default: ""
+    constraints:
+      max_length: 4000
+  supplied-sources:
+    type: "array"
+    required: false
+    description: "Source records supplied by the caller, each including enough identity and provenance to cite and assess."
+    default: []
+    constraints:
+      max_items: 100
+      items:
+        type: "object"
+  evidence-notes:
+    type: "array"
+    required: false
+    description: "Caller-supplied evidence notes linked to supplied source records."
+    default: []
+    constraints:
+      max_items: 300
+      items:
+        type: "object"
+  constraints:
+    type: "array"
+    required: false
+    description: "Required questions, source types, recency rules, citation style, or other research constraints."
+    default: []
+    constraints:
+      max_items: 50
+      items:
+        type: "string"
+outputs:
+  research-brief:
+    type: "object"
+    required: true
+    description: "Structured brief containing objective, scope, research-questions, source-requirements, findings, claim-evidence-map, uncertainties, gaps, citations, and next-steps."
+    constraints:
+      required:
+        - "objective"
+        - "scope"
+        - "research-questions"
+        - "source-requirements"
+        - "findings"
+        - "claim-evidence-map"
+        - "uncertainties"
+        - "gaps"
+        - "citations"
+        - "next-steps"
+      additional_properties: false
+  quality-report:
+    type: "object"
+    required: true
+    description: "Self-check recording traceability, source reliability, contradiction handling, fact-check status, and limitations."
+    constraints:
+      required:
+        - "traceability"
+        - "source-reliability"
+        - "contradictions"
+        - "fact-check-status"
+        - "limitations"
+      additional_properties: false
+dependencies:
+  runtime: []
+  tools: []
+  knowledge:
+    - id: "kb:foundational:research:briefs:research-brief-structure"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Structure the final research brief and its required sections."
+    - id: "kb:foundational:research:sources:source-reliability-criteria"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Assess and rank the reliability of supplied sources."
+    - id: "kb:foundational:research:evidence:claim-evidence-mapping"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Extract bounded claims and link each claim to supporting or contradicting evidence."
+    - id: "kb:foundational:research:uncertainty:uncertainty-language"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Express confidence, limitations, disagreement, and unknowns precisely."
+    - id: "kb:foundational:research:verification:fact-checking-checklist"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Check material claims, provenance, dates, context, and contradictions."
+    - id: "kb:foundational:research:citations:citation-expectations"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Keep citations complete, consistent, and traceable to supplied source records."
+procedure:
+  - id: "clarify-questions"
+    action: "Translate the topic, objective, scope, and constraints into prioritized answerable research questions."
+  - id: "define-source-requirements"
+    action: "Specify the source types, authority, recency, independence, and coverage needed for each research question."
+  - id: "normalize-evidence"
+    action: "Organize only caller-supplied sources and evidence notes; do not fetch, imply, or fabricate missing evidence."
+  - id: "rank-source-reliability"
+    action: "Assess each supplied source using the resolved reliability criteria and record reasons and limitations."
+  - id: "map-claims"
+    action: "Extract bounded claims and map supporting, contradicting, or missing evidence with citations."
+  - id: "summarize-findings"
+    action: "Synthesize findings at a confidence level justified by the mapped evidence."
+  - id: "identify-gaps"
+    action: "Record unresolved questions, contradictions, uncertainty, and the evidence needed to close each gap."
+  - id: "produce-brief"
+    action: "Return only the declared research-brief and quality-report outputs."
+constraints:
+  side_effects: "none; structures supplied research material but does not browse, fetch, contact sources, execute code, or modify external systems"
+  prohibited:
+    - "Invent sources, citations, quotations, evidence, findings, or source metadata."
+    - "Claim that a source was accessed, verified, or independently corroborated when it was only supplied by the caller."
+    - "Treat source reliability as proof that an individual claim is true."
+    - "Hide material contradictions, uncertainty, scope limits, or unanswered questions."
+    - "Perform live browsing, external retrieval, or undeclared tool use."
+  max_input_size: 60000
+  max_output_size: 30000
+  deterministic: false
+evaluation:
+  metrics:
+    - name: "question-and-scope-quality"
+      description: "Research questions are answerable, prioritized, and aligned with the objective and scope."
+      weight: 0.20
+      rubric:
+        "0": "Questions are absent or unrelated to the objective."
+        "50": "Questions cover the topic but remain broad, overlapping, or weakly scoped."
+        "100": "Questions clearly decompose the objective and define what a sufficient answer requires."
+    - name: "evidence-traceability"
+      description: "Every material finding is linked to identifiable supplied evidence and citations."
+      weight: 0.35
+      rubric:
+        "0": "Material findings lack evidence or cite invented sources."
+        "50": "Most findings are linked, but some mappings or citation details are incomplete."
+        "100": "Every material finding has an explicit, auditable claim-to-evidence path."
+    - name: "source-and-claim-assessment"
+      description: "Reliability, claim support, contradictions, and context are assessed separately and consistently."
+      weight: 0.25
+      rubric:
+        "0": "Sources or claims are accepted without assessment."
+        "50": "Assessments exist but conflate source quality with claim truth or miss contradictions."
+        "100": "Each source and claim is assessed with reasons, limits, and contrary evidence preserved."
+    - name: "uncertainty-and-actionability"
+      description: "The brief uses calibrated language and turns gaps into specific next research steps."
+      weight: 0.20
+      rubric:
+        "0": "Unknowns are hidden or conclusions are overstated."
+        "50": "Limitations are mentioned but confidence or next steps are vague."
+        "100": "Confidence matches evidence and every material gap has a concrete resolution path."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 85
+    hard_gates:
+      - "output-schema-valid"
+      - "no-invented-sources-or-evidence"
+      - "material-claims-traceable"
+  on_failure: "reflect"
+reflection:
+  enabled: true
+  max_attempts: 2
+  minimum_improvement: 5
+  on_exhausted: "manual-review"
+  reflectable_hard_gates:
+    - "output-schema-valid"
+    - "material-claims-traceable"

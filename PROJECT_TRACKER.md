@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.18
+Version: 0.19
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,49 +12,49 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 18 - Content Creation Skill v1**
+**Sprint 19 - Research Skill v1**
 
-Goal: deliver the framework's first production-quality reusable content
-generation Skill and end-to-end Workflow before resuming the remaining
-Validator Roadmap Phase 3 semantic rules.
+Goal: deliver a reusable production Research Skill and topic-to-brief Workflow
+that future Content, SEO, Marketing, Business, and Coding skills can consume.
 
 Status: **Completed**
 
-### Sprint 18 Backlog
+### Sprint 19 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Add an active Skill with all five requested content capabilities | Done | `skills/content-creation/` |
-| Keep reusable format, tone, platform, hook, and CTA guidance outside the Skill | Done | Five documents under `knowledge/creative/content/`; `KNOWLEDGE_INDEX.md` |
-| Add a complete Workflow mapping a supplied brief into the Skill | Done | `workflows/content-brief-to-package/` |
-| Cover minimal, representative, boundary, and invalid/refusal examples | Done | `skills/content-creation/examples/README.md` |
+| Add an active Skill covering questions, source requirements, evidence, reliability, claims, findings, uncertainty, gaps, and briefs | Done | `skills/research/` |
+| Keep reusable research methodology outside the Skill | Done | Six documents under `knowledge/foundational/research/`; `KNOWLEDGE_INDEX.md` |
+| Add the end-to-end topic-to-brief Workflow | Done | `workflows/research-topic-to-brief/` |
+| Cover representative, minimal-evidence, contradictory, and invalid/refusal cases | Done | `skills/research/examples/` |
 | Validate canonical production files without fixture-only copies | Done | `tests/fixtures/{contracts,ir,graph}/cases.json` reference production paths directly |
-| Prove all Knowledge and Skill references resolve together | Done | `content-creation-v1-production-artifacts` graph scenario |
+| Prove all Knowledge and Skill references resolve together | Done | `research-v1-production-artifacts` graph scenario |
 | Document usage, validation, and execution boundaries | Done | Root and package READMEs; `PROJECT_CONTEXT.md` |
 | Preserve IR architecture boundaries | Done | Empty runtime/tool dependencies; embedded Evaluation/Reflection only |
 
-### Sprint 18 Exit Criteria
+### Sprint 19 Exit Criteria
 
-- `python scripts/validate_contracts.py` passes 12/12.
-- `python scripts/build_ir.py` passes 23/23, including every production
-  Content Creation artifact.
-- `python scripts/build_graph.py` passes 11/11, including the production package
+- `python scripts/validate_contracts.py` passes 14/14.
+- `python scripts/build_ir.py` passes 31/31, including every production
+  Research artifact.
+- `python scripts/build_graph.py` passes 12/12, including the production package
   with all required Knowledge and Skill references.
-- `python -m unittest discover` passes all 56 tests.
+- `python -m unittest discover` passes all 60 tests.
 - No schema fields, standalone Evaluation/Reflection artifacts, Runtime/Tool
-  graph nodes, publishing behavior, or unrelated refactors are introduced.
+  graph nodes, source-fetching behavior, or unrelated refactors are introduced.
 - Repository Markdown links and ADR references remain valid.
 
-### Sprint 18 Deferred / Documented Gaps
+### Sprint 19 Deferred / Documented Gaps
 
 - No Runtime or Generator executes the Skill yet; v1 is a validated framework
   contract, Knowledge package, examples, and Workflow.
-- Nested field `constraints` remain tool-neutral declarations and are not
-  semantically enforced by the current validator.
-- Creative generation and embedded Evaluation/Reflection cannot run until the
+- No browser, fetcher, connector, or external verification mechanism exists;
+  v1 accepts only caller-supplied source records and evidence notes.
+- The current schema validates supplied-source and evidence-note items as
+  objects but cannot express their nested fields; the Knowledge and examples
+  document the expected structure without inventing schema fields.
+- Research reasoning and embedded Evaluation/Reflection cannot run until the
   planned Runtime exists.
-- Exact volatile platform limits require current official-source verification
-  before publishing; v1 records stable guidance only.
 - Repository-wide discovery remains Phase 4, so production artifacts are
   explicitly registered in the fixture manifests.
 
@@ -85,6 +85,7 @@ sprint indefinitely.
 | 16 | Validator Roadmap Phase 2 (IR Adapters) | `scripts/asf_validator/`, `scripts/build_ir.py` (16/16), 30 unit tests, ADR-0009 |
 | 17 | Validator Roadmap Phase 3 (Dependency/Version Graph) | `dependency_graph.py`, `version_graph.py`, `scripts/build_graph.py` (10/10), 53 unit tests, ADR-0010 |
 | 18 | Content Creation Skill v1 | Active Skill, five Knowledge documents, end-to-end Workflow, production graph scenario |
+| 19 | Research Skill v1 | Active Skill, six methodology documents, topic-to-brief Workflow, production graph scenario |
 
 ## Risks and Guardrails
 
@@ -145,3 +146,4 @@ sprint indefinitely.
 | 0.16 | 2026-07-04 | Completed Sprint 16 Validator Roadmap Phase 2 (IR adapters); removed a stray duplicated "Previous Sprint" section left over from an earlier edit |
 | 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |
 | 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 |
+| 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 |

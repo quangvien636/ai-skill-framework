@@ -148,6 +148,54 @@
       "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md",
       "kind": "knowledge",
       "expected": "valid"
+    },
+    {
+      "name": "research-v1-skill",
+      "fixture": "skills/research/skill.yaml",
+      "kind": "skill",
+      "expected": "valid"
+    },
+    {
+      "name": "research-topic-to-brief-v1-workflow",
+      "fixture": "workflows/research-topic-to-brief/workflow.yaml",
+      "kind": "workflow",
+      "expected": "valid"
+    },
+    {
+      "name": "research-brief-structure-v1-knowledge",
+      "fixture": "knowledge/foundational/research/briefs/research-brief-structure.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "source-reliability-criteria-v1-knowledge",
+      "fixture": "knowledge/foundational/research/sources/source-reliability-criteria.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "claim-evidence-mapping-v1-knowledge",
+      "fixture": "knowledge/foundational/research/evidence/claim-evidence-mapping.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "uncertainty-language-v1-knowledge",
+      "fixture": "knowledge/foundational/research/uncertainty/uncertainty-language.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "fact-checking-checklist-v1-knowledge",
+      "fixture": "knowledge/foundational/research/verification/fact-checking-checklist.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "citation-expectations-v1-knowledge",
+      "fixture": "knowledge/foundational/research/citations/citation-expectations.md",
+      "kind": "knowledge",
+      "expected": "valid"
     }
   ]
 }

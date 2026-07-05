@@ -1,0 +1,67 @@
+schema_version: "1.0.0"
+id: "workflow:research-topic-to-brief"
+name: "research-topic-to-brief"
+display_name: "Research Topic to Brief"
+description: "Turns a supplied topic and evidence notes into a traceable research brief."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "research"
+  - "evidence"
+entrypoint: "produce-research-brief"
+inputs:
+  topic:
+    type: "string"
+    required: true
+    description: "Topic or question to research."
+  objective:
+    type: "string"
+    required: true
+    description: "Intended use, audience, and decision."
+  scope:
+    type: "string"
+    required: false
+    description: "Research boundaries."
+    default: ""
+  supplied-sources:
+    type: "array"
+    required: false
+    description: "Caller-supplied source records."
+    default: []
+  evidence-notes:
+    type: "array"
+    required: false
+    description: "Caller-supplied evidence notes."
+    default: []
+  constraints:
+    type: "array"
+    required: false
+    description: "Research and output constraints."
+    default: []
+steps:
+  - id: "produce-research-brief"
+    skill:
+      id: "skill:research"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      topic: "workflow.inputs.topic"
+      objective: "workflow.inputs.objective"
+      scope: "workflow.inputs.scope"
+      supplied-sources: "workflow.inputs.supplied-sources"
+      evidence-notes: "workflow.inputs.evidence-notes"
+      constraints: "workflow.inputs.constraints"
+    on_error: "manual-review"
+outputs:
+  research-brief:
+    type: "object"
+    description: "Structured, evidence-traceable research brief."
+    from: "steps.produce-research-brief.outputs.research-brief"
+  quality-report:
+    type: "object"
+    description: "Embedded research quality self-check."
+    from: "steps.produce-research-brief.outputs.quality-report"
+error_handling:
+  default: "manual-review"
