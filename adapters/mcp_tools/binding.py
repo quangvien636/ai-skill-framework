@@ -12,11 +12,12 @@ whatever handler was bound.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Mapping, Optional
 
 import mcp.types as types
 
 from asf_validator.connector_ir import ConnectorIR
+from asf_validator.runtime_ir import RuntimeIR
 from asf_validator.skill_ir import FieldIR
 from asf_validator.tool_ir import ToolIR
 
@@ -124,3 +125,34 @@ class MCPToolRegistry:
 
     def connector_for(self, name: str) -> ConnectorBinding | None:
         return self._connectors.get(name)
+
+
+def bind_runtime_tools(
+    registry: MCPToolRegistry,
+    runtime: RuntimeIR,
+    tools_by_id: Mapping[str, ToolIR],
+    handlers_by_id: Mapping[str, ToolHandler],
+    connectors_by_id: Optional[Mapping[str, ConnectorIR]] = None,
+) -> tuple[str, ...]:
+    """Bind every Tool a resolved Runtime Contract references to `registry`.
+    Binding only -- no invocation.
+
+    `tools_by_id`/`handlers_by_id` must already contain the Runtime
+    Planning-resolved ToolIR/handler for each `runtime.tools.refs` id --
+    this function does not resolve repository references itself (that is
+    the Dependency Graph/planner's job). Returns an empty tuple when
+    `runtime.tools.enabled` is false, matching ADR-0014's `enabled` pattern.
+    """
+    if not runtime.tools.enabled:
+        return ()
+    connectors = connectors_by_id or {}
+    bound: list[str] = []
+    for ref in runtime.tools.refs:
+        tool = tools_by_id[ref.id]
+        handler = handlers_by_id[ref.id]
+        connector = None
+        if tool.dependencies.connectors:
+            connector = connectors.get(tool.dependencies.connectors[0].id)
+        registry.bind(tool, handler, connector=connector)
+        bound.append(tool.metadata.name)
+    return tuple(bound)

@@ -5,9 +5,10 @@ import _bootstrap
 
 from asf_validator.pipeline import build_ir
 from asf_validator.schema_registry import build_schema_registry
-from mcp_tools.binding import MCPToolRegistry, tool_ir_to_mcp_tool
+from mcp_tools.binding import MCPToolRegistry, bind_runtime_tools, tool_ir_to_mcp_tool
 
 FIXTURES = _bootstrap.GRAPH_FIXTURES / "valid-tool-connector"
+RUNTIME_FIXTURES = _bootstrap.GRAPH_FIXTURES / "valid-runtime"
 
 
 class MCPBindingTests(unittest.TestCase):
@@ -56,6 +57,43 @@ class MCPBindingTests(unittest.TestCase):
         registry = MCPToolRegistry()
         with self.assertRaises(KeyError):
             asyncio.run(registry.call_tool("missing-tool", {}))
+
+    def test_bind_runtime_tools_binds_every_enabled_reference(self):
+        schema_registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+        runtime_result = build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", schema_registry)
+        tool_result = build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", schema_registry)
+        assert runtime_result.ok and tool_result.ok, (
+            runtime_result.diagnostics,
+            tool_result.diagnostics,
+        )
+        self.assertTrue(runtime_result.ir.tools.enabled)
+
+        registry = MCPToolRegistry()
+
+        async def handler(arguments):
+            return {"content": f"read {arguments['path']}"}
+
+        bound = bind_runtime_tools(
+            registry,
+            runtime_result.ir,
+            tools_by_id={"tool:read-file": tool_result.ir},
+            handlers_by_id={"tool:read-file": handler},
+        )
+        self.assertEqual(bound, ("read-file",))
+        self.assertEqual([t.name for t in registry.list_tools()], ["read-file"])
+
+    def test_bind_runtime_tools_returns_empty_when_disabled(self):
+        schema_registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+        runtime_result = build_ir(
+            "runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", schema_registry
+        )
+        assert runtime_result.ok, runtime_result.diagnostics
+        self.assertFalse(runtime_result.ir.tools.enabled)
+
+        registry = MCPToolRegistry()
+        bound = bind_runtime_tools(registry, runtime_result.ir, tools_by_id={}, handlers_by_id={})
+        self.assertEqual(bound, ())
+        self.assertEqual(registry.list_tools(), [])
 
 
 if __name__ == "__main__":

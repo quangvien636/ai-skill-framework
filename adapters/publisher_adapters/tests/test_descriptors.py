@@ -1,16 +1,47 @@
 import unittest
 
-import _bootstrap  # noqa: F401  (adds adapters/ to sys.path)
+import _bootstrap
 
+from asf_validator.runtime_ir import build_runtime_ir
 from publisher_adapters.descriptors import (
     DescriptorError,
     compile_export_descriptor,
+    export_descriptor_from_runtime,
     facebook_export,
     markdown_export,
     tiktok_export,
     wordpress_export,
     youtube_export,
 )
+
+_RUNTIME_DOC_BASE = {
+    "schema_version": "1.0.0",
+    "id": "runtime:simple",
+    "name": "simple",
+    "display_name": "Simple Runtime",
+    "description": "Minimal single-model runtime",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["me"],
+    "responsibility": "Bind a Skill to a single model",
+    "execution_profile": "sync",
+    "model": {"enabled": False},
+    "retriever": {"enabled": False, "knowledge": []},
+    "tools": {"enabled": False, "refs": []},
+    "timeout_policy": {"timeout_seconds": 30, "on_timeout": "fail"},
+    "retry_policy": {"max_attempts": 1, "backoff": "none"},
+    "safety_profile": {"content_filter": "standard"},
+    "audit_profile": {"log_level": "basic"},
+    "concurrency_profile": {"max_parallel_steps": 1, "max_parallel_tool_calls": 1},
+    "fallback_profile": {"enabled": False, "max_fallback_depth": 1},
+}
+
+
+def _runtime(publisher_doc):
+    doc = dict(_RUNTIME_DOC_BASE, publisher=publisher_doc)
+    runtime, diagnostics = build_runtime_ir(doc, "runtime/simple/runtime.yaml")
+    assert runtime is not None, diagnostics
+    return runtime
 
 
 class ExportDescriptorTests(unittest.TestCase):
@@ -62,6 +93,19 @@ class ExportDescriptorTests(unittest.TestCase):
         descriptor = youtube_export("Title", "Description")
         with self.assertRaises(TypeError):
             descriptor.metadata["privacy_status"] = "public"
+
+    def test_export_descriptor_from_runtime_binds_enabled_publisher(self):
+        runtime = _runtime({"enabled": True, "target": "wordpress", "metadata": {"status": "draft"}})
+        descriptor = export_descriptor_from_runtime(runtime, "Title", "Body")
+        self.assertIsNotNone(descriptor)
+        self.assertEqual(descriptor.target, "wordpress")
+        self.assertEqual(descriptor.title, "Title")
+        self.assertEqual(descriptor.body, "Body")
+        self.assertEqual(descriptor.metadata["status"], "draft")
+
+    def test_export_descriptor_from_runtime_returns_none_when_disabled(self):
+        runtime = _runtime({"enabled": False})
+        self.assertIsNone(export_descriptor_from_runtime(runtime, "Title", "Body"))
 
 
 if __name__ == "__main__":

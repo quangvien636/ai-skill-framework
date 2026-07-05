@@ -15,11 +15,12 @@ caller-supplied handler instead of inventing tool behavior.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Optional, Sequence
 
 from llama_index.core.schema import Document
 
 from asf_validator.knowledge_ir import KnowledgeIR
+from asf_validator.runtime_ir import RuntimeIR
 
 _DEFAULT_SIMILARITY_TOP_K = 5
 
@@ -104,4 +105,23 @@ def compile_retrieval_config(
         knowledge_ids=tuple(knowledge.id for knowledge in knowledge_docs),
         documents=documents,
         similarity_top_k=similarity_top_k,
+    )
+
+
+def retrieval_config_from_runtime(
+    runtime: RuntimeIR, knowledge_docs: Sequence[KnowledgeIR]
+) -> Optional[RetrievalConfig]:
+    """Bind a resolved Runtime Contract's ``retriever`` section to a
+    ``RetrievalConfig``. Binding only -- no indexing, embedding, or query.
+
+    `knowledge_docs` must already be the Runtime Planning-resolved Knowledge
+    IR for `runtime.retriever.knowledge` (this module does not resolve
+    repository references itself -- that is the Dependency Graph/planner's
+    job). Returns ``None`` when ``runtime.retriever.enabled`` is false,
+    matching ADR-0014's `enabled` pattern.
+    """
+    if not runtime.retriever.enabled:
+        return None
+    return compile_retrieval_config(
+        knowledge_docs, similarity_top_k=runtime.retriever.similarity_top_k
     )

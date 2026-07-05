@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Mapping, Optional
 
+from asf_validator.runtime_ir import RuntimeIR
+
 SUPPORTED_TARGETS = ("youtube", "tiktok", "facebook", "wordpress", "markdown")
 
 _CREDENTIAL_LIKE_KEYS = frozenset(
@@ -182,4 +184,27 @@ def markdown_export(
         title,
         content,
         {"front_matter": dict(front_matter or {})},
+    )
+
+
+def export_descriptor_from_runtime(
+    runtime: RuntimeIR, title: str, body: str
+) -> Optional[ExportDescriptor]:
+    """Bind a resolved Runtime Contract's ``publisher`` section to an
+    ``ExportDescriptor``. Binding only -- no publishing.
+
+    `title`/`body` are the Skill's produced content, not something the
+    Runtime Contract carries -- it only declares *where* and *how*
+    something would be exported. Returns ``None`` when
+    ``runtime.publisher.enabled`` is false, matching ADR-0014's `enabled`
+    pattern. Semantic validation (``ASF-SEMANTIC-013``) already guarantees
+    that an enabled publisher section has a non-empty `target`.
+    """
+    if not runtime.publisher.enabled:
+        return None
+    return compile_export_descriptor(
+        target=runtime.publisher.target,
+        title=title,
+        body=body,
+        metadata=runtime.publisher.metadata,
     )

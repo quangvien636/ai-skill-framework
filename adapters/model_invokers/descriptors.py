@@ -11,12 +11,11 @@ it is built, each provider's official SDK (openai, anthropic, google-genai)
 or Ollama's local API is the reuse target, never a hand-rolled HTTP client,
 per ADR-0013.
 
-No Runtime contract schema exists yet to resolve a Skill's
-``dependencies.runtime`` reference to a specific provider/model (ADR-0011
-defers Runtime artifact schemas). This module does not invent one; it
-provides the descriptor building blocks a future Runtime schema/resolution
-layer will select between, matching ADR-0009's "document the gap instead of
-inventing behavior" precedent.
+``model_descriptor_from_runtime`` binds a resolved Runtime Contract's
+``model`` section (ADR-0014) to a ``ModelDescriptor`` -- binding only, no
+invocation. It returns ``None`` when the contract's model is disabled,
+mirroring how a Runtime Contract can decline a capability rather than omit
+its section (ADR-0014's `enabled` pattern).
 """
 
 from __future__ import annotations
@@ -24,6 +23,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Mapping, Optional
+
+from asf_validator.runtime_ir import RuntimeIR
 
 SUPPORTED_PROVIDERS = ("openai", "anthropic", "google", "ollama")
 
@@ -121,3 +122,23 @@ def ollama_descriptor(
     model: str, endpoint: str = "http://localhost:11434", **parameters: Any
 ) -> ModelDescriptor:
     return compile_model_descriptor("ollama", model, parameters, endpoint=endpoint)
+
+
+def model_descriptor_from_runtime(runtime: RuntimeIR) -> Optional[ModelDescriptor]:
+    """Bind a resolved Runtime Contract's ``model`` section to a
+    ``ModelDescriptor``. Binding only -- no invocation.
+
+    Returns ``None`` when ``runtime.model.enabled`` is false, matching
+    ADR-0014's `enabled` pattern: a Runtime Contract can decline the model
+    capability rather than omit the section entirely. Semantic validation
+    (``ASF-SEMANTIC-010``) already guarantees that an enabled model section
+    has a non-empty ``model.model``, so this function does not re-check it.
+    """
+    if not runtime.model.enabled:
+        return None
+    return compile_model_descriptor(
+        provider=runtime.model.provider,
+        model=runtime.model.model,
+        parameters=runtime.model.parameters,
+        endpoint=runtime.model.endpoint,
+    )

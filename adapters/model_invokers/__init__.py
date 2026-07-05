@@ -10,6 +10,7 @@ from .descriptors import (
     anthropic_descriptor,
     compile_model_descriptor,
     google_descriptor,
+    model_descriptor_from_runtime,
     ollama_descriptor,
     openai_descriptor,
 )
@@ -21,6 +22,7 @@ __all__ = [
     "anthropic_descriptor",
     "compile_model_descriptor",
     "google_descriptor",
+    "model_descriptor_from_runtime",
     "ollama_descriptor",
     "openai_descriptor",
 ]

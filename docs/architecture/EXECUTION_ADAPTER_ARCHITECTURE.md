@@ -215,6 +215,30 @@ own "Export planning" intellectual property, not a wrapped reuse target.
 built, each platform's official SDK/API (e.g. google-api-python-client for
 YouTube) is the reuse target, never a hand-rolled HTTP client.
 
+### Runtime Contract Binding
+
+The Runtime Contract (ADR-0014, `docs/architecture/RUNTIME_CONTRACT_ARCHITECTURE.md`)
+is the missing link the four adapters above bind against, once Runtime
+Planning (`asf_runtime.planner`) has resolved a Skill's
+`dependencies.runtime` reference and that Runtime Contract's own
+`retriever.knowledge` / `tools.refs` / fallback references. Each binding
+function takes an already-resolved `RuntimeIR` (plus any further-resolved
+IR it needs) and produces that adapter's existing descriptor/registration —
+no new adapter package, no new external dependency, no invocation:
+
+| Adapter | Function | Behavior |
+| --- | --- | --- |
+| `model_invokers` | `model_descriptor_from_runtime(runtime)` | `RuntimeIR.model` -> `ModelDescriptor`, or `None` if disabled |
+| `llamaindex_retrieval` | `retrieval_config_from_runtime(runtime, knowledge_docs)` | `RuntimeIR.retriever` + resolved Knowledge IR -> `RetrievalConfig`, or `None` if disabled |
+| `mcp_tools` | `bind_runtime_tools(registry, runtime, tools_by_id, handlers_by_id, connectors_by_id=None)` | Binds every `RuntimeIR.tools.refs` entry via the existing `MCPToolRegistry.bind`, or does nothing if disabled |
+| `publisher_adapters` | `export_descriptor_from_runtime(runtime, title, body)` | `RuntimeIR.publisher` -> `ExportDescriptor`, or `None` if disabled |
+| `langgraph_runtime` | `compile_plan(plan, step_executor=None, runtime_bindings=None)` | When a step has a bound `RuntimeIR`, its `retry_policy`/`timeout_policy` take precedence over the Skill-level values, and its `execution_profile`/`safety_profile`/`audit_profile`/`concurrency_profile` are attached as node metadata |
+
+None of these functions resolve repository references themselves (that
+remains the Dependency Graph and `asf_runtime.planner`'s job) — they take
+already-resolved IR as input, matching the boundary every other adapter in
+this document already observes.
+
 ### What Stays Unchanged
 
 - `ArtifactLoader`, `CatalogBuilder`, `WorkflowPlanner`, `PlanStore`
@@ -256,3 +280,4 @@ YouTube) is the reuse target, never a hand-rolled HTTP client.
 | 0.3 | 2026-07-05 | Split `KnowledgeRetriever` into `RetrievalConfigCompiler` (implemented, `adapters/llamaindex_retrieval/`) and an unimplemented `query` half, per Priority 2's configuration-only scope |
 | 0.4 | 2026-07-05 | Split `ModelInvoker` into `ModelDescriptorCompiler` (implemented, `adapters/model_invokers/`, zero SDK dependency) and an unimplemented `invoke` half, per Priority 3's declarative-only scope |
 | 0.5 | 2026-07-05 | Added a fifth seam, `PublisherAdapter`, split into `ExportDescriptorCompiler` (implemented, `adapters/publisher_adapters/`, zero SDK dependency) and an unimplemented `publish` half, per Priority 4's declarative-only scope |
+| 0.6 | 2026-07-05 | Added Runtime Contract binding functions to all five adapters (ADR-0014 Phase 6): binding only, no invocation, no new external dependency |

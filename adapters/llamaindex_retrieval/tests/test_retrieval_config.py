@@ -4,12 +4,18 @@ import _bootstrap
 
 from asf_validator.pipeline import build_ir
 from asf_validator.schema_registry import build_schema_registry
-from llamaindex_retrieval.retrieval_config import compile_retrieval_config, knowledge_ir_to_document
+from llamaindex_retrieval.retrieval_config import (
+    compile_retrieval_config,
+    knowledge_ir_to_document,
+    retrieval_config_from_runtime,
+)
 
 KNOWLEDGE_DOCS = (
     _bootstrap.REPO_ROOT / "knowledge" / "creative" / "content" / "formats" / "content-structures.md",
     _bootstrap.REPO_ROOT / "knowledge" / "creative" / "content" / "style" / "tone-guidelines.md",
 )
+
+RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
 
 
 def _load_knowledge(path):
@@ -57,6 +63,28 @@ class RetrievalConfigTests(unittest.TestCase):
         config = compile_retrieval_config([])
         self.assertEqual(config.knowledge_ids, ())
         self.assertEqual(config.documents, ())
+
+    def test_retrieval_config_from_runtime_binds_enabled_retriever(self):
+        registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+        runtime_result = build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry)
+        assert runtime_result.ok, runtime_result.diagnostics
+        brevity = _load_knowledge(RUNTIME_FIXTURES / "knowledge.md")
+
+        config = retrieval_config_from_runtime(runtime_result.ir, [brevity])
+        self.assertIsNotNone(config)
+        self.assertEqual(config.knowledge_ids, (brevity.id,))
+        self.assertEqual(
+            config.similarity_top_k, runtime_result.ir.retriever.similarity_top_k
+        )
+
+    def test_retrieval_config_from_runtime_returns_none_when_disabled(self):
+        registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+        runtime_result = build_ir(
+            "runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry
+        )
+        assert runtime_result.ok, runtime_result.diagnostics
+        self.assertFalse(runtime_result.ir.retriever.enabled)
+        self.assertIsNone(retrieval_config_from_runtime(runtime_result.ir, []))
 
 
 if __name__ == "__main__":

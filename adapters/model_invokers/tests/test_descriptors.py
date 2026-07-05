@@ -1,15 +1,46 @@
 import unittest
 
-import _bootstrap  # noqa: F401  (adds adapters/ to sys.path)
+import _bootstrap
 
+from asf_validator.runtime_ir import build_runtime_ir
 from model_invokers.descriptors import (
     DescriptorError,
     anthropic_descriptor,
     compile_model_descriptor,
     google_descriptor,
+    model_descriptor_from_runtime,
     ollama_descriptor,
     openai_descriptor,
 )
+
+_RUNTIME_DOC_BASE = {
+    "schema_version": "1.0.0",
+    "id": "runtime:simple",
+    "name": "simple",
+    "display_name": "Simple Runtime",
+    "description": "Minimal single-model runtime",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["me"],
+    "responsibility": "Bind a Skill to a single model",
+    "execution_profile": "sync",
+    "retriever": {"enabled": False, "knowledge": []},
+    "tools": {"enabled": False, "refs": []},
+    "publisher": {"enabled": False},
+    "timeout_policy": {"timeout_seconds": 30, "on_timeout": "fail"},
+    "retry_policy": {"max_attempts": 1, "backoff": "none"},
+    "safety_profile": {"content_filter": "standard"},
+    "audit_profile": {"log_level": "basic"},
+    "concurrency_profile": {"max_parallel_steps": 1, "max_parallel_tool_calls": 1},
+    "fallback_profile": {"enabled": False, "max_fallback_depth": 1},
+}
+
+
+def _runtime(model_doc):
+    doc = dict(_RUNTIME_DOC_BASE, model=model_doc)
+    runtime, diagnostics = build_runtime_ir(doc, "runtime/simple/runtime.yaml")
+    assert runtime is not None, diagnostics
+    return runtime
 
 
 class ModelDescriptorTests(unittest.TestCase):
@@ -55,6 +86,25 @@ class ModelDescriptorTests(unittest.TestCase):
         descriptor = openai_descriptor("gpt-4o", temperature=0.2)
         with self.assertRaises(TypeError):
             descriptor.parameters["temperature"] = 1.0
+
+    def test_model_descriptor_from_runtime_binds_enabled_model(self):
+        runtime = _runtime(
+            {
+                "enabled": True,
+                "provider": "anthropic",
+                "model": "claude-sonnet-5",
+                "parameters": {"temperature": 0.2},
+            }
+        )
+        descriptor = model_descriptor_from_runtime(runtime)
+        self.assertIsNotNone(descriptor)
+        self.assertEqual(descriptor.provider, "anthropic")
+        self.assertEqual(descriptor.model, "claude-sonnet-5")
+        self.assertEqual(descriptor.parameters["temperature"], 0.2)
+
+    def test_model_descriptor_from_runtime_returns_none_when_disabled(self):
+        runtime = _runtime({"enabled": False})
+        self.assertIsNone(model_descriptor_from_runtime(runtime))
 
 
 if __name__ == "__main__":

@@ -27,6 +27,25 @@ def production_catalog():
     )
 
 
+RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
+
+
+def runtime_fixture_catalog():
+    registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+    results = [
+        build_ir("workflow", RUNTIME_FIXTURES / "workflow.yaml", registry),
+        build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+        build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+        build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+    ]
+    assert all(result.ok for result in results), [
+        (result.artifact, result.diagnostics) for result in results if not result.ok
+    ]
+    return build_artifact_catalog(results)
+
+
 def _replace_catalog_artifact(catalog, artifact_id, new_ir):
     old = next(a for a in catalog.artifacts if a.id == artifact_id)
     replacement = CatalogArtifact(
@@ -178,6 +197,42 @@ class CompilePlanTests(unittest.TestCase):
 
         self.assertEqual(calls, ["create-content"])
         self.assertEqual(result["ran"], "create-content")
+
+    def test_runtime_bindings_take_precedence_over_skill_level_policy(self):
+        catalog = runtime_fixture_catalog()
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-compile",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+        runtime_artifact = catalog.exact("runtime:primary", "1.0.0")
+
+        compiled = compile_plan(
+            plan, runtime_bindings={"run": runtime_artifact.ir}
+        )
+
+        node = compiled.nodes["run"]
+        self.assertEqual(node.timeout.run_timeout, runtime_artifact.ir.timeout_policy.timeout_seconds)
+        self.assertEqual(node.metadata["runtime_id"], "runtime:primary")
+        self.assertEqual(node.metadata["execution_profile"], "sync")
+        self.assertEqual(node.metadata["safety_content_filter"], "standard")
+        self.assertEqual(node.metadata["audit_log_level"], "basic")
+
+    def test_compile_plan_without_runtime_bindings_uses_skill_level_policy(self):
+        catalog = runtime_fixture_catalog()
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-compile-2",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+        compiled = compile_plan(plan)
+
+        node = compiled.nodes["run"]
+        self.assertNotIn("runtime_id", node.metadata)
 
 
 if __name__ == "__main__":

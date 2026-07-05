@@ -3,6 +3,6 @@
 See docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md and ADR-0013.
 """
 
-from .binding import ConnectorBinding, MCPToolRegistry, tool_ir_to_mcp_tool
+from .binding import ConnectorBinding, MCPToolRegistry, bind_runtime_tools, tool_ir_to_mcp_tool
 
-__all__ = ["ConnectorBinding", "MCPToolRegistry", "tool_ir_to_mcp_tool"]
+__all__ = ["ConnectorBinding", "MCPToolRegistry", "bind_runtime_tools", "tool_ir_to_mcp_tool"]
