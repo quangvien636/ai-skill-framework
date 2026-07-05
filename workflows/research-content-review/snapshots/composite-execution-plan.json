@@ -1,0 +1,38 @@
+{
+  "execution_id": "golden-research-content-review",
+  "workflow_id": "workflow:research-content-review",
+  "workflow_version": "1.0.0",
+  "batches": [
+    ["research-topic"],
+    ["create-content"],
+    ["review-content"]
+  ],
+  "steps": [
+    {
+      "id": "research-topic",
+      "skill_id": "skill:research",
+      "skill_version": "1.0.0",
+      "depends_on": []
+    },
+    {
+      "id": "create-content",
+      "skill_id": "skill:content-creation",
+      "skill_version": "1.0.0",
+      "depends_on": ["research-topic"]
+    },
+    {
+      "id": "review-content",
+      "skill_id": "skill:review-quality",
+      "skill_version": "1.0.0",
+      "depends_on": ["create-content"]
+    }
+  ],
+  "outputs": {
+    "research-brief": "steps.research-topic.outputs.research-brief",
+    "research-quality-report": "steps.research-topic.outputs.quality-report",
+    "content-package": "steps.create-content.outputs.content-package",
+    "content-quality-report": "steps.create-content.outputs.quality-report",
+    "review-report": "steps.review-content.outputs.review-report",
+    "reviewed-content-package": "steps.review-content.outputs.reviewed-package"
+  }
+}

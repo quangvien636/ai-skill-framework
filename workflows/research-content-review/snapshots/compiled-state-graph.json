@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    {"id": "__start__"},
+    {
+      "id": "research-topic",
+      "workflow_id": "workflow:research-content-review",
+      "skill_id": "skill:research",
+      "runtime_id": "runtime:research",
+      "batch_index": 0
+    },
+    {
+      "id": "create-content",
+      "workflow_id": "workflow:research-content-review",
+      "skill_id": "skill:content-creation",
+      "runtime_id": "runtime:content",
+      "batch_index": 1
+    },
+    {
+      "id": "review-content",
+      "workflow_id": "workflow:research-content-review",
+      "skill_id": "skill:review-quality",
+      "runtime_id": "runtime:simple",
+      "batch_index": 2
+    },
+    {"id": "__end__"}
+  ],
+  "edges": [
+    {"source": "__start__", "target": "research-topic"},
+    {"source": "create-content", "target": "review-content"},
+    {"source": "research-topic", "target": "create-content"},
+    {"source": "review-content", "target": "__end__"}
+  ]
+}

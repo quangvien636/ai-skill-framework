@@ -1,0 +1,22 @@
+{
+  "bindings": [
+    {
+      "step_id": "research-topic",
+      "skill_id": "skill:research",
+      "runtime_id": "runtime:research",
+      "runtime_version": "1.0.0"
+    },
+    {
+      "step_id": "create-content",
+      "skill_id": "skill:content-creation",
+      "runtime_id": "runtime:content",
+      "runtime_version": "1.0.0"
+    },
+    {
+      "step_id": "review-content",
+      "skill_id": "skill:review-quality",
+      "runtime_id": "runtime:simple",
+      "runtime_version": "1.0.0"
+    }
+  ]
+}

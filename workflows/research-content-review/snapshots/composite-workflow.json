@@ -1,0 +1,32 @@
+{
+  "id": "workflow:research-content-review",
+  "version": "1.0.0",
+  "entrypoint": "research-topic",
+  "steps": [
+    {
+      "id": "research-topic",
+      "skill_id": "skill:research",
+      "depends_on": []
+    },
+    {
+      "id": "create-content",
+      "skill_id": "skill:content-creation",
+      "depends_on": ["research-topic"]
+    },
+    {
+      "id": "review-content",
+      "skill_id": "skill:review-quality",
+      "depends_on": ["create-content"]
+    }
+  ],
+  "artifact_flow": [
+    {
+      "source": "steps.research-topic.outputs.research-brief",
+      "target": "steps.create-content.inputs.research-brief"
+    },
+    {
+      "source": "steps.create-content.outputs.content-package",
+      "target": "steps.review-content.inputs.draft"
+    }
+  ]
+}

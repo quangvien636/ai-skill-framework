@@ -1,0 +1,91 @@
+{
+  "research-brief": {
+    "objective": "Prepare a practical Vietnamese YouTube Shorts script.",
+    "scope": "The next two years using caller-supplied evidence only.",
+    "research-questions": [],
+    "source-requirements": [],
+    "findings": [],
+    "claim-evidence-map": [],
+    "uncertainties": ["No evidence was supplied in this compile-only fixture."],
+    "gaps": ["Execution must receive evidence before making factual claims."],
+    "citations": [],
+    "next-steps": ["Supply traceable evidence during execution."]
+  },
+  "research-quality-report": {
+    "traceability": "No unsupported findings included.",
+    "source-reliability": "Not assessed because no sources were supplied.",
+    "contradictions": "None assessed.",
+    "fact-check-status": "Not externally fact-checked.",
+    "limitations": ["Static golden artifact; no Skill was executed."]
+  },
+  "content-package": {
+    "content-type": "short-video-script",
+    "primary-content": {
+      "title": "5 công nghệ AI đáng chú ý trong 2 năm tới",
+      "hook": "Năm công nghệ này có thể thay đổi cách bạn làm việc—nhưng rủi ro thật nằm ở cách chúng được sử dụng.",
+      "script": "Golden snapshot placeholder-free editorial copy for artifact-shape validation.",
+      "scenes": [
+        {
+          "id": "opening",
+          "duration-seconds": 5,
+          "visual": "Presenter introduces the topic.",
+          "voice-over": "Five AI technologies deserve closer attention.",
+          "on-screen-text": "5 công nghệ AI đáng chú ý",
+          "image-prompt": "Vertical editorial illustration of practical AI risk, measured tone"
+        }
+      ],
+      "voice-over-text": "Five AI technologies deserve closer attention.",
+      "on-screen-text": ["5 công nghệ AI đáng chú ý"],
+      "image-prompts": [
+        "Vertical editorial illustration of practical AI risk, measured tone"
+      ],
+      "call-to-action": "Bạn muốn tìm hiểu kỹ công nghệ nào nhất?",
+      "hashtags": ["#AI", "#CongNghe", "#YouTubeShorts"],
+      "metadata": {
+        "platform": "youtube",
+        "language": "vi",
+        "target-duration-seconds": {
+          "minimum": 60,
+          "maximum": 90
+        },
+        "rendering-required": true
+      }
+    },
+    "hook": "Năm công nghệ này có thể thay đổi cách bạn làm việc—nhưng rủi ro thật nằm ở cách chúng được sử dụng.",
+    "call-to-action": "Bạn muốn tìm hiểu kỹ công nghệ nào nhất?",
+    "alternatives": [],
+    "production-notes": [
+      "Verify factual claims against supplied evidence during execution.",
+      "Record and measure the final voice-over duration externally."
+    ],
+    "assumptions": [
+      "This snapshot validates artifact shape and is not an executed Skill result."
+    ]
+  },
+  "content-quality-report": {
+    "constraint-compliance": "Shape and declared platform constraints represented.",
+    "unsupported-claims": "No material factual claims asserted in the fixture.",
+    "platform-fit": "Vertical short-video structure represented.",
+    "limitations": ["Timing and factual accuracy require execution-time checks."]
+  },
+  "review-report": {
+    "summary": "Static approved-shape example; not an editorial approval.",
+    "checklist-results": [],
+    "findings": [],
+    "evidence-alignment": "No factual findings were available to approve.",
+    "safety-review": "No unsafe instructions are present.",
+    "required-revisions": ["Replace fixture copy with evidence-grounded executed output."],
+    "optional-improvements": [],
+    "recommendation": "revise"
+  },
+  "reviewed-content-package": {
+    "draft": {
+      "artifact-reference": "content-package"
+    },
+    "status": "revise",
+    "applied-corrections": [],
+    "unresolved-items": [
+      "Skill execution and evidence-grounded review remain required."
+    ]
+  }
+}
