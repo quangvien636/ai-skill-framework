@@ -51,6 +51,7 @@ Under Development
 - [Generator Architecture](docs/architecture/GENERATOR_ARCHITECTURE.md)
 - [Runtime Architecture](docs/architecture/RUNTIME_ARCHITECTURE.md)
 - [Tool and Connector Architecture](docs/architecture/TOOL_CONNECTOR_ARCHITECTURE.md)
+- [Runtime Contract Architecture](docs/architecture/RUNTIME_CONTRACT_ARCHITECTURE.md)
 - [Execution Adapter Architecture](docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
 - [CLI Architecture](docs/architecture/CLI_ARCHITECTURE.md)
 
@@ -119,11 +120,11 @@ Evaluation/Reflection document into the typed IR object
 Dependency Graph / Version Graph across multiple loaded artifacts:
 
 ```bash
-python scripts/build_ir.py                 # 40 IR fixture cases
+python scripts/build_ir.py                 # 46 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
-python scripts/build_semantics.py          # 3 semantic conformance scenarios
+python scripts/build_semantics.py          # 4 semantic conformance scenarios
 python scripts/validate_repository.py       # discover and validate canonical artifacts
-python -m unittest discover -s tests/unit  # 106 core unit tests
+python -m unittest discover -s tests/unit  # 116 core unit tests
 ```
 
 Each `adapters/<name>/` package has its own isolated test suite (own
@@ -131,29 +132,30 @@ Each `adapters/<name>/` package has its own isolated test suite (own
 never require an execution-backend dependency:
 
 ```bash
-cd adapters/langgraph_runtime/tests && python -m pytest        # 7 tests
-cd adapters/mcp_tools/tests && python -m pytest                # 3 tests
-cd adapters/llamaindex_retrieval/tests && python -m pytest     # 5 tests
-cd adapters/model_invokers/tests && python -m pytest           # 9 tests
-cd adapters/publisher_adapters/tests && python -m pytest       # 10 tests
+cd adapters/langgraph_runtime/tests && python -m pytest        # 9 tests
+cd adapters/mcp_tools/tests && python -m pytest                # 5 tests
+cd adapters/llamaindex_retrieval/tests && python -m pytest     # 7 tests
+cd adapters/model_invokers/tests && python -m pytest           # 11 tests
+cd adapters/publisher_adapters/tests && python -m pytest       # 12 tests
 ```
 
 The semantic layer checks evaluation metric uniqueness and weight totals,
 Evaluation/Reflection routing, Workflow mapping availability and types, retry
-routing, and unreachable steps. It emits structured `ASF-SEMANTIC-*`
-diagnostics over typed IR and performs no discovery or execution.
+routing, unreachable steps, and Runtime Contract policy consistency. It emits
+structured `ASF-SEMANTIC-*` diagnostics over typed IR and performs no
+discovery or execution.
 
 `validate_repository.py` finds the workspace using the two ADR-0007 markers,
 builds a deterministic internal index, loads all canonical artifacts, and runs
-every implemented validation layer. The current repository index contains 42
+every implemented validation layer. The current repository index contains 48
 locations, including embedded Evaluation/Reflection locations and executable
-examples, and loads 24 Skill/Workflow/Knowledge artifacts.
+examples, and loads 30 Skill/Workflow/Knowledge/Tool/Runtime artifacts.
 
 Repository validation also checks local Markdown targets and section anchors,
 duplicate anchors, ADR references, explicit stale canonical identities,
 production placeholders, narrow obvious-secret signatures, and active
-Skill/Knowledge orphan policy. Drafts and templates retain their documented
-placeholder allowance.
+Skill/Knowledge/Runtime Contract orphan policy. Drafts and templates retain
+their documented placeholder allowance.
 
 ## Runtime Preparation
 
@@ -167,6 +169,20 @@ See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),
 `docs/adr/ADR-0009-ir-adapter-package-and-scope.md`, and
 `docs/adr/ADR-0010-dependency-and-version-graph-scope.md` for scope,
 assumptions, and deferred work.
+
+## Runtime Contracts
+
+`runtime:<name>` artifacts (`runtime/<name>/runtime.yaml` or
+`contracts/runtime/<name>/runtime.yaml`) bind a Skill to a model, retriever,
+tools, and publisher plus timeout/retry/safety/audit/concurrency/fallback
+policy — the missing link between a Skill and the adapter layer below. Five
+canonical examples ship in `runtime/`: `simple`, `content`, `research`,
+`offline`, and `hybrid` (all `status: draft`, not yet wired to any Skill).
+`asf_runtime.planner` resolves a Skill's `dependencies.runtime` reference and
+that Runtime Contract's own Knowledge/Tool/fallback references, entirely at
+planning time — no model, tool, retriever, or publisher is ever invoked. See
+[Runtime Contract Architecture](docs/architecture/RUNTIME_CONTRACT_ARCHITECTURE.md)
+and ADR-0014.
 
 ## Build vs Reuse Strategy
 
@@ -183,15 +199,17 @@ per-subsystem decisions and
 for the five Protocol seams and package boundary.
 
 `adapters/` (see [adapters/README.md](adapters/README.md)) currently has five
-packages, one per seam:
+packages, one per seam. Each also has a Runtime Contract binding function
+(ADR-0014, Phase 6) that takes an already-resolved `RuntimeIR` and produces
+that adapter's descriptor/registration — no new dependency, no invocation:
 
-| Package | Seam | Reuse target | Scope |
-| --- | --- | --- | --- |
-| [`langgraph_runtime/`](adapters/langgraph_runtime/) | `PlanCompiler` | LangGraph | Compiles an `ExecutionPlan` into a `StateGraph`; never invokes it |
-| [`mcp_tools/`](adapters/mcp_tools/) | `ToolBinding` | MCP Python SDK | Binds `ToolIR`/`ConnectorIR` to MCP wire types and a caller-supplied handler |
-| [`llamaindex_retrieval/`](adapters/llamaindex_retrieval/) | `RetrievalConfigCompiler` | LlamaIndex | Compiles Knowledge IR into retrieval config; no indexing/embedding/vector store |
-| [`model_invokers/`](adapters/model_invokers/) | `ModelDescriptorCompiler` | none yet (declarative only) | Describes an OpenAI/Anthropic/Google/Ollama call; never makes one |
-| [`publisher_adapters/`](adapters/publisher_adapters/) | `ExportDescriptorCompiler` | none yet (declarative only) | Describes a YouTube/TikTok/Facebook/WordPress/Markdown export; never performs one |
+| Package | Seam | Reuse target | Scope | Runtime Contract binding |
+| --- | --- | --- | --- | --- |
+| [`langgraph_runtime/`](adapters/langgraph_runtime/) | `PlanCompiler` | LangGraph | Compiles an `ExecutionPlan` into a `StateGraph`; never invokes it | `compile_plan(..., runtime_bindings=...)` prefers the contract's retry/timeout policy |
+| [`mcp_tools/`](adapters/mcp_tools/) | `ToolBinding` | MCP Python SDK | Binds `ToolIR`/`ConnectorIR` to MCP wire types and a caller-supplied handler | `bind_runtime_tools(...)` |
+| [`llamaindex_retrieval/`](adapters/llamaindex_retrieval/) | `RetrievalConfigCompiler` | LlamaIndex | Compiles Knowledge IR into retrieval config; no indexing/embedding/vector store | `retrieval_config_from_runtime(...)` |
+| [`model_invokers/`](adapters/model_invokers/) | `ModelDescriptorCompiler` | none yet (declarative only) | Describes an OpenAI/Anthropic/Google/Ollama call; never makes one | `model_descriptor_from_runtime(...)` |
+| [`publisher_adapters/`](adapters/publisher_adapters/) | `ExportDescriptorCompiler` | none yet (declarative only) | Describes a YouTube/TikTok/Facebook/WordPress/Markdown export; never performs one | `export_descriptor_from_runtime(...)` |
 
 Every package ships its own `requirements-<name>.txt`, isolated from
 `requirements-validator.txt` and from every other adapter package (adapters

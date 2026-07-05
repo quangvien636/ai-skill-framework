@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.27
+Version: 0.28
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,6 +12,59 @@ project's definition of done.
 
 ## Current Sprint
 
+**Sprint 28 - Runtime Contract (Phases 1-7)**
+
+Goal: design and implement the Runtime Contract layer that binds Skills to
+Runtime resources — the missing link between Skill, ExecutionPlan, and the
+five adapter descriptors Sprint 27 built.
+
+Status: **Completed**
+
+### Sprint 28 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Phase 1+2: schema + IR | Done | `schemas/runtime.schema.json`, `scripts/asf_validator/runtime_ir.py`, ADR-0014 |
+| Phase 3: repository discovery | Done | `runtime/`, `contracts/runtime/` canonical; `examples/runtime/` folded into `example` kind |
+| Phase 4: dependency graph + semantic validation | Done | `skill-runtime`/`runtime-knowledge`/`runtime-tool`/`runtime-runtime` edges (generic missing-dep/duplicate-id/cycle reused); `ASF-SEMANTIC-010..016` |
+| Lifecycle orphan policy | Done | `ASF-REPOSITORY-012` extended to active Runtime Contracts |
+| Phase 5: Runtime Planning resolution | Done | Catalog now indexes Tool/Connector/Runtime; planner resolves Skill -> Runtime -> Knowledge/Tool/fallback; `PlanStep.runtime`; `ASF-RUNTIME-PLAN-006..009` |
+| Phase 6: adapter binding (no invocation) | Done | One binding function per adapter: `model_descriptor_from_runtime`, `retrieval_config_from_runtime`, `bind_runtime_tools`, `export_descriptor_from_runtime`, `compile_plan(..., runtime_bindings=...)` |
+| Phase 7: canonical examples | Done | `runtime/{simple,content,research,offline,hybrid}/runtime.yaml` (draft) + `tools/read-file/tool.yaml` (first real production Tool) |
+
+### Sprint 28 Exit Criteria
+
+- `python scripts/validate_contracts.py` (22/22), `build_ir.py` (46/46),
+  `build_graph.py` (13/13), `build_semantics.py` (4/4),
+  `validate_repository.py` (48 locations, 30/30 loaded, 0 errors/warnings)
+  all pass after every milestone commit.
+- `python -m unittest discover -s tests/unit` passes all 116 core tests.
+- All five adapter test suites pass against their real dependency:
+  `langgraph_runtime` 9/9, `mcp_tools` 5/5, `llamaindex_retrieval` 7/7,
+  `model_invokers` 11/11, `publisher_adapters` 12/12 — 44 adapter tests total.
+- No `execute()`/`invoke()`/`publish()`/`query()` implementation, no API
+  keys, no network call, no provider-specific SDK call anywhere in the
+  Runtime Contract layer or its adapter bindings.
+
+### Sprint 28 Deferred / Documented Gaps
+
+- The five canonical Runtime Contracts are `status: draft` and not yet
+  referenced by any Skill's `dependencies.runtime` — wiring one into a real
+  production Skill is future work.
+- No Runtime contract resolution mechanism exists yet for `model_invokers`
+  beyond what Phase 5's planner resolves structurally; a Skill still cannot
+  *automatically* select a `ModelDescriptor` without a caller supplying the
+  resolved `RuntimeIR`.
+- The execute halves every compile-only adapter deferred in Sprint 27
+  (`KnowledgeRetriever.query`, `ModelInvoker.invoke`,
+  `PublisherAdapter.publish`, an actually-invoked `PlanCompiler` graph)
+  remain unimplemented — Runtime Contract binding (Phase 6) only extends
+  the same "compile/describe, never execute" boundary.
+- The `mcp_tools` adapter remains pinned to MCP SDK v1; v2 (stable
+  2026-07-27) migration is still untracked work.
+
+## Previous Sprint
+
 **Sprint 27 - Adapter Layer Build-Out (Priorities 1-4)**
 
 Goal: implement the compile-only half of every adapter seam
@@ -20,78 +73,12 @@ Build vs Reuse strategy's four stated priorities.
 
 Status: **Completed**
 
-### Sprint 27 Backlog
-
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Priority 1: `PlanCompiler` — ExecutionPlan -> LangGraph `StateGraph` | Done | `adapters/langgraph_runtime/` (7 tests); `PlanStep.timeout_seconds` added; `PlanCompiler` Protocol added to `asf_runtime.interfaces` |
-| Priority 2: `RetrievalConfigCompiler` — Knowledge IR -> LlamaIndex config | Done | `adapters/llamaindex_retrieval/` (5 tests, `llama-index-core` only) |
-| Priority 3: `ModelDescriptorCompiler` — declarative provider descriptors | Done | `adapters/model_invokers/` (9 tests, zero SDK dependency) |
-| Priority 4: `ExportDescriptorCompiler` — declarative cross-platform export | Done | `adapters/publisher_adapters/` (10 tests, zero SDK dependency); added as a fifth Protocol seam for "Export planning" |
-
-### Sprint 27 Exit Criteria
-
-- `python scripts/validate_contracts.py`, `build_ir.py`, `build_graph.py`,
-  `build_semantics.py`, `validate_repository.py` all pass with zero
-  regressions after every milestone commit.
-- `python -m unittest discover -s tests/unit` passes all 106 core tests
-  (unchanged — no adapter imports leak into core).
-- Every adapter package's own test suite passes against its real dependency
-  (no mocking): `langgraph_runtime` 7/7, `mcp_tools` 3/3,
-  `llamaindex_retrieval` 5/5, `model_invokers` 9/9, `publisher_adapters`
-  10/10 — 34 adapter tests total.
-- `model_invokers` and `publisher_adapters` ship with zero external
-  dependencies and actively reject credential-shaped parameter/metadata
-  keys, enforcing "no API keys"/"no authentication" rather than only
-  documenting it.
-
-### Sprint 27 Deferred / Documented Gaps
-
-- Only the *compile* half of `KnowledgeRetriever`, `ModelInvoker`, and
-  `PublisherAdapter` exists. Their *execute* halves (`query`, `invoke`,
-  `publish`) are unimplemented by design — Priorities 2-4 explicitly scoped
-  this sprint to configuration/description only.
-- No Runtime contract schema exists to resolve a Skill's
-  `dependencies.runtime` reference to a specific `ModelDescriptor` (ADR-0011
-  defers Runtime artifact schemas); `model_invokers` documents this gap
-  rather than inventing a resolution mechanism.
-- No adapter is wired into a live process end-to-end (a running MCP server,
-  an invoked LangGraph run, an actual LlamaIndex query engine, a real model
-  or publish call). All five adapter packages are exercised only via direct
-  unit tests against their real dependency's data/config types.
-- The `mcp_tools` adapter remains pinned to MCP SDK v1; v2 (stable
-  2026-07-27) migration is still untracked work.
-
-## Previous Sprint
-
-**Sprint 26 - Build vs Reuse Execution Strategy**
-
-Goal: stop building execution-layer subsystems the framework does not
-differentiate on, and adopt mature OSS behind an explicit adapter layer,
-per the "do not reinvent solved problems" strategy change.
-
-Status: **Completed**
-
-| Item | Status | Evidence / Output |
-| --- | --- | --- |
-| Record the Build vs Reuse policy and per-subsystem decisions | Done | `docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md` |
-| Define adapter Protocol seams and package boundary | Done | `docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md` |
-| Prove the pattern with one real adapter | Done | `adapters/mcp_tools/` (ToolBinding seam, MCP Python SDK, 3 passing tests) |
-| Point Runtime Architecture's next-steps at adapters instead of an implied native executor | Done | `RUNTIME_ARCHITECTURE.md` v0.2 |
-
-**Sprint 25 - Tool and Connector Contracts**
-
-Goal: extend declarative contracts, IR, and the dependency graph to cover
-Tool and Connector artifacts, per ADR-0012.
-
-Status: **Completed**
-
-| Item | Status | Evidence / Output |
-| --- | --- | --- |
-| Tool/Connector schemas and lifecycle | Done | `schemas/tool.schema.json`, `schemas/connector.schema.json`, `docs/architecture/TOOL_CONNECTOR_ARCHITECTURE.md`, ADR-0012 |
-| Tool/Connector IR adapters | Done | `scripts/asf_validator/tool_ir.py`, `connector_ir.py` |
-| Repository discovery includes Tool/Connector artifacts | Done | commit `92f9dad` |
-| Dependency graph Tool/Connector nodes and edges (`skill-tool`, `tool-connector`) | Done | `dependency_graph.py`, `valid-tool-connector` fixture, commit `55bca39` |
+| Priority 1: `PlanCompiler` — ExecutionPlan -> LangGraph `StateGraph` | Done | `adapters/langgraph_runtime/`; `PlanStep.timeout_seconds` added; `PlanCompiler` Protocol added to `asf_runtime.interfaces` |
+| Priority 2: `RetrievalConfigCompiler` — Knowledge IR -> LlamaIndex config | Done | `adapters/llamaindex_retrieval/` (`llama-index-core` only) |
+| Priority 3: `ModelDescriptorCompiler` — declarative provider descriptors | Done | `adapters/model_invokers/` (zero SDK dependency) |
+| Priority 4: `ExportDescriptorCompiler` — declarative cross-platform export | Done | `adapters/publisher_adapters/` (zero SDK dependency); added as a fifth Protocol seam for "Export planning" |
 
 ## Sprint History
 
@@ -129,6 +116,7 @@ sprint indefinitely.
 | 25 | Tool and Connector Contracts | `tool.schema.json`, `connector.schema.json`, IR adapters, dependency graph nodes/edges, ADR-0012 |
 | 26 | Build vs Reuse Execution Strategy | ADR-0013, `EXECUTION_ADAPTER_ARCHITECTURE.md`, `adapters/mcp_tools/` (ToolBinding proof of concept) |
 | 27 | Adapter Layer Build-Out (Priorities 1-4) | `adapters/langgraph_runtime/`, `llamaindex_retrieval/`, `model_invokers/`, `publisher_adapters/` (34 tests total) |
+| 28 | Runtime Contract (Phases 1-7) | `runtime.schema.json`, `runtime_ir.py`, graph/semantic/planning/orphan extensions, 5 adapter bindings, 5 canonical examples, ADR-0014 |
 
 ## Risks and Guardrails
 
@@ -143,11 +131,12 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Design and implement a Runtime contract schema (new artifact kind, IR
-   adapter, discovery, and dependency-graph node) so a Skill's
-   `dependencies.runtime` reference can resolve to a specific
-   `ModelDescriptor` — `model_invokers` currently has no way to make that
-   selection, per Sprint 27's documented gap.
+1. Wire one of the five canonical Runtime Contracts into a real production
+   Skill's `dependencies.runtime` (e.g. `runtime:content` into
+   `skill:content-creation`) and flip that Runtime Contract to `status:
+   active` — this is the first end-to-end production use of the chain
+   Sprint 28 built, and will need the lifecycle orphan policy re-verified
+   against a real active/consumer pair.
 2. Implement the execute halves the compile-only adapters deliberately
    deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
    query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
@@ -208,3 +197,4 @@ sprint indefinitely.
 | 0.25 | 2026-07-05 | Completed Sprint 25 Tool and Connector Contracts (schemas, IR, discovery, dependency graph) |
 | 0.26 | 2026-07-05 | Completed Sprint 26 Build vs Reuse Execution Strategy (ADR-0013, adapter architecture, mcp_tools proof of concept) |
 | 0.27 | 2026-07-05 | Completed Sprint 27 Adapter Layer Build-Out: langgraph_runtime, llamaindex_retrieval, model_invokers, publisher_adapters (34 adapter tests) |
+| 0.28 | 2026-07-05 | Completed Sprint 28 Runtime Contract: schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples, ADR-0014 |
