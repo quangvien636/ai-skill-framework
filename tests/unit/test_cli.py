@@ -1,5 +1,6 @@
 import io
 import json
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 
@@ -141,3 +142,61 @@ class CliTests(unittest.TestCase):
         )
         self.assertEqual(exit_code, 2)
         self.assertEqual(report["diagnostics"][0]["code"], "ASF-CLI-001")
+
+    def test_run_content_workflow_defaults_to_compile_only_dry_run(self):
+        with tempfile.TemporaryDirectory() as directory:
+            exit_code, report = self.run_cli(
+                "run",
+                "content-workflow",
+                "--topic",
+                "Local AI execution",
+                "--mode",
+                "dry-run",
+                "--reports-dir",
+                directory,
+            )
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(report["execution"]["status"], "compiled")
+            self.assertTrue(
+                report["execution"]["report_directory"].startswith(directory)
+            )
+            self.assertTrue(
+                all(
+                    step["status"] == "compiled"
+                    for step in report["execution"]["steps"]
+                )
+            )
+
+    def test_run_cli_requires_explicit_model_for_live_local(self):
+        exit_code, report = self.run_cli(
+            "run",
+            "content-workflow",
+            "--topic",
+            "Local AI execution",
+            "--mode",
+            "live-local",
+        )
+        self.assertEqual(exit_code, 2)
+        self.assertIn(
+            "requires --model", report["diagnostics"][0]["message"]
+        )
+
+    def test_run_cli_rejects_model_in_dry_run_and_unknown_target(self):
+        exit_code, _report = self.run_cli(
+            "run",
+            "content-workflow",
+            "--topic",
+            "Local AI execution",
+            "--model",
+            "llama3",
+        )
+        self.assertEqual(exit_code, 2)
+
+        exit_code, report = self.run_cli(
+            "run",
+            "arbitrary-workflow",
+            "--topic",
+            "Local AI execution",
+        )
+        self.assertEqual(exit_code, 2)
+        self.assertIn("only", report["diagnostics"][0]["message"])

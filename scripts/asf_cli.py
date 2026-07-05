@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import platform
 import sys
@@ -213,6 +214,83 @@ def _explain_report(args: argparse.Namespace, workspace: Workspace) -> dict[str,
     }
 
 
+def _run_content_report(
+    args: argparse.Namespace, workspace: Workspace
+) -> dict[str, Any]:
+    if args.target != CONTENT_WORKFLOW_ALIAS:
+        raise ValueError(
+            f"run supports only the '{CONTENT_WORKFLOW_ALIAS}' target."
+        )
+    if args.mode == "dry-run" and args.model:
+        raise ValueError("--model is valid only with --mode live-local.")
+    if args.mode == "live-local" and not args.model:
+        raise ValueError("--mode live-local requires --model.")
+    if args.timeout is not None and args.timeout <= 0:
+        raise ValueError("--timeout must be greater than zero.")
+
+    inputs = dict(CONTENT_WORKFLOW_INPUTS)
+    inputs["topic"] = args.topic
+    execution_id = args.execution_id or _execution_id(
+        args.topic, args.mode, args.model
+    )
+    context = ExecutionContext.create(
+        execution_id,
+        CONTENT_WORKFLOW_ID,
+        "1.0.0",
+        inputs,
+    )
+
+    adapters = workspace.root / "adapters"
+    if str(adapters) not in sys.path:
+        sys.path.insert(0, str(adapters))
+    from langgraph_runtime.vertical_slice import compile_vertical_slice
+    from ollama_execution import OllamaStepExecutor, run_content_workflow
+
+    compiled = compile_vertical_slice(context, workspace.catalog).as_dict()
+    executor = (
+        OllamaStepExecutor(
+            model=args.model,
+            endpoint=args.endpoint,
+            timeout_seconds=args.timeout,
+        )
+        if args.mode == "live-local"
+        else None
+    )
+    report_root = (
+        args.reports_dir
+        if args.reports_dir.is_absolute()
+        else workspace.root / args.reports_dir
+    )
+    execution = run_content_workflow(
+        context,
+        workspace.catalog,
+        mode=args.mode,
+        executor=executor,
+        compiled=compiled,
+        report_root=report_root,
+    )
+    return {
+        "command": "run",
+        "status": (
+            "ok"
+            if execution.status in ("compiled", "succeeded")
+            else "error"
+        ),
+        "execution": execution.as_dict(),
+    }
+
+
+def _execution_id(topic: str, mode: str, model: str | None) -> str:
+    material = json.dumps(
+        {"topic": topic, "mode": mode, "model": model},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    digest = hashlib.sha256(material).hexdigest()[:12]
+    return f"content-workflow-{digest}"
+
+
 def _plan_dict(plan) -> dict[str, Any]:
     return {
         "execution_id": plan.execution_id,
@@ -321,6 +399,8 @@ def _run_command(args: argparse.Namespace, workspace: Workspace) -> dict[str, An
         return _inspect_report(args, workspace)
     if args.command == "explain":
         return _explain_report(args, workspace)
+    if args.command == "run":
+        return _run_content_report(args, workspace)
 
     context = _context(args)
     plan = plan_workflow(context, workspace.catalog)
@@ -382,6 +462,19 @@ def _parser() -> argparse.ArgumentParser:
         command = subparsers.add_parser(name)
         command.add_argument("artifact", nargs="?", default=CONTENT_WORKFLOW_ALIAS)
         command.add_argument("--version", default="1.0.0")
+    run_command = subparsers.add_parser("run")
+    run_command.add_argument("target")
+    run_command.add_argument("--topic", required=True)
+    run_command.add_argument(
+        "--mode", choices=("dry-run", "live-local"), default="dry-run"
+    )
+    run_command.add_argument("--model")
+    run_command.add_argument(
+        "--endpoint", default="http://localhost:11434"
+    )
+    run_command.add_argument("--timeout", type=int)
+    run_command.add_argument("--execution-id")
+    run_command.add_argument("--reports-dir", type=Path, default=Path("runs"))
     return parser
 
 
@@ -447,6 +540,18 @@ def _render(report: dict[str, Any], output_format: str) -> None:
         print("  " + " -> ".join(report["chain"]))
         print(f"  final artifact: {report['final_artifact']}")
         print(f"  boundary: {report['boundary']}")
+    elif report["command"] == "run" and "execution" in report:
+        execution = report["execution"]
+        print(
+            f"  {execution['workflow_id']}@{execution['workflow_version']}: "
+            f"{execution['status']} ({execution['mode']})"
+        )
+        for step in execution["steps"]:
+            print(
+                f"  - {step['step_id']}: {step['status']} "
+                f"({step['duration_ms']} ms)"
+            )
+        print(f"  reports: {execution['report_directory']}")
     elif report["status"] == "ok":
         print(json.dumps(report, indent=2, sort_keys=True))
 
