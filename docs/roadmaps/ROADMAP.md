@@ -1,6 +1,6 @@
 ﻿# Roadmap
 
-Version: 0.5
+Version: 0.6
 Status: Active
 
 ## Purpose
@@ -26,7 +26,10 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
   types, and Workflow topology (Sprint 21).
 - Completed: deterministic workspace/project discovery plus canonical
   path/package/Knowledge Index integrity (Sprint 22).
-- Next: remaining repository rules, then Runtime planning infrastructure.
+- Completed: immutable Runtime catalog, execution context, dependency
+  resolution, and Workflow planning (Sprint 23).
+- Next: finish bounded repository rules and design Tool/Connector contracts
+  before any executor.
 - Later: Runtime/Generator execution, declared tools/connectors when schemas
   exist, and thin CLI interfaces. Production Skills intentionally define
   artifact and reasoning contracts without live execution or retrieval.
@@ -40,3 +43,4 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
 | 0.3 | 2026-07-05 | Recorded Review Quality v1 as the third production Skill package. |
 | 0.4 | 2026-07-05 | Recorded the Sprint 21 IR-level Semantic Validator milestone. |
 | 0.5 | 2026-07-05 | Recorded the Sprint 22 Repository Discovery and integrity milestone. |
+| 0.6 | 2026-07-05 | Recorded the Sprint 23 non-executing Runtime planning milestone. |

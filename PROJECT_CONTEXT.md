@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.22
+Version: 0.23
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,20 +88,18 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 22 - Repository Discovery and Integrity**.
-ADR-0007 Workspace Discovery now finds the nearest framework root, and lazy
-Project Discovery builds a deterministic internal index for Skills, Workflows,
-Knowledge, embedded Evaluation/Reflection locations, and examples. The
-integrated repository validator checks canonical paths, package requirements,
-Knowledge Index agreement, and case-insensitive collisions in addition to all
-earlier layers. The repository currently has 42 indexed locations, 24 loaded
-canonical artifacts, and 84 passing unit tests.
+The project completed **Sprint 23 - Runtime Planning Foundation**. The
+non-executing `asf_runtime` core builds an artifact catalog from shared IR,
+freezes execution context, resolves exact active Workflow, Skill, and Knowledge
+versions, and produces immutable deterministic execution plans and ready-step
+batches. Tool-neutral loader, catalog, planner, and plan-store interfaces define
+future seams. ADR-0011 records why planning precedes execution. All prior
+validation remains green, with 96 passing unit tests.
 
-The framework still has no Runtime executor or model invocation. Discovery and
-validation are deterministic and offline; no Skill execution, retrieval, or
-generation occurs. The next infrastructure priority is to complete remaining
-repository policies and prepare Runtime models, planning, and execution graphs
-without an LLM executor. See
+The framework still has no Runtime executor or model invocation. Discovery,
+validation, and planning are deterministic and offline; no Skill execution,
+retrieval, or generation occurs. The next infrastructure priority is bounded
+repository completion and Tool/Connector contract design before execution. See
 `PROJECT_TRACKER.md` for the exact deferred gaps.
 
 ## Definition of Done
@@ -141,3 +139,4 @@ A change is complete when:
 | 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 production package |
 | 0.21 | 2026-07-05 | Completed Sprint 21 IR-level Semantic Validator core |
 | 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |
+| 0.23 | 2026-07-05 | Completed Sprint 23 non-executing Runtime planning foundation |

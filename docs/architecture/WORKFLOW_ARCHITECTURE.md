@@ -1,6 +1,6 @@
 # Workflow Architecture
 
-Version: 0.1
+Version: 0.2
 Status: Active
 Last updated: 2026-07-04
 
@@ -51,6 +51,11 @@ resolvable active Skills, examples, tests, and architecture review.
 
 Independent ready steps may run concurrently only when side effects and mappings
 cannot conflict. Their recorded result order remains deterministic.
+
+The Runtime preparation layer implements steps 1-4 as immutable catalog,
+context, resolution, and plan models. It does not implement step invocation or
+state transitions; see [Runtime Architecture](RUNTIME_ARCHITECTURE.md) and
+ADR-0011.
 
 ### Skill Orchestration
 
@@ -104,3 +109,4 @@ invent Skill references or inline transformations.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established Workflow execution architecture |
+| 0.2 | 2026-07-05 | Linked the implemented non-executing Runtime planning layer |
