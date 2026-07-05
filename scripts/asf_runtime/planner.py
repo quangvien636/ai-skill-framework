@@ -80,6 +80,7 @@ def plan_workflow(
                 on_error=step.on_error,
                 max_attempts=step.retry.max_attempts if step.retry else 1,
                 knowledge=knowledge,
+                timeout_seconds=skill_artifact.ir.constraints.timeout_seconds,
             )
         )
 

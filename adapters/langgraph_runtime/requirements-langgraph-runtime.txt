@@ -1,0 +1,3 @@
+# langgraph_runtime adapter dependencies. Pinned to the LangGraph 1.2 line
+# selected in ADR-0013.
+langgraph>=1.2,<2

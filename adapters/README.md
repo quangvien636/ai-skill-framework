@@ -19,3 +19,4 @@ An adapter package:
 | Package | Seam | Reuse target |
 | --- | --- | --- |
 | [`mcp_tools/`](mcp_tools/) | `ToolBinding` | MCP Python SDK (`mcp`) |
+| [`langgraph_runtime/`](langgraph_runtime/) | `PlanCompiler` | LangGraph (`langgraph`) |

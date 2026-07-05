@@ -61,8 +61,9 @@ Planning:
 4. topologically orders steps;
 5. groups independent ready steps into deterministic batches, using manifest
    order as the tie-breaker;
-6. records mappings, error action, maximum attempts, exact resolutions, and
-   declared Workflow outputs in an immutable `ExecutionPlan`.
+6. records mappings, error action, maximum attempts, the resolved Skill's
+   declared `timeout_seconds` (if any), exact resolutions, and declared
+   Workflow outputs in an immutable `ExecutionPlan`.
 
 The planner produces data only. A plan is not evidence that any step ran.
 
@@ -119,3 +120,4 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 | --- | --- | --- |
 | 0.1 | 2026-07-05 | Established non-executing Runtime catalog, context, and planning architecture |
 | 0.2 | 2026-07-05 | Pointed Limitations/Next-Steps and References at the Execution Adapter Architecture (ADR-0013) instead of an implied native executor |
+| 0.3 | 2026-07-05 | `PlanStep` now carries the resolved Skill's `timeout_seconds`, needed by the `langgraph_runtime` PlanCompiler adapter to preserve timeout metadata |

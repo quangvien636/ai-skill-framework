@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 
 def freeze_value(value: Any) -> Any:
@@ -61,6 +61,7 @@ class PlanStep:
     on_error: str
     max_attempts: int
     knowledge: tuple[DependencyResolution, ...]
+    timeout_seconds: Optional[int] = None
 
 
 @dataclass(frozen=True)

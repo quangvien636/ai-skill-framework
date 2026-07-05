@@ -64,18 +64,32 @@ implemented by exactly one adapter package today.
 
 ```python
 class PlanCompiler(Protocol):
-    def compile(self, plan: ExecutionPlan) -> CompiledGraph: ...
+    def compile(self, plan: ExecutionPlan, step_executor: Any | None = None) -> Any: ...
 ```
 
-Takes the immutable `ExecutionPlan` (`scripts/asf_runtime/models.py`) and
-produces a backend-native executable graph. The `langgraph_runtime` adapter
-implements this by mapping each `PlanStep` to a `StateGraph` node (its
-`depends_on` becomes edges, its `on_error`/`max_attempts` becomes a
-`RetryPolicy`, its `batches` ordering becomes the graph's topological
-structure) and calling `.compile()` with a checkpointer. ASF does not
-execute the graph; the caller of `PlanCompiler.compile(...)` gets back a
-LangGraph-native object and drives it with LangGraph's own `.invoke()` /
-`.stream()` / `.ainvoke()`.
+(`asf_runtime.interfaces.PlanCompiler`; the return type stays `Any` in the
+core Protocol so `scripts/asf_runtime/` never imports an execution backend —
+the adapter's own `compile_plan` function is fully typed.)
+
+Takes the immutable `ExecutionPlan` (`scripts/asf_runtime/models.py`) and a
+caller-supplied `step_executor` (the actual per-step behavior; Runtime
+Planning never invokes a Skill, so compilation alone has nothing to run — a
+missing executor compiles to a node that raises `NotImplementedError` if
+ever invoked, never silently no-ops). `adapters/langgraph_runtime/compiler.py`
+implements this by mapping each `PlanStep` to a `StateGraph` node: its
+`depends_on` becomes edges, its `on_error == "retry"` becomes a `RetryPolicy`
+sized from `max_attempts` (other `on_error` values are preserved as node
+metadata, not translated into retry behavior), its `timeout_seconds` becomes
+the node's async timeout, and `execution_id`/`workflow_id`/`skill_id`/
+`batch_index`/knowledge resolutions are attached as node metadata for audit
+traceability. State uses a shallow-merge reducer
+(`Annotated[dict, merge_fn]`) rather than LangGraph's default last-value
+channel, because two steps in the same ready batch (ADR-0011) write
+concurrently and a last-value channel rejects more than one write per
+superstep. `compile_plan()` only calls `.compile()` — it never calls
+`.invoke()`/`.stream()`/`.ainvoke()` on the result; the caller of
+`PlanCompiler.compile(...)` gets back a LangGraph-native object and drives
+it with LangGraph's own execution methods.
 
 #### `ToolBinding`
 
@@ -167,3 +181,4 @@ the runtime reference ASF already validates.
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-05 | Initial adapter Protocol seams and package boundary for the Build vs Reuse strategy |
+| 0.2 | 2026-07-05 | Implemented `PlanCompiler` (`adapters/langgraph_runtime/`); finalized its signature with a caller-supplied `step_executor` and documented the state-merge reducer needed for parallel batches |
