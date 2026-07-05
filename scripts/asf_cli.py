@@ -246,6 +246,14 @@ def _render(report: dict[str, Any], output_format: str) -> None:
         print(json.dumps(report, indent=2, sort_keys=True))
         return
     print(f"ASF {report['command']}: {report['status'].upper()}")
+    for diagnostic in report.get("diagnostics", ()):
+        print(
+            f"  {diagnostic['severity'].upper()} {diagnostic['code']} "
+            f"{diagnostic['artifact']} [{diagnostic['location']}]"
+        )
+        print(f"    {diagnostic['message']}")
+        if diagnostic.get("suggestion"):
+            print(f"    Suggestion: {diagnostic['suggestion']}")
     if "summary" in report:
         print(
             "  "
@@ -254,7 +262,33 @@ def _render(report: dict[str, Any], output_format: str) -> None:
     elif report["command"] == "doctor":
         for key, value in report["checks"].items():
             print(f"  {key}: {value}")
-    else:
+    elif report["command"] == "build-ir" and "artifacts" in report:
+        valid = sum(item["ok"] for item in report["artifacts"])
+        print(f"  built={valid}/{len(report['artifacts'])}")
+    elif report["command"] == "graph" and "nodes" in report:
+        print(f"  nodes={len(report['nodes'])}, edges={len(report['edges'])}")
+    elif report["command"] == "bindings" and "bindings" in report:
+        for binding in report["bindings"]:
+            print(
+                f"  {binding['skill_id']} -> {binding['runtime_id']} "
+                f"({binding['model']['provider']}/{binding['model']['model']})"
+            )
+    elif report["command"] == "plan" and "plan" in report:
+        plan = report["plan"]
+        print(
+            f"  {plan['workflow_id']}@{plan['workflow_version']}: "
+            f"{len(plan['steps'])} step(s), {len(plan['batches'])} batch(es)"
+        )
+        for step in plan["steps"]:
+            print(f"  - {step['id']} -> {step['skill_id']}@{step['skill_version']}")
+    elif report["command"] == "compile" and "compiled" in report:
+        compiled = report["compiled"]
+        print(
+            f"  {compiled['workflow']['id']}@{compiled['workflow']['version']}: "
+            f"{len(compiled['graph']['nodes'])} nodes, "
+            f"{len(compiled['graph']['edges'])} edges (not executed)"
+        )
+    elif report["status"] == "ok":
         print(json.dumps(report, indent=2, sort_keys=True))
 
 
@@ -264,7 +298,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         workspace = load_workspace(args.start)
         report = _run_command(args, workspace)
+        exit_code = 1 if report["status"] == "error" else 0
     except (LookupError, PlanningError, RuntimeError, ValueError) as error:
+        if isinstance(error, ValueError):
+            exit_code = 2
+        elif isinstance(error, (LookupError, PlanningError)):
+            exit_code = 4
+        else:
+            exit_code = 1
         report = {
             "command": args.command,
             "status": "error",
@@ -280,5 +321,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                 }
             ],
         }
+    report["report_version"] = "1.0"
     _render(report, args.format)
-    return 1 if report["status"] == "error" else 0
+    return exit_code

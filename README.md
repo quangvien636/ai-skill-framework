@@ -214,3 +214,22 @@ that adapter's descriptor/registration — no new dependency, no invocation:
 Every package ships its own `requirements-<name>.txt`, isolated from
 `requirements-validator.txt` and from every other adapter package (adapters
 never import each other).
+
+## ASF CLI
+
+The offline CLI composes the same Validator, IR, graph, Runtime Binding,
+Planner, and LangGraph adapter APIs used by the test suites:
+
+```bash
+python scripts/asf.py validate
+python scripts/asf.py build-ir
+python scripts/asf.py graph
+python scripts/asf.py doctor
+python scripts/asf.py bindings --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
+python scripts/asf.py plan --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
+python scripts/asf.py compile --workflow workflow:research-topic-to-brief --inputs "{\"topic\":\"Determinism\",\"objective\":\"Prepare a brief.\"}"
+```
+
+Use `--format json` before the command for a versioned structured report.
+`compile` returns a compiled `StateGraph` description only. The CLI has no
+execute, invoke, publish, query, network, or model-SDK path.

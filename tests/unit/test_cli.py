@@ -53,6 +53,52 @@ class CliTests(unittest.TestCase):
             "--inputs",
             "[]",
         )
-        self.assertEqual(exit_code, 1)
+        self.assertEqual(exit_code, 2)
         self.assertEqual(report["diagnostics"][0]["code"], "ASF-CLI-001")
 
+    def test_missing_workflow_uses_not_found_exit_code(self):
+        exit_code, report = self.run_cli(
+            "plan", "--workflow", "workflow:not-present"
+        )
+        self.assertEqual(exit_code, 4)
+        self.assertEqual(report["status"], "error")
+
+    def test_reports_have_a_stable_version(self):
+        _exit_code, report = self.run_cli("doctor")
+        self.assertEqual(report["report_version"], "1.0")
+
+    def test_text_plan_is_concise_and_names_the_skill(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            exit_code = main(
+                (
+                    "--start",
+                    str(_bootstrap.REPO_ROOT),
+                    "plan",
+                    "--workflow",
+                    "workflow:research-topic-to-brief",
+                    "--inputs",
+                    '{"topic":"Determinism","objective":"Prepare a brief."}',
+                )
+            )
+        self.assertEqual(exit_code, 0)
+        self.assertIn("1 step(s), 1 batch(es)", output.getvalue())
+        self.assertIn("skill:research@1.0.0", output.getvalue())
+
+    def test_text_error_renders_diagnostic_without_result_payload(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            exit_code = main(
+                (
+                    "--start",
+                    str(_bootstrap.REPO_ROOT),
+                    "plan",
+                    "--workflow",
+                    "workflow:research-topic-to-brief",
+                    "--inputs",
+                    "[]",
+                )
+            )
+        self.assertEqual(exit_code, 2)
+        self.assertIn("ASF-CLI-001", output.getvalue())
+        self.assertIn("Suggestion:", output.getvalue())

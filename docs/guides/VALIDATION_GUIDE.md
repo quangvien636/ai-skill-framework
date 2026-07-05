@@ -1,19 +1,30 @@
 # Contract Validation Guide
 
-Version: 0.6
+Version: 0.7
 Status: Active
 Last updated: 2026-07-05
 
 ## Purpose
 
-Explain how contributors and tools apply schemas and interpret contract
-validation, including the Sprint 8 fixture-conformance prototype, without
-implying that a full validator, CLI, or Runtime already exists.
+Explain how contributors and tools apply schemas, interpret contract
+validation, and consume diagnostics through the offline ASF CLI.
 
 ## Scope
 
 This guide covers current schema review, the fixture-conformance prototype,
-and the future validation flow. It does not provide a production CLI.
+the integrated repository validator, and the compile-only CLI.
+
+## Integrated CLI
+
+`python scripts/asf.py validate` runs structural loading, dependency/version
+graph validation, semantic validation, and repository integrity checks through
+the existing reusable services. `--format json` emits a `report_version: "1.0"`
+report with the shared diagnostic fields: code, severity, artifact, location,
+message, rule reference, and suggestion.
+
+Exit codes follow the CLI architecture: `0` success, `1` validation failure,
+`2` invalid command input, and `4` unresolved artifacts. The CLI never executes
+a graph or contacts an external service.
 
 ## Definitions
 
