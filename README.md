@@ -50,6 +50,8 @@ Under Development
 - [Template Engine Architecture](docs/architecture/TEMPLATE_ENGINE_ARCHITECTURE.md)
 - [Generator Architecture](docs/architecture/GENERATOR_ARCHITECTURE.md)
 - [Runtime Architecture](docs/architecture/RUNTIME_ARCHITECTURE.md)
+- [Tool and Connector Architecture](docs/architecture/TOOL_CONNECTOR_ARCHITECTURE.md)
+- [Execution Adapter Architecture](docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
 - [CLI Architecture](docs/architecture/CLI_ARCHITECTURE.md)
 
 ### Specifications, Schemas, and Registries
@@ -153,3 +155,19 @@ See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),
 `docs/adr/ADR-0009-ir-adapter-package-and-scope.md`, and
 `docs/adr/ADR-0010-dependency-and-version-graph-scope.md` for scope,
 assumptions, and deferred work.
+
+## Build vs Reuse Strategy
+
+ASF builds contracts, shared IR, semantic validation, repository discovery,
+runtime planning, evaluation, reflection, review, and the adapter layer. It
+does not rebuild a graph execution engine, scheduler, retry engine, state
+manager, streaming layer, tool runtime, MCP runtime, RAG engine, vector
+database, or LLM SDK — mature open-source projects already solve those.
+`adapters/` packages translate ASF's validated IR and `ExecutionPlan` into
+external execution backends (LangGraph, the MCP Python SDK, LlamaIndex,
+provider SDKs) and translate results back, without weakening any validation
+or planning guarantee. See
+[ADR-0013](docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md) for the
+per-subsystem decisions and
+[Execution Adapter Architecture](docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
+for the Protocol seams and package boundary.

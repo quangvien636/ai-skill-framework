@@ -1,0 +1,159 @@
+# Execution Adapter Architecture
+
+Version: 0.1
+Status: Active
+Last updated: 2026-07-05
+
+## Purpose
+
+Define where and how ASF connects its validated IR and immutable
+`ExecutionPlan` (ADR-0011) to external execution backends, per the Build vs
+Reuse strategy in ADR-0013. This document specifies the Protocol seams
+adapters implement and the package boundary that keeps `scripts/asf_validator/`
+and `scripts/asf_runtime/` free of any execution-backend dependency.
+
+## Scope
+
+In scope: the interface contracts between ASF-owned planning/IR and
+externally-owned execution, and the package layout adapters live in. Out of
+scope: the internal implementation of any reuse target (LangGraph, MCP SDK,
+LlamaIndex, provider SDKs) — those are consumed as dependencies, never
+vendored or reimplemented.
+
+## Design
+
+### Principle
+
+ASF is the source of truth for artifacts, contracts, IR, validation, and
+planning. External frameworks are execution backends only. An adapter
+translates one direction (ASF IR/plan -> backend construct) and the other
+(backend result -> ASF-shaped output). No adapter may weaken, bypass, or
+duplicate a validation or planning guarantee already established upstream —
+if a plan says a step is unreachable, no adapter may make it reachable.
+
+### Package Boundary
+
+```text
+scripts/asf_validator/   # contracts, IR, semantic validation, dependency graph — no execution deps
+scripts/asf_runtime/     # catalog, context, planning — no execution deps
+adapters/                # NEW: one package per reuse target, each importing exactly one external framework
+  langgraph_runtime/     # ExecutionPlan -> StateGraph compiler
+  mcp_tools/             # ToolIR/ConnectorIR -> MCP server tool/resource bindings
+  llamaindex_retrieval/  # Knowledge IR -> index/query engine
+  model_invokers/        # Skill runtime dependency -> provider SDK call (Anthropic, OpenAI, Ollama, ...)
+```
+
+Each `adapters/<name>/` package:
+
+- depends on `scripts/asf_validator` and/or `scripts/asf_runtime` for the IR
+  types it translates, plus exactly one external framework;
+- never imports another adapter package (adapters do not depend on each
+  other; composition happens above them, in a future orchestration
+  entrypoint that is not part of this decision);
+- ships its own `requirements-<name>.txt` so the core validator/runtime
+  dependency footprint (`requirements-validator.txt`, ADR-0002) stays
+  untouched by execution-backend churn (e.g., the MCP v1 -> v2 migration).
+
+### Protocol Seams
+
+Four seams cover the excluded responsibilities from ADR-0013. Each is a
+`Protocol` owned by ASF (defined alongside the IR/models it takes as input),
+implemented by exactly one adapter package today.
+
+#### `PlanCompiler`
+
+```python
+class PlanCompiler(Protocol):
+    def compile(self, plan: ExecutionPlan) -> CompiledGraph: ...
+```
+
+Takes the immutable `ExecutionPlan` (`scripts/asf_runtime/models.py`) and
+produces a backend-native executable graph. The `langgraph_runtime` adapter
+implements this by mapping each `PlanStep` to a `StateGraph` node (its
+`depends_on` becomes edges, its `on_error`/`max_attempts` becomes a
+`RetryPolicy`, its `batches` ordering becomes the graph's topological
+structure) and calling `.compile()` with a checkpointer. ASF does not
+execute the graph; the caller of `PlanCompiler.compile(...)` gets back a
+LangGraph-native object and drives it with LangGraph's own `.invoke()` /
+`.stream()` / `.ainvoke()`.
+
+#### `ToolBinding`
+
+```python
+class ToolBinding(Protocol):
+    def bind(self, tool: ToolIR, connector: ConnectorIR | None) -> None: ...
+```
+
+Takes a validated `ToolIR` (and its resolved `ConnectorIR`, if the tool
+declares one) and registers it against a running MCP server/client. The
+`mcp_tools` adapter implements this by generating an `@mcp.tool()`-decorated
+function whose signature and JSON-schema come from `ToolIR.inputs` /
+`ToolIR.outputs`, and whose connection/auth setup comes from
+`ConnectorIR.authentication` / `ConnectorIR.configuration`. The adapter never
+defines a tool's operation outside of what the Tool contract already
+declares — it binds, it does not invent behavior.
+
+#### `KnowledgeRetriever`
+
+```python
+class KnowledgeRetriever(Protocol):
+    def query(self, knowledge_ids: Sequence[str], query: str) -> RetrievalResult: ...
+```
+
+Takes resolved Knowledge document IDs (from a plan's knowledge
+`DependencyResolution`s) and a query string, and returns retrieved content.
+The `llamaindex_retrieval` adapter implements this by indexing Knowledge
+Markdown documents (chunking, embedding, and vector storage are all
+LlamaIndex's responsibility, not ASF's) and running a query engine scoped to
+the resolved document set.
+
+#### `ModelInvoker`
+
+```python
+class ModelInvoker(Protocol):
+    def invoke(self, runtime_ref: str, prompt: PreparedPrompt) -> ModelResponse: ...
+```
+
+Takes a Skill's resolved `dependencies.runtime` reference and a prepared
+prompt, and returns a model response. `model_invokers` is deliberately not
+one library: each provider (Anthropic, OpenAI, Ollama for local serving) is
+a thin, independently swappable implementation of the same seam, selected by
+the runtime reference ASF already validates.
+
+### What Stays Unchanged
+
+- `ArtifactLoader`, `CatalogBuilder`, `WorkflowPlanner`, `PlanStore`
+  (`scripts/asf_runtime/interfaces.py`) are unaffected — they produce the
+  `ExecutionPlan` an adapter consumes. This document adds seams *after*
+  planning, not inside it.
+- No graph node kind, schema, or validation rule changes. Adapters consume
+  already-successful IR; a `result.ok is False` artifact never reaches an
+  adapter, exactly as `dependency_graph.py` already skips it.
+- `ASF-RUNTIME-PLAN-*` failure codes are unaffected. Adapter-side failures
+  (a backend rejecting a compiled graph, an MCP transport error) are
+  execution-time concerns and get their own diagnostics prefix when the
+  first adapter milestone that needs one is implemented.
+
+## Non-Goals
+
+- No adapter package implements retries, checkpointing, transport, chunking,
+  embedding, or vector storage itself — those are the reuse target's job.
+- No adapter package is a general-purpose SDK wrapper; each implements
+  exactly the Protocol seam above, scoped to ASF's own IR shapes.
+- This document does not select a production deployment platform, an
+  `AISkill.CLI` implementation, or a hosting model for MCP servers — those
+  remain open per ADR-0011's existing scope limits.
+
+## References
+
+- `docs/adr/ADR-0011-runtime-planning-precedes-execution.md`
+- `docs/adr/ADR-0012-declarative-tool-connector-graph-scope.md`
+- `docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md`
+- `docs/architecture/RUNTIME_ARCHITECTURE.md`
+- `docs/architecture/TOOL_CONNECTOR_ARCHITECTURE.md`
+
+## Revision History
+
+| Version | Date | Description |
+| --- | --- | --- |
+| 0.1 | 2026-07-05 | Initial adapter Protocol seams and package boundary for the Build vs Reuse strategy |

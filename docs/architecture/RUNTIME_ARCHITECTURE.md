@@ -88,8 +88,15 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 
 ## Limitations and Next Steps
 
-- No LLM, Skill, tool, browser, MCP, connector, or filesystem executor.
-- No retry loop, optional-step state, manual-review pause, or persistence.
+- No LLM, Skill, tool, browser, MCP, connector, or filesystem executor is
+  implemented in this package, and per ADR-0013 none will be: execution is
+  delegated to external backends (LangGraph, the MCP Python SDK, LlamaIndex,
+  provider SDKs) through the adapter Protocol seams in
+  [Execution Adapter Architecture](EXECUTION_ADAPTER_ARCHITECTURE.md), not a
+  future native executor written here.
+- No retry loop, optional-step state, manual-review pause, or persistence —
+  these are LangGraph's `RetryPolicy` and checkpointer responsibility once a
+  `PlanCompiler` adapter compiles an `ExecutionPlan`.
 - No runtime output mapping or value validation after execution.
 - No structural object subtyping or transformation adapters.
 - No Runtime/Tool graph nodes until their schemas and IR adapters exist.
@@ -99,13 +106,16 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 - [Workflow Architecture](WORKFLOW_ARCHITECTURE.md)
 - [IR Architecture](IR_ARCHITECTURE.md)
 - [CLI Architecture](CLI_ARCHITECTURE.md)
+- [Execution Adapter Architecture](EXECUTION_ADAPTER_ARCHITECTURE.md)
 - [Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md)
 - ADR-0005
 - ADR-0010
 - ADR-0011
+- ADR-0013
 
 ## Revision History
 
 | Version | Date | Description |
 | --- | --- | --- |
 | 0.1 | 2026-07-05 | Established non-executing Runtime catalog, context, and planning architecture |
+| 0.2 | 2026-07-05 | Pointed Limitations/Next-Steps and References at the Execution Adapter Architecture (ADR-0013) instead of an implied native executor |
