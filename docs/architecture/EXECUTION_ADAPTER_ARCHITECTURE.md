@@ -146,18 +146,35 @@ itself — actually running a query engine — is unimplemented; it is next on
 the roadmap once a `RetrievalConfig` needs to be executed rather than only
 produced.
 
-#### `ModelInvoker`
+#### `ModelInvoker` (descriptor half implemented; invoke half is not)
 
 ```python
+class ModelDescriptorCompiler(Protocol):
+    def compile(
+        self, provider: str, model: str, parameters: Mapping[str, Any] | None = None
+    ) -> ModelDescriptor: ...
+
+
 class ModelInvoker(Protocol):
-    def invoke(self, runtime_ref: str, prompt: PreparedPrompt) -> ModelResponse: ...
+    def invoke(self, descriptor: ModelDescriptor, prompt: PreparedPrompt) -> ModelResponse: ...
 ```
 
-Takes a Skill's resolved `dependencies.runtime` reference and a prepared
-prompt, and returns a model response. `model_invokers` is deliberately not
-one library: each provider (Anthropic, OpenAI, Ollama for local serving) is
-a thin, independently swappable implementation of the same seam, selected by
-the runtime reference ASF already validates.
+`adapters/model_invokers/descriptors.py` implements
+`ModelDescriptorCompiler.compile` (as `compile_model_descriptor`, plus one
+convenience wrapper per provider: `openai_descriptor`,
+`anthropic_descriptor`, `google_descriptor`, `ollama_descriptor`). It builds
+an immutable `ModelDescriptor` (provider, model, generation parameters,
+optional endpoint) and makes **no network call and imports no provider
+SDK** — Priority 3's scope. It actively rejects any parameter whose name
+looks like a credential (`api_key`, `token`, `authorization`, ...), so "no
+API keys" is an enforced guarantee, not only a convention. `model_invokers`
+does not yet resolve a Skill's `dependencies.runtime` reference to a
+specific descriptor: no Runtime contract schema exists yet to carry
+provider/model information (ADR-0011 defers Runtime artifact schemas), so
+this module documents that gap rather than inventing one (ADR-0009's
+precedent). `ModelInvoker.invoke` — actually calling a provider — is
+unimplemented; when built, each provider's official SDK (or Ollama's local
+API) is the reuse target, never a hand-rolled HTTP client.
 
 ### What Stays Unchanged
 
@@ -198,3 +215,4 @@ the runtime reference ASF already validates.
 | 0.1 | 2026-07-05 | Initial adapter Protocol seams and package boundary for the Build vs Reuse strategy |
 | 0.2 | 2026-07-05 | Implemented `PlanCompiler` (`adapters/langgraph_runtime/`); finalized its signature with a caller-supplied `step_executor` and documented the state-merge reducer needed for parallel batches |
 | 0.3 | 2026-07-05 | Split `KnowledgeRetriever` into `RetrievalConfigCompiler` (implemented, `adapters/llamaindex_retrieval/`) and an unimplemented `query` half, per Priority 2's configuration-only scope |
+| 0.4 | 2026-07-05 | Split `ModelInvoker` into `ModelDescriptorCompiler` (implemented, `adapters/model_invokers/`, zero SDK dependency) and an unimplemented `invoke` half, per Priority 3's declarative-only scope |

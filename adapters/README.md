@@ -21,3 +21,4 @@ An adapter package:
 | [`mcp_tools/`](mcp_tools/) | `ToolBinding` | MCP Python SDK (`mcp`) |
 | [`langgraph_runtime/`](langgraph_runtime/) | `PlanCompiler` | LangGraph (`langgraph`) |
 | [`llamaindex_retrieval/`](llamaindex_retrieval/) | `RetrievalConfigCompiler` (config half of `KnowledgeRetriever`) | LlamaIndex (`llama-index-core`) |
+| [`model_invokers/`](model_invokers/) | `ModelDescriptorCompiler` (descriptor half of `ModelInvoker`) | none yet — declarative only, no SDK dependency (Priority 3) |
