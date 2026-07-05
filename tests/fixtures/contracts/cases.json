@@ -1,6 +1,18 @@
 {
   "cases": [
     {
+      "name": "valid-tool",
+      "fixture": "tests/fixtures/contracts/tool/valid.yaml",
+      "schema": "tool.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-tool",
+      "fixture": "tests/fixtures/contracts/tool/invalid.yaml",
+      "schema": "tool.schema.json",
+      "expected": "invalid"
+    },
+    {
       "name": "valid-skill",
       "fixture": "tests/fixtures/contracts/skill/valid.yaml",
       "schema": "skill.schema.json",

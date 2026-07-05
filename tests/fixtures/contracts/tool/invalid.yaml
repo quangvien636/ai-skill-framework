@@ -1,0 +1,12 @@
+schema_version: "1.0.0"
+id: "tool:invalid"
+name: "invalid"
+display_name: "Invalid Tool"
+description: "Invalid"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Invalid"
+inputs: {}
+outputs: {}
+# missing constraints and dependencies

@@ -1,0 +1,25 @@
+schema_version: "1.0.0"
+id: "tool:read-file"
+name: "read-file"
+display_name: "Read File"
+description: "Reads a file"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Read content"
+inputs:
+  path:
+    type: "string"
+    required: true
+    description: "Path to file"
+outputs:
+  content:
+    type: "string"
+    required: true
+    description: "File content"
+dependencies:
+  connectors: []
+constraints:
+  side_effects: "none"
+  requires_network: false
+  requires_local_filesystem: true

@@ -1,0 +1,11 @@
+schema_version: "1.0.0"
+id: "tool:missing-req"
+name: "missing-req"
+display_name: "Missing Req"
+description: "Missing req"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Missing"
+inputs: {}
+# missing outputs, constraints, dependencies

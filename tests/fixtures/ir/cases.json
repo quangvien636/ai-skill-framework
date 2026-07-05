@@ -1,6 +1,19 @@
 {
   "cases": [
     {
+      "name": "valid-tool",
+      "fixture": "tests/fixtures/ir/tool/valid.yaml",
+      "kind": "tool",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-tool",
+      "fixture": "tests/fixtures/ir/tool/missing_required.yaml",
+      "kind": "tool",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
       "name": "valid-skill",
       "fixture": "tests/fixtures/ir/skill/valid.yaml",
       "kind": "skill",

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/tool.schema.json",
+  "title": "Tool Manifest",
+  "description": "Machine-readable contract for tools/<tool-name>/tool.yaml.",
+  "allOf": [{ "$ref": "metadata.schema.json#/$defs/commonArtifact" }],
+  "type": "object",
+  "required": [
+    "responsibility",
+    "inputs",
+    "outputs",
+    "dependencies",
+    "constraints"
+  ],
+  "properties": {
+    "schema_version": true,
+    "id": {
+      "type": "string",
+      "pattern": "^tool:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "name": true,
+    "display_name": true,
+    "description": true,
+    "version": true,
+    "status": true,
+    "owners": true,
+    "tags": true,
+    "responsibility": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Tool's single observable responsibility."
+    },
+    "inputs": {
+      "type": "object",
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    },
+    "outputs": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["connectors"],
+      "properties": {
+        "connectors": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "metadata.schema.json#/$defs/versionedReference" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["side_effects"],
+      "properties": {
+        "side_effects": { "type": "string", "minLength": 1 },
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_input_size": { "type": "integer", "minimum": 1 },
+        "max_output_size": { "type": "integer", "minimum": 1 },
+        "deterministic": { "type": "boolean" },
+        "requires_network": { "type": "boolean" },
+        "requires_local_filesystem": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "unevaluatedProperties": false,
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "tool:read-file",
+    "name": "read-file",
+    "display_name": "Read File",
+    "description": "Reads a file from the local filesystem.",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"],
+    "responsibility": "Read content from a specified absolute file path.",
+    "inputs": {
+      "path": {
+        "type": "string",
+        "required": true,
+        "description": "Absolute path to the file."
+      }
+    },
+    "outputs": {
+      "content": { "type": "string", "required": true, "description": "The file content." }
+    },
+    "dependencies": { "connectors": [] },
+    "constraints": {
+      "side_effects": "none",
+      "requires_network": false,
+      "requires_local_filesystem": true
+    }
+  }]
+}
