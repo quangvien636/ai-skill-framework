@@ -1,0 +1,11 @@
+schema_version: "1.0.0"
+id: "connector:local-fs"
+name: "local-fs"
+display_name: "Local FS"
+description: "Local FS"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Local FS"
+authentication: "none"
+configuration: {}

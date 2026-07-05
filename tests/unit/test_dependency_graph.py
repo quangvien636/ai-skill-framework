@@ -45,6 +45,27 @@ class DependencyGraphTests(unittest.TestCase):
         )
         self.assertIn(("workflow:summarize-document", "skill:summarize-document"), edge_pairs)
 
+    def test_valid_tool_and_connector_graph_has_expected_nodes_and_edges(self):
+        results = self._load(
+            "valid-tool-connector/skill.yaml",
+            "valid-tool-connector/tool.yaml",
+            "valid-tool-connector/connector.yaml",
+            kinds=["skill", "tool", "connector"],
+        )
+        graph, diagnostics = build_dependency_graph(results)
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            set(graph.nodes),
+            {
+                "skill:use-tool",
+                "tool:read-file",
+                "connector:local-fs",
+            },
+        )
+        edge_pairs = {(e.source, e.target) for e in graph.edges}
+        self.assertIn(("skill:use-tool", "tool:read-file"), edge_pairs)
+        self.assertIn(("tool:read-file", "connector:local-fs"), edge_pairs)
+
     def test_missing_dependency_is_detected(self):
         results = self._load("missing-dependency/skill.yaml", kinds=["skill"])
         graph, diagnostics = build_dependency_graph(results)
