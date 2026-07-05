@@ -109,7 +109,7 @@ inventing new infrastructure:
 | `ASF-BINDING-004` | invalid inheritance | An inherited capability's source runtime is not `status: active` |
 | `ASF-BINDING-005` | duplicate binding ids | Within one resolution batch, two `BindingIR`s compute the same canonical id (`binding:<skill_id>@<runtime_id>`) but differ in resolved content — a determinism violation |
 | `ASF-BINDING-006` | incompatible descriptor combinations | Effective `retriever.enabled` is true while effective `model.enabled` is false (retrieval with nothing to reason over it) |
-| `ASF-BINDING-007` | conflicting override rules | Two chain members both explicitly enable the *same* capability with *different* configured content (e.g. two different `publisher.target` values) — legal under override precedence, but almost certainly an authoring mistake worth flagging |
+| `ASF-BINDING-007` | conflicting override rules | Two chain members both explicitly enable `publisher` with *different* `target` values — legal under override precedence, but almost certainly an authoring mistake worth flagging. Scoped to `publisher` only, deliberately: a fallback enabling a *different model* than its primary (typically cheaper/local) is the intended pattern, not a conflict, so `model` is excluded from this check |
 
 ### 5. Adapters gain `*_from_binding` functions; nothing existing changes
 
