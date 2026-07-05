@@ -104,6 +104,21 @@
         { "kind": "workflow", "fixture": "workflows/research-topic-to-brief/workflow.yaml" }
       ],
       "expected_codes": []
+    },
+    {
+      "name": "review-quality-v1-production-artifacts",
+      "artifacts": [
+        { "kind": "skill", "fixture": "skills/review-quality/skill.yaml" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/checklists/review-checklist-structure.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/rubrics/content-quality-rubric.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/claims/unsupported-claim-detection.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/tone/tone-consistency-criteria.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/platforms/platform-compliance-checklist.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/revisions/revision-recommendation-patterns.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/decisions/approval-rejection-rules.md" },
+        { "kind": "workflow", "fixture": "workflows/draft-to-reviewed-package/workflow.yaml" }
+      ],
+      "expected_codes": []
     }
   ]
 }

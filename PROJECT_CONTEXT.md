@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.19
+Version: 0.20
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,19 +88,20 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 19 - Research Skill v1**, adding the framework's
-second production package. `skill:research` turns a topic and caller-supplied
-source records and evidence notes into research questions, source requirements,
-reliability assessments, claim-evidence mappings, findings, uncertainty, gaps,
-citations, and a structured brief. Six canonical methodology documents and
-`workflow:research-topic-to-brief` provide the reusable knowledge and end-to-end
+The project completed **Sprint 20 - Review Quality Skill v1**, adding the third
+production package. `skill:review-quality` evaluates supplied content packages,
+research briefs, and generic drafts for structure, clarity, logic, evidence
+alignment, tone, platform fit, CTA, length, pacing, and safety, then recommends
+approve, revise, or reject. Seven foundational quality documents and
+`workflow:draft-to-reviewed-package` provide reusable criteria and end-to-end
 composition. Production files are registered directly in contract, IR, and
-graph manifests, producing 14/14 contract cases, 31/31 IR cases, and 12/12
-graph scenarios, with 60 passing unit tests.
+graph manifests, producing 16/16 contract cases, 40/40 IR cases, and 13/13
+graph scenarios, with 64 passing unit tests.
 
 The framework still has no Runtime executor, model invocation, or
-repository-wide discovery. Research v1 therefore structures caller-supplied
-material but cannot fetch or independently verify sources. Skill behavior is
+repository-wide discovery. Review v1 therefore evaluates only caller-supplied
+artifacts and cannot execute reviews, retrieve policy, render media, or
+independently verify claims. Skill behavior is
 expressed by contracts, embedded Evaluation/Reflection, examples, and
 Knowledge; current automated proof covers schema, IR, and graph construction. See
 `PROJECT_TRACKER.md` for the exact deferred gaps.
@@ -139,3 +140,4 @@ A change is complete when:
 | 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |
 | 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 production package |
 | 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 production package |
+| 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 production package |

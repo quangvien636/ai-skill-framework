@@ -1,0 +1,66 @@
+schema_version: "1.0.0"
+id: "workflow:draft-to-reviewed-package"
+name: "draft-to-reviewed-package"
+display_name: "Draft to Reviewed Package"
+description: "Turns a supplied draft into a quality report and approve, revise, or reject disposition."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "review"
+  - "quality"
+entrypoint: "review-draft"
+inputs:
+  draft:
+    type: "object"
+    required: true
+    description: "Structured draft supplied for review."
+  brief:
+    type: "string"
+    required: true
+    description: "Objective, audience, deliverable, and mandatory message."
+  output-type:
+    type: "string"
+    required: true
+    description: "Content package, research brief, or generic draft."
+  platform:
+    type: "string"
+    required: false
+    description: "Target platform or generic."
+    default: "generic"
+  evidence:
+    type: "array"
+    required: false
+    description: "Caller-supplied evidence available for alignment checks."
+    default: []
+  constraints:
+    type: "array"
+    required: false
+    description: "Review and output requirements."
+    default: []
+steps:
+  - id: "review-draft"
+    skill:
+      id: "skill:review-quality"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      draft: "workflow.inputs.draft"
+      brief: "workflow.inputs.brief"
+      output-type: "workflow.inputs.output-type"
+      platform: "workflow.inputs.platform"
+      evidence: "workflow.inputs.evidence"
+      constraints: "workflow.inputs.constraints"
+    on_error: "manual-review"
+outputs:
+  review-report:
+    type: "object"
+    description: "Traceable quality findings and final recommendation."
+    from: "steps.review-draft.outputs.review-report"
+  reviewed-package:
+    type: "object"
+    description: "Draft plus review status, safe corrections, and unresolved items."
+    from: "steps.review-draft.outputs.reviewed-package"
+error_handling:
+  default: "manual-review"

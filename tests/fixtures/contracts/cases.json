@@ -83,6 +83,18 @@
       "fixture": "workflows/research-topic-to-brief/workflow.yaml",
       "schema": "workflow.schema.json",
       "expected": "valid"
+    },
+    {
+      "name": "review-quality-v1-skill",
+      "fixture": "skills/review-quality/skill.yaml",
+      "schema": "skill.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "draft-to-reviewed-package-v1-workflow",
+      "fixture": "workflows/draft-to-reviewed-package/workflow.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "valid"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.19
+Version: 0.20
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,49 +12,52 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 19 - Research Skill v1**
+**Sprint 20 - Review Quality Skill v1**
 
-Goal: deliver a reusable production Research Skill and topic-to-brief Workflow
-that future Content, SEO, Marketing, Business, and Coding skills can consume.
+Goal: deliver a reusable production Review Skill that evaluates Research and
+Content outputs before a downstream video or content pipeline.
 
 Status: **Completed**
 
-### Sprint 19 Backlog
+### Sprint 20 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Add an active Skill covering questions, source requirements, evidence, reliability, claims, findings, uncertainty, gaps, and briefs | Done | `skills/research/` |
-| Keep reusable research methodology outside the Skill | Done | Six documents under `knowledge/foundational/research/`; `KNOWLEDGE_INDEX.md` |
-| Add the end-to-end topic-to-brief Workflow | Done | `workflows/research-topic-to-brief/` |
-| Cover representative, minimal-evidence, contradictory, and invalid/refusal cases | Done | `skills/research/examples/` |
+| Add an active Skill covering editorial, evidence, tone, platform, CTA, pacing, safety, and disposition review | Done | `skills/review-quality/` |
+| Keep reusable quality criteria outside the Skill | Done | Seven documents under `knowledge/foundational/quality/`; `KNOWLEDGE_INDEX.md` |
+| Add the end-to-end draft-to-reviewed-package Workflow | Done | `workflows/draft-to-reviewed-package/` |
+| Cover approve, revise, reject, and invalid/refusal outcomes | Done | `skills/review-quality/examples/` |
 | Validate canonical production files without fixture-only copies | Done | `tests/fixtures/{contracts,ir,graph}/cases.json` reference production paths directly |
-| Prove all Knowledge and Skill references resolve together | Done | `research-v1-production-artifacts` graph scenario |
+| Prove all Knowledge and Skill references resolve together | Done | `review-quality-v1-production-artifacts` graph scenario |
 | Document usage, validation, and execution boundaries | Done | Root and package READMEs; `PROJECT_CONTEXT.md` |
 | Preserve IR architecture boundaries | Done | Empty runtime/tool dependencies; embedded Evaluation/Reflection only |
 
-### Sprint 19 Exit Criteria
+### Sprint 20 Exit Criteria
 
-- `python scripts/validate_contracts.py` passes 14/14.
-- `python scripts/build_ir.py` passes 31/31, including every production
-  Research artifact.
-- `python scripts/build_graph.py` passes 12/12, including the production package
+- `python scripts/validate_contracts.py` passes 16/16.
+- `python scripts/build_ir.py` passes 40/40, including every production Review
+  Quality artifact.
+- `python scripts/build_graph.py` passes 13/13, including the production package
   with all required Knowledge and Skill references.
-- `python -m unittest discover` passes all 60 tests.
+- `python -m unittest discover` passes all 64 tests.
 - No schema fields, standalone Evaluation/Reflection artifacts, Runtime/Tool
-  graph nodes, source-fetching behavior, or unrelated refactors are introduced.
+  graph nodes, review execution, external fact-checking, or unrelated refactors
+  are introduced.
 - Repository Markdown links and ADR references remain valid.
 
-### Sprint 19 Deferred / Documented Gaps
+### Sprint 20 Deferred / Documented Gaps
 
 - No Runtime or Generator executes the Skill yet; v1 is a validated framework
   contract, Knowledge package, examples, and Workflow.
-- No browser, fetcher, connector, or external verification mechanism exists;
-  v1 accepts only caller-supplied source records and evidence notes.
-- The current schema validates supplied-source and evidence-note items as
-  objects but cannot express their nested fields; the Knowledge and examples
-  document the expected structure without inventing schema fields.
-- Research reasoning and embedded Evaluation/Reflection cannot run until the
-  planned Runtime exists.
+- No LLM Runtime, external fact-checker, policy retriever, media renderer, or
+  platform verifier exists; v1 defines review artifacts and reasoning only.
+- The current schema can declare the draft and evidence as objects but cannot
+  express their type-specific nested fields; examples and Knowledge document
+  the expected structure without inventing schema fields.
+- Length and pacing checks are text-structural only; final duration, rendering,
+  audio, captions, and accessibility require downstream media review.
+- Safety review is a declared contract and decision rule, not runtime policy
+  enforcement.
 - Repository-wide discovery remains Phase 4, so production artifacts are
   explicitly registered in the fixture manifests.
 
@@ -86,6 +89,7 @@ sprint indefinitely.
 | 17 | Validator Roadmap Phase 3 (Dependency/Version Graph) | `dependency_graph.py`, `version_graph.py`, `scripts/build_graph.py` (10/10), 53 unit tests, ADR-0010 |
 | 18 | Content Creation Skill v1 | Active Skill, five Knowledge documents, end-to-end Workflow, production graph scenario |
 | 19 | Research Skill v1 | Active Skill, six methodology documents, topic-to-brief Workflow, production graph scenario |
+| 20 | Review Quality Skill v1 | Active Skill, seven quality documents, draft-to-reviewed-package Workflow, production graph scenario |
 
 ## Risks and Guardrails
 
@@ -147,3 +151,4 @@ sprint indefinitely.
 | 0.17 | 2026-07-04 | Completed Sprint 17 Validator Roadmap Phase 3 (Dependency/Version Graph) |
 | 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 |
 | 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 |
+| 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 |

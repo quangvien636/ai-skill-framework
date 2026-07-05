@@ -1,0 +1,28 @@
+case: "approve"
+skill:
+  id: "skill:review-quality"
+  version: "1.0.0"
+input:
+  output-type: "content-package"
+  brief: "Explain a supplied three-step Friday planning ritual to independent designers."
+  platform: "tiktok"
+  draft:
+    hook: "Twenty minutes on Friday can make Monday easier."
+    primary-content: "Collect open loops, choose next actions, and reserve focus blocks."
+    call-to-action: "Save this and try it Friday."
+    production-notes: "Target 45 seconds; verify recorded duration."
+  evidence:
+    - claim: "The ritual takes 20 minutes every Friday."
+      status: "caller-supplied"
+    - claim: "The three steps are collect, choose, and reserve."
+      status: "caller-supplied"
+  constraints:
+    - "Target 45 seconds."
+expected_output_properties:
+  - "all applicable checklist dimensions pass"
+  - "the duration remains marked for recorded verification"
+  - "required-revisions is empty"
+  - "recommendation is approve"
+expected_evaluation:
+  decision: "pass"
+  recommendation: "approve"

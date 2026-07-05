@@ -196,6 +196,60 @@
       "fixture": "knowledge/foundational/research/citations/citation-expectations.md",
       "kind": "knowledge",
       "expected": "valid"
+    },
+    {
+      "name": "review-quality-v1-skill",
+      "fixture": "skills/review-quality/skill.yaml",
+      "kind": "skill",
+      "expected": "valid"
+    },
+    {
+      "name": "draft-to-reviewed-package-v1-workflow",
+      "fixture": "workflows/draft-to-reviewed-package/workflow.yaml",
+      "kind": "workflow",
+      "expected": "valid"
+    },
+    {
+      "name": "review-checklist-structure-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/checklists/review-checklist-structure.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "content-quality-rubric-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/rubrics/content-quality-rubric.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "unsupported-claim-detection-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/claims/unsupported-claim-detection.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "tone-consistency-criteria-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/tone/tone-consistency-criteria.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "platform-compliance-checklist-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/platforms/platform-compliance-checklist.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "revision-recommendation-patterns-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/revisions/revision-recommendation-patterns.md",
+      "kind": "knowledge",
+      "expected": "valid"
+    },
+    {
+      "name": "approval-rejection-rules-v1-knowledge",
+      "fixture": "knowledge/foundational/quality/decisions/approval-rejection-rules.md",
+      "kind": "knowledge",
+      "expected": "valid"
     }
   ]
 }

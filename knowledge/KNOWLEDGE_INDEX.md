@@ -1,6 +1,6 @@
 # Knowledge Index
 
-Version: 0.3
+Version: 0.4
 Status: Active
 Last updated: 2026-07-05
 
@@ -25,6 +25,13 @@ knowledge ID maps to exactly one repository path.
 | `kb:creative:content:hooks:hook-formulas` | Hook Formulas | creative | content | hooks | Active | `knowledge/creative/content/hooks/hook-formulas.md` | Honest opening patterns that establish relevance and a fulfilled promise. |
 | `kb:creative:content:platforms:publishing-constraints` | Publishing Constraints | creative | content | platforms | Active | `knowledge/creative/content/platforms/publishing-constraints.md` | Stable packaging guidance for generic, Instagram, LinkedIn, TikTok, and YouTube content. |
 | `kb:creative:content:style:tone-guidelines` | Tone Guidelines | creative | content | style | Active | `knowledge/creative/content/style/tone-guidelines.md` | Observable tone and style choices for audience-appropriate content. |
+| `kb:foundational:quality:checklists:review-checklist-structure` | Review Checklist Structure | foundational | quality | checklists | Active | `knowledge/foundational/quality/checklists/review-checklist-structure.md` | Complete review sequence and traceable finding structure. |
+| `kb:foundational:quality:claims:unsupported-claim-detection` | Unsupported Claim Detection | foundational | quality | claims | Active | `knowledge/foundational/quality/claims/unsupported-claim-detection.md` | Alignment checks for unsupported, overstated, contradictory, and fabricated claims. |
+| `kb:foundational:quality:decisions:approval-rejection-rules` | Approval Rejection Rules | foundational | quality | decisions | Active | `knowledge/foundational/quality/decisions/approval-rejection-rules.md` | Consistent approve, revise, and reject disposition rules. |
+| `kb:foundational:quality:platforms:platform-compliance-checklist` | Platform Compliance Checklist | foundational | quality | platforms | Active | `knowledge/foundational/quality/platforms/platform-compliance-checklist.md` | Stable platform-fit checks with explicit volatile-rule boundaries. |
+| `kb:foundational:quality:revisions:revision-recommendation-patterns` | Revision Recommendation Patterns | foundational | quality | revisions | Active | `knowledge/foundational/quality/revisions/revision-recommendation-patterns.md` | Bounded patterns for actionable required and optional revisions. |
+| `kb:foundational:quality:rubrics:content-quality-rubric` | Content Quality Rubric | foundational | quality | rubrics | Active | `knowledge/foundational/quality/rubrics/content-quality-rubric.md` | Observable grammar, clarity, logic, structure, CTA, length, and pacing criteria. |
+| `kb:foundational:quality:tone:tone-consistency-criteria` | Tone Consistency Criteria | foundational | quality | tone | Active | `knowledge/foundational/quality/tone/tone-consistency-criteria.md` | Observable tone alignment and internal consistency criteria. |
 | `kb:foundational:research:briefs:research-brief-structure` | Research Brief Structure | foundational | research | briefs | Active | `knowledge/foundational/research/briefs/research-brief-structure.md` | Required structure and traceability rules for a decision-useful research brief. |
 | `kb:foundational:research:citations:citation-expectations` | Citation Expectations | foundational | research | citations | Active | `knowledge/foundational/research/citations/citation-expectations.md` | Minimum identity, locator, consistency, and honesty rules for citations. |
 | `kb:foundational:research:evidence:claim-evidence-mapping` | Claim Evidence Mapping | foundational | research | evidence | Active | `knowledge/foundational/research/evidence/claim-evidence-mapping.md` | Atomic claim mapping to supporting, contradicting, or missing evidence. |
@@ -52,3 +59,4 @@ knowledge documents; replacements are declared in the deprecated document.
 | 0.1 | 2026-07-04 | Established the empty canonical registry |
 | 0.2 | 2026-07-05 | Registered five Content Creation v1 Knowledge documents. |
 | 0.3 | 2026-07-05 | Registered six Research v1 methodology documents. |
+| 0.4 | 2026-07-05 | Registered seven Review Quality v1 Knowledge documents. |

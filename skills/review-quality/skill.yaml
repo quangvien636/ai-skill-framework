@@ -1,0 +1,201 @@
+schema_version: "1.0.0"
+id: "skill:review-quality"
+name: "review-quality"
+display_name: "Review Quality"
+description: "Reviews a supplied draft for quality, evidence alignment, platform fit, safety, and release readiness."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "review"
+  - "quality"
+  - "editorial"
+responsibility: "Evaluate one supplied draft against its brief, evidence, platform, and constraints, then return traceable findings, required revisions, and an approve, revise, or reject recommendation."
+inputs:
+  draft:
+    type: "object"
+    required: true
+    description: "Draft content package, research brief, or other structured output supplied for review."
+  brief:
+    type: "string"
+    required: true
+    description: "Intended objective, audience, deliverable, and mandatory message."
+    constraints:
+      min_length: 1
+      max_length: 12000
+  output-type:
+    type: "string"
+    required: true
+    description: "Kind of draft being reviewed."
+    constraints:
+      enum:
+        - "content-package"
+        - "research-brief"
+        - "generic-draft"
+  platform:
+    type: "string"
+    required: false
+    description: "Target platform or generic when no platform-specific review applies."
+    default: "generic"
+    constraints:
+      enum:
+        - "generic"
+        - "instagram"
+        - "linkedin"
+        - "tiktok"
+        - "youtube"
+  evidence:
+    type: "array"
+    required: false
+    description: "Caller-supplied source facts, evidence notes, or claim mappings available for alignment checks."
+    default: []
+    constraints:
+      max_items: 300
+      items:
+        type: "object"
+  constraints:
+    type: "array"
+    required: false
+    description: "Length, pacing, tone, safety, citation, platform, brand, or formatting requirements."
+    default: []
+    constraints:
+      max_items: 100
+      items:
+        type: "string"
+outputs:
+  review-report:
+    type: "object"
+    required: true
+    description: "Structured report containing summary, checklist-results, findings, evidence-alignment, safety-review, required-revisions, optional-improvements, and recommendation."
+    constraints:
+      required:
+        - "summary"
+        - "checklist-results"
+        - "findings"
+        - "evidence-alignment"
+        - "safety-review"
+        - "required-revisions"
+        - "optional-improvements"
+        - "recommendation"
+      additional_properties: false
+  reviewed-package:
+    type: "object"
+    required: true
+    description: "The supplied draft plus review status and approved corrections that do not introduce new facts, intent, or undeclared behavior."
+    constraints:
+      required:
+        - "draft"
+        - "status"
+        - "applied-corrections"
+        - "unresolved-items"
+      additional_properties: false
+dependencies:
+  runtime: []
+  tools: []
+  knowledge:
+    - id: "kb:foundational:quality:checklists:review-checklist-structure"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Apply a complete, traceable review sequence."
+    - id: "kb:foundational:quality:rubrics:content-quality-rubric"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Assess grammar, clarity, logic, structure, CTA, length, and pacing."
+    - id: "kb:foundational:quality:claims:unsupported-claim-detection"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Identify unsupported, overstated, contradictory, or fabricated claims."
+    - id: "kb:foundational:quality:tone:tone-consistency-criteria"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Evaluate tone against the brief and across the draft."
+    - id: "kb:foundational:quality:platforms:platform-compliance-checklist"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Check stable platform-fit, packaging, CTA, length, and pacing expectations."
+    - id: "kb:foundational:quality:revisions:revision-recommendation-patterns"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Turn findings into bounded, actionable revision instructions."
+    - id: "kb:foundational:quality:decisions:approval-rejection-rules"
+      version: ">=1.0.0 <2.0.0"
+      required: true
+      purpose: "Select approve, revise, or reject consistently, including safety refusals."
+procedure:
+  - id: "validate-review-input"
+    action: "Validate the supplied draft, brief, output type, platform, evidence, and constraints without inferring missing review criteria."
+  - id: "check-structure-and-clarity"
+    action: "Review grammar, clarity, logic, structure, length, pacing, and completeness for the declared output type."
+  - id: "check-evidence-alignment"
+    action: "Map material claims and citations to supplied evidence and flag unsupported, overstated, contradictory, or unverifiable content."
+  - id: "check-tone-and-platform"
+    action: "Review tone consistency, audience fit, platform packaging, and call-to-action quality."
+  - id: "check-safety"
+    action: "Identify invalid, prohibited, deceptive, or unsafe requests and determine whether revision can make the package acceptable."
+  - id: "define-revisions"
+    action: "Separate release-blocking required revisions from optional improvements and keep every recommendation specific and bounded."
+  - id: "decide"
+    action: "Apply the approval rules and return exactly one recommendation: approve, revise, or reject."
+  - id: "produce-review-package"
+    action: "Return only the declared review-report and reviewed-package outputs."
+constraints:
+  side_effects: "none; reviews supplied artifacts but does not browse, externally fact-check, invoke a model or tool, publish, or modify external systems"
+  prohibited:
+    - "Invent evidence, citations, facts, platform requirements, policies, or source verification."
+    - "Silently rewrite material meaning, claims, offers, or conclusions."
+    - "Approve a draft with unresolved release-blocking evidence, safety, or contract failures."
+    - "Reject a correctable draft solely for optional style preferences."
+    - "Claim external fact-checking, policy lookup, or platform verification occurred."
+  max_input_size: 80000
+  max_output_size: 40000
+  deterministic: false
+evaluation:
+  metrics:
+    - name: "coverage-and-specificity"
+      description: "The review covers all applicable dimensions and locates findings precisely."
+      weight: 0.25
+      rubric:
+        "0": "Material review dimensions are absent and findings are vague."
+        "50": "Core dimensions are covered but some findings lack location, impact, or rationale."
+        "100": "Every applicable dimension is checked and each finding is precise and traceable."
+    - name: "evidence-and-safety-integrity"
+      description: "Unsupported claims, citation mismatches, unsafe intent, and review limitations are handled honestly."
+      weight: 0.35
+      rubric:
+        "0": "The review approves invented or unsafe material or claims verification that did not occur."
+        "50": "Most risks are found but important alignment or safety reasoning is incomplete."
+        "100": "All material evidence and safety issues are surfaced with correct limits and disposition."
+    - name: "revision-actionability"
+      description: "Required revisions are prioritized, bounded, and usable without introducing new facts."
+      weight: 0.20
+      rubric:
+        "0": "Recommendations are absent, contradictory, or require fabricated content."
+        "50": "Recommendations identify problems but not a clear acceptable correction."
+        "100": "Every blocking issue has a minimal, concrete resolution or explicit rejection reason."
+    - name: "decision-consistency"
+      description: "Approve, revise, or reject follows the declared decision rules and unresolved findings."
+      weight: 0.20
+      rubric:
+        "0": "The recommendation contradicts the findings or hard gates."
+        "50": "The recommendation is plausible but its threshold reasoning is incomplete."
+        "100": "The recommendation follows transparently from severity, correctability, and hard gates."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 85
+    hard_gates:
+      - "output-schema-valid"
+      - "material-claims-reviewed"
+      - "safety-disposition-present"
+      - "recommendation-consistent"
+  on_failure: "reflect"
+reflection:
+  enabled: true
+  max_attempts: 2
+  minimum_improvement: 5
+  on_exhausted: "manual-review"
+  reflectable_hard_gates:
+    - "output-schema-valid"
+    - "recommendation-consistent"

@@ -86,6 +86,16 @@ Workflow and six methodology Knowledge documents are likewise validated from
 their canonical production paths. Research v1 defines artifact and reasoning
 structure only; it does not browse or fetch external sources.
 
+The third package,
+[`skill:review-quality`](skills/review-quality/README.md), reviews supplied
+content packages, research briefs, and generic drafts for editorial quality,
+evidence alignment, tone, platform fit, CTA, pacing, and safety. It produces
+traceable revisions and an `approve`, `revise`, or `reject` recommendation.
+Seven foundational quality documents and the
+[`draft-to-reviewed-package`](workflows/draft-to-reviewed-package/README.md)
+Workflow are validated from canonical production paths. Review v1 defines the
+review contract only; it does not execute an LLM or external fact-check.
+
 ## Validator Prototype
 
 A minimal, offline conformance check for the schemas in `schemas/`:
@@ -106,9 +116,9 @@ Evaluation/Reflection document into the typed IR object
 Dependency Graph / Version Graph across multiple loaded artifacts:
 
 ```bash
-python scripts/build_ir.py                 # 31 IR fixture cases
-python scripts/build_graph.py              # 12 multi-artifact graph scenarios
-python -m unittest discover -s tests/unit  # 60 unit tests
+python scripts/build_ir.py                 # 40 IR fixture cases
+python scripts/build_graph.py              # 13 multi-artifact graph scenarios
+python -m unittest discover -s tests/unit  # 64 unit tests
 ```
 
 See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),

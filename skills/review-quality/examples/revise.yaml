@@ -1,0 +1,25 @@
+case: "revise"
+skill:
+  id: "skill:review-quality"
+  version: "1.0.0"
+input:
+  output-type: "content-package"
+  brief: "Create a concise LinkedIn post explaining an internal documentation pilot."
+  platform: "linkedin"
+  draft:
+    hook: "Documentation matters."
+    primary-content: "A long unbroken paragraph repeats the pilot description and mixes the observation, recommendation, and limitations."
+    call-to-action: "Thoughts?"
+  evidence:
+    - claim: "The pilot ran for four weeks with one team."
+      status: "caller-supplied"
+  constraints:
+    - "Distinguish observed results from recommendations."
+expected_output_properties:
+  - "structure, clarity, and CTA findings are specific"
+  - "required revisions separate observations from recommendations"
+  - "no new pilot result is invented"
+  - "recommendation is revise"
+expected_evaluation:
+  decision: "pass"
+  recommendation: "revise"
