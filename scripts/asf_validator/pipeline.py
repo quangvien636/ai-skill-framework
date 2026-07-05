@@ -27,9 +27,10 @@ from .reflection_ir import ReflectionIR, build_reflection_ir
 from .schema_registry import SchemaRegistry
 from .skill_ir import SkillIR, build_skill_ir
 from .tool_ir import ToolIR, build_tool_ir
+from .connector_ir import ConnectorIR, build_connector_ir
 from .workflow_ir import WorkflowIR, build_workflow_ir
 
-SUPPORTED_KINDS = ("skill", "workflow", "knowledge", "evaluation", "reflection", "tool")
+SUPPORTED_KINDS = ("skill", "workflow", "knowledge", "evaluation", "reflection", "tool", "connector")
 
 _SCHEMA_BY_KIND = {
     "skill": "skill.schema.json",
@@ -38,6 +39,7 @@ _SCHEMA_BY_KIND = {
     "evaluation": "evaluation.schema.json",
     "reflection": "reflection.schema.json",
     "tool": "tool.schema.json",
+    "connector": "connector.schema.json",
 }
 
 
@@ -62,7 +64,7 @@ def build_ir(kind: str, path: Path, schema_registry: SchemaRegistry) -> AdapterR
 
     if kind == "knowledge":
         return _build_knowledge(path, artifact, schema_registry, schema_name)
-    if kind in ("skill", "workflow", "tool"):
+    if kind in ("skill", "workflow", "tool", "connector"):
         return _build_yaml_artifact(kind, path, artifact, schema_registry, schema_name)
     return _build_json_artifact(kind, path, artifact, schema_registry, schema_name)
 
@@ -86,6 +88,8 @@ def _build_yaml_artifact(
         ir, adapter_diagnostics = build_skill_ir(loaded.document, artifact)
     elif kind == "tool":
         ir, adapter_diagnostics = build_tool_ir(loaded.document, artifact)
+    elif kind == "connector":
+        ir, adapter_diagnostics = build_connector_ir(loaded.document, artifact)
     else:
         ir, adapter_diagnostics = build_workflow_ir(loaded.document, artifact)
     result.diagnostics.extend(adapter_diagnostics)

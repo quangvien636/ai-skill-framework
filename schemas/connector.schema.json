@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-skill-framework.local/schemas/connector.schema.json",
+  "title": "Connector Manifest",
+  "description": "Machine-readable contract for connectors/<connector-name>/connector.yaml.",
+  "allOf": [{ "$ref": "metadata.schema.json#/$defs/commonArtifact" }],
+  "type": "object",
+  "required": [
+    "responsibility",
+    "authentication",
+    "configuration"
+  ],
+  "properties": {
+    "schema_version": true,
+    "id": {
+      "type": "string",
+      "pattern": "^connector:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "name": true,
+    "display_name": true,
+    "description": true,
+    "version": true,
+    "status": true,
+    "owners": true,
+    "tags": true,
+    "responsibility": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Connector's single observable integration responsibility."
+    },
+    "authentication": {
+      "type": "string",
+      "enum": ["none", "api_key", "oauth", "basic", "custom"]
+    },
+    "configuration": {
+      "type": "object",
+      "propertyNames": { "$ref": "metadata.schema.json#/$defs/kebabName" },
+      "additionalProperties": { "$ref": "metadata.schema.json#/$defs/field" }
+    }
+  },
+  "unevaluatedProperties": false,
+  "examples": [{
+    "schema_version": "1.0.0",
+    "id": "connector:google-search",
+    "name": "google-search",
+    "display_name": "Google Search",
+    "description": "Connects to Google Search API",
+    "version": "1.0.0",
+    "status": "draft",
+    "owners": ["framework-maintainers"],
+    "responsibility": "Provide search results via Google Custom Search",
+    "authentication": "api_key",
+    "configuration": {
+      "api_endpoint": {
+        "type": "string",
+        "required": true,
+        "description": "The API endpoint URL"
+      }
+    }
+  }]
+}

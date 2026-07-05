@@ -1,6 +1,19 @@
 {
   "cases": [
     {
+      "name": "valid-connector",
+      "fixture": "tests/fixtures/ir/connector/valid.yaml",
+      "kind": "connector",
+      "expected": "valid"
+    },
+    {
+      "name": "missing-required-connector",
+      "fixture": "tests/fixtures/ir/connector/missing_required.yaml",
+      "kind": "connector",
+      "expected": "invalid",
+      "expected_code": "ASF-SCHEMA-001"
+    },
+    {
       "name": "valid-tool",
       "fixture": "tests/fixtures/ir/tool/valid.yaml",
       "kind": "tool",

@@ -1,0 +1,11 @@
+schema_version: "1.0.0"
+id: "connector:valid-connector"
+name: "valid-connector"
+display_name: "Valid Connector"
+description: "Valid Connector"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Valid"
+authentication: "none"
+configuration: {}

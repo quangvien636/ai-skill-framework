@@ -1,0 +1,10 @@
+schema_version: "1.0.0"
+id: "connector:invalid"
+name: "invalid"
+display_name: "Invalid"
+description: "Invalid"
+version: "1.0.0"
+status: "draft"
+owners: ["me"]
+responsibility: "Invalid"
+# Missing authentication and configuration

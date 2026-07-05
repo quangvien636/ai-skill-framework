@@ -1,6 +1,18 @@
 {
   "cases": [
     {
+      "name": "valid-connector",
+      "fixture": "tests/fixtures/contracts/connector/valid.yaml",
+      "schema": "connector.schema.json",
+      "expected": "valid"
+    },
+    {
+      "name": "invalid-connector",
+      "fixture": "tests/fixtures/contracts/connector/invalid.yaml",
+      "schema": "connector.schema.json",
+      "expected": "invalid"
+    },
+    {
       "name": "valid-tool",
       "fixture": "tests/fixtures/contracts/tool/valid.yaml",
       "schema": "tool.schema.json",
