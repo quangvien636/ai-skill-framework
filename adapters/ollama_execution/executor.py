@@ -65,13 +65,37 @@ class OllamaClient:
         prompt: str,
         timeout_seconds: int,
     ) -> str:
+        return self._generate(
+            endpoint, model, prompt, timeout_seconds, "json"
+        )
+
+    def generate_structured(
+        self,
+        endpoint: str,
+        model: str,
+        prompt: str,
+        timeout_seconds: int,
+        output_schema: Mapping[str, Any],
+    ) -> str:
+        return self._generate(
+            endpoint, model, prompt, timeout_seconds, output_schema
+        )
+
+    def _generate(
+        self,
+        endpoint: str,
+        model: str,
+        prompt: str,
+        timeout_seconds: int,
+        output_format: str | Mapping[str, Any],
+    ) -> str:
         body = json.dumps(
             {
                 "model": model,
                 "prompt": prompt,
                 "stream": False,
-                "format": "json",
-                "options": {"temperature": 0, "num_predict": 1536},
+                "format": output_format,
+                "options": {"temperature": 0, "num_predict": 4096},
             },
             ensure_ascii=False,
         ).encode("utf-8")
@@ -138,7 +162,18 @@ class OllamaStepExecutor:
                 )
 
             prompt = assemble_prompt(step, skill, input_artifact, knowledge)
-            raw = self.client.generate(self.endpoint, model, prompt, timeout)
+            if isinstance(self.client, OllamaClient):
+                raw = self.client.generate_structured(
+                    self.endpoint,
+                    model,
+                    prompt,
+                    timeout,
+                    _ollama_output_schema(skill, input_artifact),
+                )
+            else:
+                raw = self.client.generate(
+                    self.endpoint, model, prompt, timeout
+                )
             output = _parse_generated_object(raw)
             return StepExecutionResult(
                 step_id=step.id,
@@ -210,7 +245,7 @@ def assemble_prompt(
         }
         for name, field in skill.outputs.items()
     }
-    output_template = _output_template(skill)
+    output_template = _output_template(skill, input_artifact)
     procedure = [
         {"id": item.id, "action": item.action} for item in skill.procedure
     ]
@@ -256,6 +291,7 @@ def assemble_prompt(
             sort_keys=True,
             separators=(",", ":"),
         ),
+        "STEP-SPECIFIC REQUIREMENTS:\n" + _step_requirements(skill),
         (
             "Return exactly one JSON object matching OUTPUT TEMPLATE. Every template "
             "key is mandatory and must stay at its shown nesting level. Replace "
@@ -293,7 +329,12 @@ _ARRAY_FIELDS = frozenset(
 _OBJECT_FIELDS = frozenset({"draft", "primary-content"})
 
 
-def _output_template(skill: SkillIR) -> dict[str, Any]:
+def _output_template(
+    skill: SkillIR, input_artifact: Mapping[str, Any]
+) -> dict[str, Any]:
+    specialized = _specialized_template(skill, input_artifact)
+    if specialized is not None:
+        return specialized
     template: dict[str, Any] = {}
     for output_name, field in skill.outputs.items():
         if field.type != "object":
@@ -311,6 +352,144 @@ def _output_template(skill: SkillIR) -> dict[str, Any]:
     return template
 
 
+def _specialized_template(
+    skill: SkillIR, input_artifact: Mapping[str, Any]
+) -> dict[str, Any] | None:
+    if skill.metadata.id == "skill:research":
+        return {
+            "research-brief": {
+                "objective": "",
+                "scope": "",
+                "research-questions": [],
+                "source-requirements": [],
+                "findings": [
+                    {
+                        "technology": "",
+                        "why-it-matters": "",
+                        "practical-risk": "",
+                        "confidence": "unverified-general-knowledge",
+                    }
+                ],
+                "claim-evidence-map": [
+                    {
+                        "claim": "",
+                        "status": "unverified",
+                        "source-identifiers": [],
+                    }
+                ],
+                "uncertainties": [""],
+                "gaps": [],
+                "citations": [],
+                "next-steps": [],
+            },
+            "quality-report": {
+                "traceability": "",
+                "source-reliability": "",
+                "contradictions": "",
+                "fact-check-status": "",
+                "limitations": [],
+            },
+        }
+    if skill.metadata.id == "skill:content-creation":
+        return {
+            "content-package": {
+                "content-type": "short-video-script",
+                "primary-content": {
+                    "title": "",
+                    "script": "",
+                    "scenes": [
+                        {
+                            "id": "scene-1",
+                            "duration-seconds": 5,
+                            "visual": "",
+                            "voice-over": "",
+                            "on-screen-text": "",
+                        }
+                    ],
+                    "voice-over-text": "",
+                    "on-screen-text": [""],
+                    "call-to-action": "",
+                    "hashtags": ["#AI"],
+                    "metadata": {
+                        "language": "Vietnamese",
+                        "platform": "youtube",
+                        "target-duration-seconds": "60-90",
+                    },
+                },
+                "hook": "",
+                "call-to-action": "",
+                "alternatives": [],
+                "production-notes": [""],
+                "assumptions": [""],
+            },
+            "quality-report": {
+                "constraint-compliance": "",
+                "unsupported-claims": "",
+                "platform-fit": "",
+                "limitations": [],
+            },
+        }
+    if skill.metadata.id == "skill:review-quality":
+        supplied_draft = input_artifact.get("draft")
+        draft = dict(supplied_draft) if isinstance(supplied_draft, Mapping) else {}
+        return {
+            "review-report": {
+                "summary": "",
+                "checklist-results": [],
+                "findings": [],
+                "evidence-alignment": "",
+                "safety-review": "",
+                "required-revisions": [],
+                "optional-improvements": [],
+                "recommendation": "",
+            },
+            "reviewed-package": {
+                "draft": draft,
+                "status": "",
+                "applied-corrections": [],
+                "unresolved-items": [],
+            },
+        }
+    return None
+
+
+def _step_requirements(skill: SkillIR) -> str:
+    if skill.metadata.id == "skill:research":
+        return (
+            "Use the topic and general model knowledge to identify concrete, "
+            "plausible technologies. For a numbered topic, answer with that many "
+            "distinct findings and keep every finding directly on-topic. For the "
+            "Vietnamese topic about five concerning AI technologies, cover these "
+            "five practical categories: synthetic voice/video and deepfakes; "
+            "autonomous AI agents; AI-assisted cyberattacks; surveillance and "
+            "behavior prediction; scalable persuasion and misinformation. Explain "
+            "risks without panic or unsupported statistics. This is an unverified "
+            "general-knowledge synthesis: "
+            "keep citations empty, never invent sources, never mark unsupported "
+            "claims as verified, and state uncertainty and evidence gaps clearly."
+        )
+    if skill.metadata.id == "skill:content-creation":
+        return (
+            "Write the complete deliverable in Vietnamese. For short-video-script, "
+            "primary-content must contain a non-empty title, a complete 60-90 second "
+            "script of at least 400 characters, at least five substantive scenes, "
+            "voice-over-text, on-screen-text, CTA, hashtags, and metadata. Each of "
+            "the five research findings must appear as a distinct numbered beat. "
+            "Use the research brief while preserving its uncertainty. Both "
+            "primary-content.call-to-action and the top-level "
+            "content-package.call-to-action must be non-empty Vietnamese text."
+        )
+    if skill.metadata.id == "skill:review-quality":
+        return (
+            "Review the supplied draft without discarding it. reviewed-package.draft "
+            "must always contain the full content package. If recommendation is revise, "
+            "apply safe concrete editorial corrections directly in that draft and list "
+            "remaining substantive issues. Use approve only when all release-blocking "
+            "issues are resolved; never output an empty draft."
+        )
+    return "Follow the declared Skill contract exactly."
+
+
 def _empty_value(field_type: str) -> Any:
     return {
         "array": [],
@@ -320,6 +499,68 @@ def _empty_value(field_type: str) -> Any:
         "object": {},
         "string": "",
     }[field_type]
+
+
+_MIN_ARRAY_ITEMS = {
+    "content-package.assumptions": 1,
+    "content-package.primary-content.hashtags": 3,
+    "content-package.primary-content.on-screen-text": 5,
+    "content-package.primary-content.scenes": 5,
+    "content-package.production-notes": 1,
+    "research-brief.claim-evidence-map": 5,
+    "research-brief.findings": 5,
+    "research-brief.research-questions": 3,
+    "research-brief.uncertainties": 1,
+}
+
+
+def _ollama_output_schema(
+    skill: SkillIR, input_artifact: Mapping[str, Any]
+) -> dict[str, Any]:
+    template = _output_template(skill, input_artifact)
+    return _schema_for_template(template, "")
+
+
+def _schema_for_template(value: Any, path: str) -> dict[str, Any]:
+    if isinstance(value, Mapping):
+        properties = {
+            key: _schema_for_template(
+                item, f"{path}.{key}".strip(".")
+            )
+            for key, item in value.items()
+        }
+        schema: dict[str, Any] = {
+            "type": "object",
+            "properties": properties,
+            "required": list(value),
+            "additionalProperties": False,
+        }
+        if not value:
+            schema["minProperties"] = 1
+        return schema
+    if isinstance(value, list):
+        item_schema = (
+            _schema_for_template(value[0], f"{path}[]")
+            if value
+            else {}
+        )
+        schema = {"type": "array", "items": item_schema}
+        if path in _MIN_ARRAY_ITEMS:
+            schema["minItems"] = _MIN_ARRAY_ITEMS[path]
+        return schema
+    if isinstance(value, bool):
+        return {"type": "boolean"}
+    if isinstance(value, int):
+        return {"type": "integer"}
+    if isinstance(value, float):
+        return {"type": "number"}
+    schema = {"type": "string", "minLength": 1}
+    if path in {
+        "review-report.recommendation",
+        "reviewed-package.status",
+    }:
+        schema["enum"] = ["approve", "revise", "reject"]
+    return schema
 
 
 def _validate_local_endpoint(endpoint: str) -> None:

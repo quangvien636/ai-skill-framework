@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import unicodedata
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -99,6 +100,8 @@ def run_content_workflow(
     outputs_by_step: dict[str, Mapping[str, Any]] = {}
     results: list[StepExecutionResult] = []
     report_diagnostics: list[ExecutionDiagnostic] = []
+    topic = context.inputs.get("topic")
+    topic = topic if isinstance(topic, str) else None
 
     for step in plan.steps:
         skill_artifact = catalog.exact(step.skill_id, step.skill_version)
@@ -144,7 +147,9 @@ def run_content_workflow(
         if result.status != "succeeded" or result.output_artifact is None:
             break
 
-        validation = _validate_skill_output(step, skill, result.output_artifact)
+        validation = _validate_skill_output(
+            step, skill, result.output_artifact, topic
+        )
         if validation:
             report_diagnostics.extend(validation)
             results[-1] = StepExecutionResult(
@@ -295,6 +300,7 @@ def _validate_skill_output(
     step: PlanStep,
     skill: SkillIR,
     output: Mapping[str, Any],
+    topic: str | None = None,
 ) -> list[ExecutionDiagnostic]:
     diagnostics: list[ExecutionDiagnostic] = []
     for name, field in skill.outputs.items():
@@ -340,7 +346,345 @@ def _validate_skill_output(
                         name,
                     )
                 )
+    diagnostics.extend(
+        _validate_canonical_content_boundaries(step, skill, output, topic)
+    )
     return diagnostics
+
+
+_MIN_RELEVANT_FINDINGS = 5
+
+
+def _validate_canonical_content_boundaries(
+    step: PlanStep,
+    skill: SkillIR,
+    output: Mapping[str, Any],
+    topic: str | None = None,
+) -> list[ExecutionDiagnostic]:
+    diagnostics: list[ExecutionDiagnostic] = []
+    if skill.metadata.id == "skill:research":
+        brief = output.get("research-brief")
+        if not isinstance(brief, Mapping):
+            return diagnostics
+        findings = brief.get("findings") if isinstance(brief, Mapping) else None
+        finding_texts = (
+            [_finding_text(item) for item in findings]
+            if isinstance(findings, (list, tuple))
+            else []
+        )
+        relevant_findings = [text for text in finding_texts if text.strip()]
+        if len(relevant_findings) < _MIN_RELEVANT_FINDINGS:
+            diagnostics.append(
+                _boundary_diagnostic(
+                    "ASF-EXEC-BOUNDARY-010",
+                    step,
+                    "research-brief.findings",
+                    (
+                        "Research brief must contain at least "
+                        f"{_MIN_RELEVANT_FINDINGS} concrete, non-empty findings "
+                        f"(found {len(relevant_findings)})."
+                    ),
+                )
+            )
+    elif skill.metadata.id == "skill:content-creation":
+        package = output.get("content-package")
+        if not isinstance(package, Mapping):
+            return diagnostics
+        primary = (
+            package.get("primary-content")
+            if isinstance(package, Mapping)
+            else None
+        )
+        if not isinstance(primary, Mapping) or not primary:
+            diagnostics.append(
+                _boundary_diagnostic(
+                    "ASF-EXEC-BOUNDARY-007",
+                    step,
+                    "content-package.primary-content",
+                    "Content package primary-content must be a non-empty object.",
+                )
+            )
+        elif package.get("content-type") == "short-video-script":
+            required = (
+                "title",
+                "script",
+                "scenes",
+                "voice-over-text",
+                "on-screen-text",
+                "call-to-action",
+                "hashtags",
+            )
+            empty = [key for key in required if not primary.get(key)]
+            if empty:
+                diagnostics.append(
+                    _boundary_diagnostic(
+                        "ASF-EXEC-BOUNDARY-007",
+                        step,
+                        "content-package.primary-content",
+                        f"Short-video primary-content has empty fields: {empty}.",
+                    )
+                )
+            script = primary.get("script")
+            voice_over = primary.get("voice-over-text")
+            scenes = primary.get("scenes")
+            on_screen = primary.get("on-screen-text")
+            hashtags = primary.get("hashtags")
+            incomplete = []
+            if not isinstance(script, str) or len(script.strip()) < 400:
+                incomplete.append("script<400-chars")
+            if not isinstance(voice_over, str) or len(voice_over.strip()) < 300:
+                incomplete.append("voice-over-text<300-chars")
+            if not isinstance(scenes, (list, tuple)) or len(scenes) < 5:
+                incomplete.append("scenes<5")
+            if not _non_empty_strings(on_screen, 5):
+                incomplete.append("on-screen-text<5")
+            if not _non_empty_strings(hashtags, 3):
+                incomplete.append("hashtags<3")
+            if incomplete:
+                diagnostics.append(
+                    _boundary_diagnostic(
+                        "ASF-EXEC-BOUNDARY-011",
+                        step,
+                        "content-package.primary-content",
+                        f"Short-video package is incomplete: {incomplete}.",
+                    )
+                )
+        call_to_action = (
+            package.get("call-to-action")
+            if isinstance(package, Mapping)
+            else None
+        )
+        if not isinstance(call_to_action, str) or not call_to_action.strip():
+            diagnostics.append(
+                _boundary_diagnostic(
+                    "ASF-EXEC-BOUNDARY-008",
+                    step,
+                    "content-package.call-to-action",
+                    "Content package call-to-action must be non-empty.",
+                )
+            )
+    elif skill.metadata.id == "skill:review-quality":
+        reviewed = output.get("reviewed-package")
+        if not isinstance(reviewed, Mapping):
+            return diagnostics
+        draft = reviewed.get("draft") if isinstance(reviewed, Mapping) else None
+        if not isinstance(draft, Mapping) or not draft:
+            diagnostics.append(
+                _boundary_diagnostic(
+                    "ASF-EXEC-BOUNDARY-009",
+                    step,
+                    "reviewed-package.draft",
+                    "Reviewed Content Package draft must be a non-empty object.",
+                )
+            )
+        recommendation = output.get("review-report", {}).get(
+            "recommendation"
+        ) if isinstance(output.get("review-report"), Mapping) else None
+        status = reviewed.get("status")
+        allowed = {"approve", "revise", "reject"}
+        if (
+            not isinstance(recommendation, str)
+            or recommendation.lower() not in allowed
+            or not isinstance(status, str)
+            or status.lower() not in allowed
+        ):
+            diagnostics.append(
+                _boundary_diagnostic(
+                    "ASF-EXEC-BOUNDARY-012",
+                    step,
+                    "reviewed-package.status",
+                    "Review recommendation and status must be approve, revise, or reject.",
+                )
+            )
+    if topic:
+        diagnostics.extend(
+            _validate_topic_relevance(step, skill, output, topic)
+        )
+    return diagnostics
+
+
+def _finding_text(finding: Any) -> str:
+    if isinstance(finding, str):
+        return finding
+    if isinstance(finding, Mapping):
+        parts = [
+            str(finding.get(key, ""))
+            for key in ("technology", "why-it-matters", "practical-risk", "claim")
+        ]
+        return " ".join(part for part in parts if part)
+    return str(finding) if finding else ""
+
+
+def _content_package_text(package: Any) -> str:
+    if not isinstance(package, Mapping):
+        return ""
+    parts = [str(package.get("hook", "")), str(package.get("call-to-action", ""))]
+    primary = package.get("primary-content")
+    if isinstance(primary, Mapping):
+        parts.extend(
+            str(primary.get(key, ""))
+            for key in ("title", "script", "voice-over-text", "call-to-action")
+        )
+    return " ".join(parts)
+
+
+def _semantic_text(skill_id: str, output: Mapping[str, Any]) -> str:
+    if skill_id == "skill:research":
+        brief = output.get("research-brief")
+        if not isinstance(brief, Mapping):
+            return ""
+        findings = brief.get("findings")
+        texts = (
+            [_finding_text(item) for item in findings]
+            if isinstance(findings, (list, tuple))
+            else []
+        )
+        texts.append(str(brief.get("objective", "")))
+        texts.append(str(brief.get("scope", "")))
+        return " ".join(texts)
+    if skill_id == "skill:content-creation":
+        return _content_package_text(output.get("content-package"))
+    if skill_id == "skill:review-quality":
+        reviewed = output.get("reviewed-package")
+        draft = reviewed.get("draft") if isinstance(reviewed, Mapping) else None
+        return _content_package_text(draft)
+    return ""
+
+
+_SHORT_KEYWORD_ALLOW = frozenset({"ai", "ml", "vr", "ar", "5g", "iot"})
+
+_STOPWORDS = frozenset(
+    {
+        "the", "and", "for", "with", "that", "this", "from", "are", "was",
+        "were", "have", "has", "will", "about", "into", "your", "you", "not",
+        "but", "can", "its", "video", "script",
+        "trong", "nhung", "mot", "nay", "cho", "duoc", "cua", "voi", "den",
+        "khi", "hay", "hon", "toi", "nhat", "nam", "cac", "la", "va", "de",
+        "co", "se", "tu", "ve", "sao", "nao", "gi", "bang", "theo", "tren",
+        "duoi", "truoc", "sau", "con", "neu", "thi", "hoac", "cung", "rat",
+        "qua", "chi", "luon", "nhung", "nhieu",
+    }
+)
+
+
+def _normalize_text(text: str) -> str:
+    decomposed = unicodedata.normalize("NFD", text.lower())
+    return "".join(char for char in decomposed if not unicodedata.combining(char))
+
+
+def _extract_keywords(text: str) -> set[str]:
+    normalized = _normalize_text(text)
+    tokens = re.findall(r"[a-z0-9]+", normalized)
+    keywords: set[str] = set()
+    for token in tokens:
+        if token in _SHORT_KEYWORD_ALLOW:
+            keywords.add(token)
+        elif len(token) >= 3 and token not in _STOPWORDS:
+            keywords.add(token)
+    return keywords
+
+
+_TOPIC_RELEVANCE_MIN_SCORE = 0.2
+
+
+def _topic_relevance_score(topic: str, text: str) -> float | None:
+    topic_keywords = _extract_keywords(topic)
+    if not topic_keywords:
+        return None
+    text_normalized = _normalize_text(text)
+    hits = sum(1 for keyword in topic_keywords if keyword in text_normalized)
+    return hits / len(topic_keywords)
+
+
+_OFFTOPIC_DRIFT_TERMS: dict[str, tuple[str, ...]] = {
+    "environmental-protection": (
+        "moi truong",
+        "bien doi khi hau",
+        "khi thai",
+        "o nhiem",
+        "sinh thai",
+        "nang luong xanh",
+        "environment",
+        "environmental",
+        "climate change",
+        "greenhouse gas",
+        "sustainability",
+    ),
+}
+
+
+def _detect_offtopic_drift(topic: str, text: str) -> str | None:
+    topic_normalized = _normalize_text(topic)
+    text_normalized = _normalize_text(text)
+    for domain, indicators in _OFFTOPIC_DRIFT_TERMS.items():
+        if any(term in topic_normalized for term in indicators):
+            continue
+        occurrences = sum(text_normalized.count(term) for term in indicators)
+        if occurrences >= 2:
+            return domain
+    return None
+
+
+def _validate_topic_relevance(
+    step: PlanStep,
+    skill: SkillIR,
+    output: Mapping[str, Any],
+    topic: str,
+) -> list[ExecutionDiagnostic]:
+    text = _semantic_text(skill.metadata.id, output)
+    if not text.strip():
+        return []
+    drift = _detect_offtopic_drift(topic, text)
+    if drift is not None:
+        return [
+            _boundary_diagnostic(
+                "ASF-EXEC-BOUNDARY-013",
+                step,
+                "semantic-relevance",
+                (
+                    f"Output for step '{step.id}' drifted to an off-topic "
+                    f"'{drift}' subject unrelated to the requested topic "
+                    f"'{topic}'."
+                ),
+            )
+        ]
+    score = _topic_relevance_score(topic, text)
+    if score is not None and score < _TOPIC_RELEVANCE_MIN_SCORE:
+        return [
+            _boundary_diagnostic(
+                "ASF-EXEC-BOUNDARY-013",
+                step,
+                "semantic-relevance",
+                (
+                    f"Output for step '{step.id}' does not appear relevant to "
+                    f"the requested topic '{topic}' (keyword overlap too low)."
+                ),
+            )
+        ]
+    return []
+
+
+def _boundary_diagnostic(
+    code: str,
+    step: PlanStep,
+    artifact: str,
+    message: str,
+) -> ExecutionDiagnostic:
+    return ExecutionDiagnostic(
+        code,
+        "error",
+        message,
+        step.id,
+        artifact,
+    )
+
+
+def _non_empty_strings(value: Any, minimum: int) -> bool:
+    return (
+        isinstance(value, (list, tuple))
+        and len(value) >= minimum
+        and all(isinstance(item, str) and item.strip() for item in value)
+    )
 
 
 def _resolve_final_artifact(

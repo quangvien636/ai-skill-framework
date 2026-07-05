@@ -17,6 +17,7 @@ import ollama_execution.executor as executor_module
 from ollama_execution.executor import (
     OllamaClient,
     OllamaStepExecutor,
+    _ollama_output_schema,
     assemble_prompt,
 )
 
@@ -178,4 +179,15 @@ def test_prompt_and_ollama_request_preserve_vietnamese_utf8(monkeypatch):
     assert result == "{}"
     assert topic in body
     assert "\\u00f4" not in body
-    assert json.loads(body)["options"]["num_predict"] == 1536
+    assert json.loads(body)["options"]["num_predict"] == 4096
+
+
+def test_research_structured_schema_requires_concrete_findings():
+    _step, skill, _binding = _research_parts()
+    schema = _ollama_output_schema(skill, {"topic": "AI"})
+    properties = schema["properties"]
+    assert set(properties) == {"research-brief", "quality-report"}
+    research = properties["research-brief"]
+    assert "next-steps" in research["required"]
+    assert research["properties"]["findings"]["minItems"] == 5
+    assert properties["quality-report"]["additionalProperties"] is False

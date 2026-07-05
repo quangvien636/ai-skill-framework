@@ -28,13 +28,13 @@ def _catalog():
     return build_artifact_catalog(results)
 
 
-def _context(execution_id="runner-test"):
+def _context(execution_id="runner-test", topic="AI"):
     return ExecutionContext.create(
         execution_id,
         "workflow:research-content-review",
         "1.0.0",
         {
-            "topic": "AI",
+            "topic": topic,
             "objective": "Prepare a brief.",
             "content-type": "short-video-script",
             "brief": "Explain AI without exaggeration.",
@@ -44,6 +44,9 @@ def _context(execution_id="runner-test"):
     )
 
 
+_CONCERNING_AI_TOPIC = "5 công nghệ AI đáng sợ nhất trong 2 năm tới"
+
+
 def _research():
     return {
         "research-brief": {
@@ -51,7 +54,13 @@ def _research():
             "scope": "Supplied evidence only.",
             "research-questions": [],
             "source-requirements": [],
-            "findings": [],
+            "findings": [
+                "AI agents can automate multi-step digital work.",
+                "Synthetic media can imitate voices and faces.",
+                "AI-assisted cyber abuse can personalize attacks.",
+                "Behavioral prediction can increase surveillance risk.",
+                "Automated persuasion can scale misleading content.",
+            ],
             "claim-evidence-map": [],
             "uncertainties": [],
             "gaps": ["No evidence supplied."],
@@ -72,9 +81,41 @@ def _content():
     return {
         "content-package": {
             "content-type": "short-video-script",
-            "primary-content": {"title": "AI"},
-            "hook": "AI deserves attention.",
-            "call-to-action": "Review the evidence.",
+            "primary-content": {
+                "title": "5 công nghệ AI cần chú ý",
+                "script": (
+                    "Đây là kịch bản tiếng Việt hoàn chỉnh, trình bày năm "
+                    "công nghệ AI cùng rủi ro thực tế và giới hạn bằng chứng. "
+                ) * 5,
+                "scenes": [
+                    {
+                        "id": f"scene-{index}",
+                        "visual": "Người dẫn nhìn vào máy quay.",
+                        "voice-over": "AI đang thay đổi cách chúng ta làm việc.",
+                        "on-screen-text": "5 công nghệ AI",
+                    }
+                    for index in range(1, 6)
+                ],
+                "voice-over-text": (
+                    "AI đang thay đổi cách chúng ta làm việc; mỗi công nghệ "
+                    "cần được đánh giá bằng dữ liệu và trong đúng bối cảnh. "
+                ) * 4,
+                "on-screen-text": [
+                    "Deepfake",
+                    "AI agent",
+                    "Tấn công mạng",
+                    "Giám sát",
+                    "Thông tin sai lệch",
+                ],
+                "call-to-action": "Bạn quan tâm công nghệ nào nhất?",
+                "hashtags": ["#AI", "#CongNghe", "#AnToanSo"],
+                "metadata": {
+                    "language": "Vietnamese",
+                    "platform": "youtube",
+                },
+            },
+            "hook": "Năm công nghệ AI nào cần được chú ý?",
+            "call-to-action": "Bạn quan tâm công nghệ nào nhất?",
             "alternatives": [],
             "production-notes": [],
             "assumptions": ["Fixture."],
@@ -86,6 +127,27 @@ def _content():
             "limitations": [],
         },
     }
+
+
+def _offtopic_environment_content():
+    """A structurally valid package that drifted off the requested AI topic."""
+    content = _content()
+    package = content["content-package"]
+    primary = package["primary-content"]
+    primary["title"] = "Công nghệ AI giúp bảo vệ môi trường"
+    primary["script"] = (
+        "Cùng khám phá cách công nghệ AI có thể giúp bảo vệ môi trường và "
+        "ứng phó với biến đổi khí hậu. AI phân tích khí thải nhà kính, theo "
+        "dõi ô nhiễm không khí và đề xuất giải pháp năng lượng xanh cho "
+        "tương lai bền vững. "
+    ) * 4
+    primary["voice-over-text"] = (
+        "AI đang giúp con người bảo vệ môi trường bằng cách giám sát biến "
+        "đổi khí hậu và tối ưu năng lượng xanh trong từng ngành công "
+        "nghiệp. "
+    ) * 4
+    package["hook"] = "Bạn có biết AI giúp bảo vệ môi trường như thế nào?"
+    return content
 
 
 def _review():
@@ -171,6 +233,10 @@ def test_live_local_produces_final_reviewed_content_package():
             "succeeded",
             "succeeded",
         ]
+        content = report.final_artifact["content-package"]
+        assert content["primary-content"]
+        assert content["call-to-action"]
+        assert report.final_artifact["reviewed-content-package"]["draft"]
 
 
 def test_missing_research_brief_fails_at_artifact_boundary():
@@ -203,6 +269,147 @@ def test_malformed_content_package_fails_before_review():
     assert report.status == "failed"
     assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-003"
     assert len(report.steps) == 2
+
+
+def test_empty_primary_content_is_rejected():
+    invalid_content = _content()
+    invalid_content["content-package"]["primary-content"] = {}
+    report = run_content_workflow(
+        _context("empty-primary"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), invalid_content)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-007"
+
+
+def test_empty_call_to_action_is_rejected():
+    invalid_content = _content()
+    invalid_content["content-package"]["call-to-action"] = ""
+    report = run_content_workflow(
+        _context("empty-cta"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), invalid_content)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-008"
+
+
+def test_empty_reviewed_draft_is_rejected():
+    invalid_review = _review()
+    invalid_review["reviewed-package"]["draft"] = {}
+    report = run_content_workflow(
+        _context("empty-reviewed-draft"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), _content(), invalid_review)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-009"
+
+
+def test_offtopic_environmental_drift_is_rejected():
+    report = run_content_workflow(
+        _context("offtopic-drift", topic=_CONCERNING_AI_TOPIC),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient(
+                (_research(), _offtopic_environment_content())
+            ),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-013"
+    assert "off-topic" in report.steps[-1].error_message
+
+
+def test_empty_hashtags_is_rejected():
+    invalid_content = _content()
+    invalid_content["content-package"]["primary-content"]["hashtags"] = []
+    report = run_content_workflow(
+        _context("empty-hashtags"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), invalid_content)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-011"
+    assert "hashtags" in report.steps[-1].error_message
+
+
+def test_too_short_script_and_voiceover_is_rejected():
+    invalid_content = _content()
+    invalid_content["content-package"]["primary-content"]["script"] = "Quá ngắn."
+    invalid_content["content-package"]["primary-content"][
+        "voice-over-text"
+    ] = "Quá ngắn."
+    report = run_content_workflow(
+        _context("short-script"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), invalid_content)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-011"
+    assert "script<400-chars" in report.steps[-1].error_message
+    assert "voice-over-text<300-chars" in report.steps[-1].error_message
+
+
+def test_draft_review_status_is_rejected():
+    invalid_review = _review()
+    invalid_review["reviewed-package"]["status"] = "Draft"
+    report = run_content_workflow(
+        _context("draft-status"),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), _content(), invalid_review)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-012"
+
+
+def test_valid_ai_technology_output_is_accepted():
+    report = run_content_workflow(
+        _context("valid-ai-topic", topic=_CONCERNING_AI_TOPIC),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research(), _content(), _review())),
+        ),
+        compiled={},
+    )
+    assert report.status == "succeeded"
+    assert report.final_artifact["reviewed-content-package"]["status"] == "approve"
 
 
 @pytest.mark.skipif(
