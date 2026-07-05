@@ -13,7 +13,12 @@ from asf_runtime.planner import plan_workflow
 from asf_validator.pipeline import build_ir
 from asf_validator.project_discovery import discover_project
 from asf_validator.schema_registry import build_schema_registry
-from ollama_execution.executor import OllamaStepExecutor, assemble_prompt
+import ollama_execution.executor as executor_module
+from ollama_execution.executor import (
+    OllamaClient,
+    OllamaStepExecutor,
+    assemble_prompt,
+)
 
 
 def _catalog():
@@ -136,4 +141,41 @@ def test_prompt_assembly_is_deterministic_and_declares_output_contract():
     second = assemble_prompt(step, skill, {"topic": "A", "objective": "B"})
     assert first == second
     assert '"research-brief"' in first
+    assert '"quality-report"' in first
+    assert '"next-steps":[]' in first
+    assert "Every template key is mandatory" in first
     assert "Do not claim browsing" in first
+
+
+def test_prompt_and_ollama_request_preserve_vietnamese_utf8(monkeypatch):
+    topic = "5 công nghệ AI đáng sợ nhất trong 2 năm tới"
+    step, skill, _binding = _research_parts()
+    prompt = assemble_prompt(step, skill, {"topic": topic})
+    assert topic in prompt
+
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def read(self):
+            return json.dumps({"response": "{}"}).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        captured["body"] = request.data
+        captured["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr(executor_module, "urlopen", fake_urlopen)
+    result = OllamaClient().generate(
+        "http://localhost:11434", "llama3", prompt, 30
+    )
+    body = captured["body"].decode("utf-8")
+    assert result == "{}"
+    assert topic in body
+    assert "\\u00f4" not in body
+    assert json.loads(body)["options"]["num_predict"] == 1536

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import sys
 from dataclasses import dataclass
@@ -46,6 +47,8 @@ CONTENT_WORKFLOW_INPUTS = {
     "audience": "Working adults, small shop owners, and content creators.",
     "platform": "youtube",
 }
+
+_MOJIBAKE_MARKERS = ("Ã", "Â", "Ä", "á»", "â€", "Æ")
 
 
 def load_workspace(start: Path) -> Workspace:
@@ -228,10 +231,11 @@ def _run_content_report(
     if args.timeout is not None and args.timeout <= 0:
         raise ValueError("--timeout must be greater than zero.")
 
+    topic = _normalize_cli_unicode(args.topic)
     inputs = dict(CONTENT_WORKFLOW_INPUTS)
-    inputs["topic"] = args.topic
+    inputs["topic"] = topic
     execution_id = args.execution_id or _execution_id(
-        args.topic, args.mode, args.model
+        topic, args.mode, args.model
     )
     context = ExecutionContext.create(
         execution_id,
@@ -289,6 +293,41 @@ def _execution_id(topic: str, mode: str, model: str | None) -> str:
     ).encode("utf-8")
     digest = hashlib.sha256(material).hexdigest()[:12]
     return f"content-workflow-{digest}"
+
+
+def _normalize_cli_unicode(value: str) -> str:
+    """Repair the narrow UTF-8-as-Windows-code-page argv failure mode.
+
+    CPython normally receives Windows arguments through the wide-character
+    command line. Some terminal/launcher chains encode UTF-8 first and decode
+    those bytes as Windows-1252, producing strings such as ``cÃ´ng``. Only
+    strings carrying known mojibake markers are considered, and a repair is
+    accepted only when it strictly reduces those markers.
+    """
+    original_score = _mojibake_score(value)
+    if original_score == 0:
+        return value
+    for encoding in ("cp1252", "latin-1"):
+        try:
+            candidate = value.encode(encoding).decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            continue
+        if _mojibake_score(candidate) < original_score:
+            return candidate
+    return value
+
+
+def _mojibake_score(value: str) -> int:
+    return sum(value.count(marker) for marker in _MOJIBAKE_MARKERS)
+
+
+def _configure_utf8_stdio() -> None:
+    if os.name != "nt":
+        return
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
 
 
 def _plan_dict(plan) -> dict[str, Any]:
@@ -480,7 +519,11 @@ def _parser() -> argparse.ArgumentParser:
 
 def _render(report: dict[str, Any], output_format: str) -> None:
     if output_format == "json":
-        print(json.dumps(report, indent=2, sort_keys=True))
+        print(
+            json.dumps(
+                report, ensure_ascii=False, indent=2, sort_keys=True
+            )
+        )
         return
     print(f"ASF {report['command']}: {report['status'].upper()}")
     for diagnostic in report.get("diagnostics", ()):
@@ -553,10 +596,15 @@ def _render(report: dict[str, Any], output_format: str) -> None:
             )
         print(f"  reports: {execution['report_directory']}")
     elif report["status"] == "ok":
-        print(json.dumps(report, indent=2, sort_keys=True))
+        print(
+            json.dumps(
+                report, ensure_ascii=False, indent=2, sort_keys=True
+            )
+        )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    _configure_utf8_stdio()
     parser = _parser()
     args = parser.parse_args(argv)
     try:

@@ -67,7 +67,7 @@ def run_content_workflow(
                 step_id=step.id,
                 skill_id=step.skill_id,
                 runtime_binding=to_binding_ir(bindings[step.id], ()).as_dict(),
-                input_artifact=dict(step.input_mapping),
+                input_artifact=_dry_run_input(step, context, workflow),
                 output_artifact=None,
                 diagnostics=(),
                 status="compiled",
@@ -270,6 +270,27 @@ def _resolve_step_input(
     return resolved
 
 
+def _dry_run_input(
+    step: PlanStep,
+    context: ExecutionContext,
+    workflow: WorkflowIR,
+) -> dict[str, Any]:
+    """Resolve caller-owned inputs while retaining unavailable step sources."""
+    resolved: dict[str, Any] = {}
+    prefix = "workflow.inputs."
+    for target, source in step.input_mapping.items():
+        if source.startswith(prefix):
+            name = source.removeprefix(prefix)
+            resolved[target] = (
+                context.inputs[name]
+                if name in context.inputs
+                else workflow.inputs[name].default
+            )
+        else:
+            resolved[target] = source
+    return resolved
+
+
 def _validate_skill_output(
     step: PlanStep,
     skill: SkillIR,
@@ -397,6 +418,10 @@ def _human_report(report: ExecutionReport) -> str:
         f"Mode: {report.mode}",
         f"Duration: {report.duration_ms} ms",
     ]
+    if report.steps:
+        topic = report.steps[0].input_artifact.get("topic")
+        if isinstance(topic, str):
+            lines.append(f"Topic: {topic}")
     for step in report.steps:
         lines.append(
             f"- {step.step_id}: {step.status} ({step.duration_ms} ms)"

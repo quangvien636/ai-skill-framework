@@ -71,8 +71,9 @@ class OllamaClient:
                 "prompt": prompt,
                 "stream": False,
                 "format": "json",
-                "options": {"temperature": 0},
-            }
+                "options": {"temperature": 0, "num_predict": 1536},
+            },
+            ensure_ascii=False,
         ).encode("utf-8")
         request = Request(
             f"{endpoint.rstrip('/')}/api/generate",
@@ -209,12 +210,21 @@ def assemble_prompt(
         }
         for name, field in skill.outputs.items()
     }
+    output_template = _output_template(skill)
     procedure = [
         {"id": item.id, "action": item.action} for item in skill.procedure
     ]
     prohibited = list(skill.constraints.prohibited)
     knowledge_context = [
-        item.as_normalized_dict() for item in knowledge
+        {
+            "id": item.id,
+            "title": item.title,
+            "summary": item.summary,
+            "guidance": item.guidance,
+            "decision_rules": list(item.decision_rules),
+            "limitations_and_risks": list(item.limitations_and_risks),
+        }
+        for item in knowledge
     ]
     sections = (
         f"STEP: {step.id}",
@@ -239,13 +249,77 @@ def assemble_prompt(
         + json.dumps(
             output_contract, ensure_ascii=False, sort_keys=True, separators=(",", ":")
         ),
+        "OUTPUT TEMPLATE:\n"
+        + json.dumps(
+            output_template,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
         (
-            "Return exactly one JSON object containing only the declared top-level "
-            "outputs. Preserve uncertainty. Do not claim browsing, external "
-            "verification, rendering, or publishing."
+            "Return exactly one JSON object matching OUTPUT TEMPLATE. Every template "
+            "key is mandatory and must stay at its shown nesting level. Replace "
+            "template values but do not add top-level keys. Keep values concise. "
+            "Use empty arrays and explicit limitations when evidence is absent. "
+            "Never invent sources, citations, findings, or verification. Preserve "
+            "uncertainty. Do not claim browsing, external verification, rendering, "
+            "or publishing."
         ),
     )
     return "\n\n".join(sections)
+
+
+_ARRAY_FIELDS = frozenset(
+    {
+        "alternatives",
+        "applied-corrections",
+        "assumptions",
+        "checklist-results",
+        "citations",
+        "claim-evidence-map",
+        "findings",
+        "gaps",
+        "limitations",
+        "next-steps",
+        "optional-improvements",
+        "production-notes",
+        "required-revisions",
+        "research-questions",
+        "source-requirements",
+        "uncertainties",
+        "unresolved-items",
+    }
+)
+_OBJECT_FIELDS = frozenset({"draft", "primary-content"})
+
+
+def _output_template(skill: SkillIR) -> dict[str, Any]:
+    template: dict[str, Any] = {}
+    for output_name, field in skill.outputs.items():
+        if field.type != "object":
+            template[output_name] = _empty_value(field.type)
+            continue
+        value: dict[str, Any] = {}
+        for key in field.constraints.get("required", ()):
+            if key in _ARRAY_FIELDS:
+                value[key] = []
+            elif key in _OBJECT_FIELDS:
+                value[key] = {}
+            else:
+                value[key] = ""
+        template[output_name] = value
+    return template
+
+
+def _empty_value(field_type: str) -> Any:
+    return {
+        "array": [],
+        "boolean": False,
+        "integer": 0,
+        "number": 0,
+        "object": {},
+        "string": "",
+    }[field_type]
 
 
 def _validate_local_endpoint(endpoint: str) -> None:

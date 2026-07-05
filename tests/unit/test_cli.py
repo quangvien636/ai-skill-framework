@@ -3,10 +3,11 @@ import json
 import tempfile
 import unittest
 from contextlib import redirect_stdout
+from pathlib import Path
 
 import _bootstrap
 
-from asf_cli import main
+from asf_cli import _normalize_cli_unicode, main
 
 
 class CliTests(unittest.TestCase):
@@ -166,6 +167,44 @@ class CliTests(unittest.TestCase):
                     for step in report["execution"]["steps"]
                 )
             )
+
+    def test_vietnamese_topic_survives_windows_mojibake_and_utf8_reports(self):
+        expected = "5 công nghệ AI đáng sợ nhất trong 2 năm tới"
+        mojibake = "5 cÃ´ng nghá»‡ AI Ä‘Ã¡ng sá»£ nháº¥t trong 2 nÄƒm tá»›i"
+        self.assertEqual(_normalize_cli_unicode(expected), expected)
+        self.assertEqual(_normalize_cli_unicode(mojibake), expected)
+
+        with tempfile.TemporaryDirectory() as directory:
+            exit_code, report = self.run_cli(
+                "run",
+                "content-workflow",
+                "--topic",
+                mojibake,
+                "--mode",
+                "dry-run",
+                "--reports-dir",
+                directory,
+            )
+            self.assertEqual(exit_code, 0)
+            first_input = report["execution"]["steps"][0]["input_artifact"]
+            self.assertEqual(first_input["topic"], expected)
+
+            report_directory = Path(
+                report["execution"]["report_directory"]
+            )
+            json_path = report_directory / "execution-report.json"
+            json_bytes = json_path.read_bytes()
+            self.assertIn(expected.encode("utf-8"), json_bytes)
+            self.assertNotIn(mojibake.encode("utf-8"), json_bytes)
+            persisted = json.loads(json_bytes.decode("utf-8"))
+            self.assertEqual(
+                persisted["steps"][0]["input_artifact"]["topic"], expected
+            )
+
+            human = (report_directory / "report.txt").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(f"Topic: {expected}", human)
 
     def test_run_cli_requires_explicit_model_for_live_local(self):
         exit_code, report = self.run_cli(
