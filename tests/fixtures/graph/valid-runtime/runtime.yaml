@@ -4,7 +4,7 @@ name: "primary"
 display_name: "Primary Runtime"
 description: "Primary runtime"
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["me"]
 responsibility: "Primary runtime binding"
 execution_profile: "sync"

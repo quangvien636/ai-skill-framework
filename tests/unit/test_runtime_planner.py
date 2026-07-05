@@ -11,6 +11,24 @@ from asf_validator.pipeline import build_ir
 from asf_validator.project_discovery import discover_project
 from asf_validator.schema_registry import build_schema_registry
 
+RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
+
+
+def runtime_fixture_catalog():
+    registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+    results = [
+        build_ir("workflow", RUNTIME_FIXTURES / "workflow.yaml", registry),
+        build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+        build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+        build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+    ]
+    assert all(result.ok for result in results), [
+        (result.artifact, result.diagnostics) for result in results if not result.ok
+    ]
+    return build_artifact_catalog(results)
+
 
 def production_catalog():
     registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
@@ -150,6 +168,56 @@ class RuntimePlannerTests(unittest.TestCase):
             [step.id for step in plan.steps],
             ["start", "branch-b", "branch-a", "finish"],
         )
+
+    def test_plans_runtime_contract_resolution_chain(self):
+        catalog = runtime_fixture_catalog()
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-1",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+
+        self.assertEqual([step.id for step in plan.steps], ["run"])
+        step = plan.steps[0]
+        self.assertEqual(
+            {(r.target_id, r.kind) for r in step.runtime},
+            {
+                ("runtime:primary", "skill-runtime"),
+                ("kb:technical:writing:summarization:brevity", "runtime-knowledge"),
+                ("tool:read-file", "runtime-tool"),
+                ("runtime:fallback-target", "runtime-runtime"),
+            },
+        )
+        # Every runtime resolution is also recorded on the overall plan.
+        plan_runtime_kinds = {
+            (r.target_id, r.kind)
+            for r in plan.resolutions
+            if r.kind in ("skill-runtime", "runtime-knowledge", "runtime-tool", "runtime-runtime")
+        }
+        self.assertEqual(plan_runtime_kinds, {(r.target_id, r.kind) for r in step.runtime})
+
+    def test_missing_runtime_resolution_is_structured_failure(self):
+        catalog = runtime_fixture_catalog()
+        artifacts = tuple(
+            artifact for artifact in catalog.artifacts if artifact.id != "runtime:primary"
+        )
+        by_id: dict[str, list] = {}
+        for artifact in artifacts:
+            by_id.setdefault(artifact.id, []).append(artifact)
+        pruned = ArtifactCatalog(
+            artifacts, MappingProxyType({key: tuple(entries) for key, entries in by_id.items()})
+        )
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-2",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        with self.assertRaises(PlanningError) as caught:
+            plan_workflow(context, pruned)
+        self.assertEqual(caught.exception.code, "ASF-RUNTIME-PLAN-006")
 
 
 if __name__ == "__main__":

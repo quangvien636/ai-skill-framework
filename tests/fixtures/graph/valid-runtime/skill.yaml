@@ -4,7 +4,7 @@ name: "use-runtime"
 display_name: "Use Runtime"
 description: "Use runtime"
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["me"]
 responsibility: "Use Runtime"
 inputs: {}

@@ -37,9 +37,11 @@ requires exactly one active artifact satisfying the declared version range.
 Workflow-to-Skill and Skill-to-Knowledge resolutions preserve exact selected
 versions in the plan.
 
-Evaluation and Reflection remain embedded in Skill IR. Runtime and Tool
-dependencies remain declarations only because no corresponding artifact
-contracts or adapters exist.
+Evaluation and Reflection remain embedded in Skill IR. `ArtifactCatalog` now
+indexes Tool, Connector, and Runtime Contract artifacts alongside Skill,
+Workflow, and Knowledge (ADR-0014) — Tool/Connector catalog entries closed a
+latent gap: the Dependency Graph already supported those kinds, but the
+planning catalog did not.
 
 ### Execution Context
 
@@ -58,12 +60,21 @@ Planning:
 1. resolves one active exact Workflow;
 2. validates and freezes its context;
 3. resolves every referenced active Skill and required Knowledge dependency;
-4. topologically orders steps;
-5. groups independent ready steps into deterministic batches, using manifest
+4. resolves each Skill's `dependencies.runtime` reference to a Runtime
+   Contract, then that Runtime Contract's own `retriever.knowledge`,
+   `tools.refs`, and (if enabled) `fallback_profile.fallback_runtime`
+   references (ADR-0014) — `model`/`publisher` need no further resolution,
+   since they are terminal inline descriptors already fully contained in
+   the Runtime Contract's IR;
+5. topologically orders steps;
+6. groups independent ready steps into deterministic batches, using manifest
    order as the tie-breaker;
-6. records mappings, error action, maximum attempts, the resolved Skill's
-   declared `timeout_seconds` (if any), exact resolutions, and declared
-   Workflow outputs in an immutable `ExecutionPlan`.
+7. records mappings, error action, maximum attempts, the resolved Skill's
+   declared `timeout_seconds` (if any), every resolution (Skill, Knowledge,
+   and now Runtime/Tool/Knowledge-via-Runtime), and declared Workflow
+   outputs in an immutable `ExecutionPlan`. `PlanStep.runtime` carries a
+   step's own Runtime-chain resolutions, mirroring the existing
+   `PlanStep.knowledge` field.
 
 The planner produces data only. A plan is not evidence that any step ran.
 
@@ -86,6 +97,10 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 | `ASF-RUNTIME-PLAN-003` | Skill resolution failed |
 | `ASF-RUNTIME-PLAN-004` | Required Knowledge resolution failed |
 | `ASF-RUNTIME-PLAN-005` | Workflow cannot be topologically planned |
+| `ASF-RUNTIME-PLAN-006` | Required Runtime Contract resolution failed |
+| `ASF-RUNTIME-PLAN-007` | Required Runtime-referenced Knowledge resolution failed |
+| `ASF-RUNTIME-PLAN-008` | Required Runtime-referenced Tool resolution failed |
+| `ASF-RUNTIME-PLAN-009` | Required Runtime fallback resolution failed |
 
 ## Limitations and Next Steps
 
@@ -100,7 +115,9 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
   `PlanCompiler` adapter compiles an `ExecutionPlan`.
 - No runtime output mapping or value validation after execution.
 - No structural object subtyping or transformation adapters.
-- No Runtime/Tool graph nodes until their schemas and IR adapters exist.
+- Runtime/Tool graph nodes now exist (ADR-0012, ADR-0014); the next gap is
+  that no compiled plan has ever been executed end-to-end against a live
+  adapter.
 
 ## References
 
@@ -108,11 +125,13 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 - [IR Architecture](IR_ARCHITECTURE.md)
 - [CLI Architecture](CLI_ARCHITECTURE.md)
 - [Execution Adapter Architecture](EXECUTION_ADAPTER_ARCHITECTURE.md)
+- [Runtime Contract Architecture](RUNTIME_CONTRACT_ARCHITECTURE.md)
 - [Workflow Specification](../specifications/WORKFLOW_SPECIFICATION.md)
 - ADR-0005
 - ADR-0010
 - ADR-0011
 - ADR-0013
+- ADR-0014
 
 ## Revision History
 
@@ -121,3 +140,4 @@ Planning failures use stable `ASF-RUNTIME-PLAN-*` codes:
 | 0.1 | 2026-07-05 | Established non-executing Runtime catalog, context, and planning architecture |
 | 0.2 | 2026-07-05 | Pointed Limitations/Next-Steps and References at the Execution Adapter Architecture (ADR-0013) instead of an implied native executor |
 | 0.3 | 2026-07-05 | `PlanStep` now carries the resolved Skill's `timeout_seconds`, needed by the `langgraph_runtime` PlanCompiler adapter to preserve timeout metadata |
+| 0.4 | 2026-07-05 | Catalog now indexes Tool/Connector/Runtime; planner resolves Skill -> Runtime Contract -> Knowledge/Tool/fallback-Runtime (ADR-0014); added `ASF-RUNTIME-PLAN-006..009` |

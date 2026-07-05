@@ -4,7 +4,7 @@ name: "read-file"
 display_name: "Read File"
 description: "Read file"
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["me"]
 responsibility: "Read"
 inputs:

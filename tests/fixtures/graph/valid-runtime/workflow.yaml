@@ -1,0 +1,24 @@
+schema_version: "1.0.0"
+id: "workflow:use-runtime"
+name: "use-runtime"
+display_name: "Use Runtime Workflow"
+description: "Single-step workflow exercising Runtime Contract resolution"
+version: "1.0.0"
+status: "active"
+owners: ["me"]
+entrypoint: "run"
+inputs: {}
+steps:
+  - id: "run"
+    skill:
+      id: "skill:use-runtime"
+      version: "1.0.0"
+    depends_on: []
+    input_mapping: {}
+    on_error: "fail"
+outputs:
+  result:
+    type: "string"
+    from: "steps.run.outputs.result"
+error_handling:
+  default: "fail"

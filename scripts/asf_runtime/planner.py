@@ -7,6 +7,7 @@ from types import MappingProxyType
 from typing import Any
 
 from asf_validator.knowledge_ir import KnowledgeIR
+from asf_validator.runtime_ir import RuntimeIR
 from asf_validator.skill_ir import FieldIR, SkillIR
 from asf_validator.workflow_ir import WorkflowIR
 
@@ -69,6 +70,8 @@ def plan_workflow(
         all_resolutions.append(skill_resolution)
         knowledge = _resolve_knowledge(skill_artifact.ir, catalog)
         all_resolutions.extend(knowledge)
+        runtime = _resolve_runtime(skill_artifact.ir, catalog)
+        all_resolutions.extend(runtime)
         plan_steps.append(
             PlanStep(
                 id=step.id,
@@ -80,6 +83,7 @@ def plan_workflow(
                 on_error=step.on_error,
                 max_attempts=step.retry.max_attempts if step.retry else 1,
                 knowledge=knowledge,
+                runtime=runtime,
                 timeout_seconds=skill_artifact.ir.constraints.timeout_seconds,
             )
         )
@@ -120,6 +124,95 @@ def _resolve_knowledge(
                 target_id=artifact.id,
                 target_version=artifact.version.raw,
                 kind="skill-knowledge",
+            )
+        )
+    return tuple(resolutions)
+
+
+def _resolve_runtime(
+    skill: SkillIR, catalog: ArtifactCatalog
+) -> tuple[DependencyResolution, ...]:
+    resolutions: list[DependencyResolution] = []
+    for reference in skill.dependencies.runtime:
+        try:
+            artifact = catalog.resolve(reference.id, reference.version)
+        except LookupError as error:
+            if not reference.required:
+                continue
+            raise PlanningError("ASF-RUNTIME-PLAN-006", str(error)) from error
+        if not isinstance(artifact.ir, RuntimeIR):
+            raise PlanningError(
+                "ASF-RUNTIME-PLAN-006",
+                f"'{reference.id}' does not resolve to a Runtime Contract.",
+            )
+        resolutions.append(
+            DependencyResolution(
+                source_id=skill.metadata.id,
+                target_id=artifact.id,
+                target_version=artifact.version.raw,
+                kind="skill-runtime",
+            )
+        )
+        resolutions.extend(_resolve_runtime_bindings(artifact.ir, catalog))
+    return tuple(resolutions)
+
+
+def _resolve_runtime_bindings(
+    runtime: RuntimeIR, catalog: ArtifactCatalog
+) -> tuple[DependencyResolution, ...]:
+    """Resolve a Runtime Contract's own references: retriever Knowledge,
+    Tool refs, and a fallback Runtime. `model`/`publisher` need no further
+    resolution -- they are terminal inline descriptors (ADR-0014)."""
+    resolutions: list[DependencyResolution] = []
+    for knowledge_ref in runtime.retriever.knowledge:
+        try:
+            artifact = catalog.resolve(knowledge_ref.id, knowledge_ref.version)
+        except LookupError as error:
+            if not knowledge_ref.required:
+                continue
+            raise PlanningError("ASF-RUNTIME-PLAN-007", str(error)) from error
+        if not isinstance(artifact.ir, KnowledgeIR):
+            raise PlanningError(
+                "ASF-RUNTIME-PLAN-007",
+                f"'{knowledge_ref.id}' does not resolve to Knowledge.",
+            )
+        resolutions.append(
+            DependencyResolution(
+                source_id=runtime.metadata.id,
+                target_id=artifact.id,
+                target_version=artifact.version.raw,
+                kind="runtime-knowledge",
+            )
+        )
+    for tool_ref in runtime.tools.refs:
+        try:
+            artifact = catalog.resolve(tool_ref.id, tool_ref.version)
+        except LookupError as error:
+            if not tool_ref.required:
+                continue
+            raise PlanningError("ASF-RUNTIME-PLAN-008", str(error)) from error
+        resolutions.append(
+            DependencyResolution(
+                source_id=runtime.metadata.id,
+                target_id=artifact.id,
+                target_version=artifact.version.raw,
+                kind="runtime-tool",
+            )
+        )
+    fallback_ref = runtime.fallback_profile.fallback_runtime
+    if runtime.fallback_profile.enabled and fallback_ref is not None:
+        try:
+            artifact = catalog.resolve(fallback_ref.id, fallback_ref.version)
+        except LookupError as error:
+            if not fallback_ref.required:
+                return tuple(resolutions)
+            raise PlanningError("ASF-RUNTIME-PLAN-009", str(error)) from error
+        resolutions.append(
+            DependencyResolution(
+                source_id=runtime.metadata.id,
+                target_id=artifact.id,
+                target_version=artifact.version.raw,
+                kind="runtime-runtime",
             )
         )
     return tuple(resolutions)

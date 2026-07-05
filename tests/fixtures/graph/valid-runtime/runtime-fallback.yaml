@@ -4,7 +4,7 @@ name: "fallback-target"
 display_name: "Fallback Target Runtime"
 description: "Fallback target runtime"
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["me"]
 responsibility: "Fallback runtime binding"
 execution_profile: "sync"

@@ -6,9 +6,12 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
+from asf_validator.connector_ir import ConnectorIR
 from asf_validator.knowledge_ir import KnowledgeIR
 from asf_validator.pipeline import AdapterResult
+from asf_validator.runtime_ir import RuntimeIR
 from asf_validator.skill_ir import SkillIR
+from asf_validator.tool_ir import ToolIR
 from asf_validator.version_ir import (
     VersionIR,
     VersionRangeIR,
@@ -110,6 +113,33 @@ def _catalog_artifact(result: AdapterResult) -> CatalogArtifact | None:
     if isinstance(ir, WorkflowIR):
         return CatalogArtifact(
             "workflow",
+            ir.metadata.id,
+            ir.metadata.version,
+            ir.metadata.status,
+            result.artifact,
+            ir,
+        )
+    if isinstance(ir, ToolIR):
+        return CatalogArtifact(
+            "tool",
+            ir.metadata.id,
+            ir.metadata.version,
+            ir.metadata.status,
+            result.artifact,
+            ir,
+        )
+    if isinstance(ir, ConnectorIR):
+        return CatalogArtifact(
+            "connector",
+            ir.metadata.id,
+            ir.metadata.version,
+            ir.metadata.status,
+            result.artifact,
+            ir,
+        )
+    if isinstance(ir, RuntimeIR):
+        return CatalogArtifact(
+            "runtime",
             ir.metadata.id,
             ir.metadata.version,
             ir.metadata.status,

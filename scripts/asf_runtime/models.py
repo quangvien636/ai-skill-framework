@@ -61,6 +61,7 @@ class PlanStep:
     on_error: str
     max_attempts: int
     knowledge: tuple[DependencyResolution, ...]
+    runtime: tuple[DependencyResolution, ...] = ()
     timeout_seconds: Optional[int] = None
 
 
