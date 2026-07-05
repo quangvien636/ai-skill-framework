@@ -81,7 +81,41 @@ class CompiledVerticalSlice:
                 "outputs": dict(self.plan.outputs),
             },
             "graph": {
-                "nodes": graph["nodes"],
+                "nodes": [
+                    {
+                        "id": node["id"],
+                        **(
+                            {
+                                "metadata": {
+                                    key: node["metadata"][key]
+                                    for key in (
+                                        "execution_id",
+                                        "workflow_id",
+                                        "workflow_version",
+                                        "step_id",
+                                        "manifest_index",
+                                        "batch_index",
+                                        "skill_id",
+                                        "skill_version",
+                                        "runtime_id",
+                                        "on_error",
+                                        "max_attempts",
+                                        "timeout_seconds",
+                                        "execution_profile",
+                                        "safety_content_filter",
+                                        "audit_log_level",
+                                        "max_parallel_steps",
+                                        "max_parallel_tool_calls",
+                                    )
+                                    if key in node["metadata"]
+                                }
+                            }
+                            if "metadata" in node
+                            else {}
+                        ),
+                    }
+                    for node in graph["nodes"]
+                ],
                 "edges": graph["edges"],
             },
         }

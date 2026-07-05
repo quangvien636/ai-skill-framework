@@ -92,7 +92,10 @@ outputs:
         - "limitations"
       additional_properties: false
 dependencies:
-  runtime: []
+  runtime:
+    - id: "runtime:research"
+      version: ">=1.0.0 <2.0.0"
+      required: true
   tools: []
   knowledge:
     - id: "kb:foundational:research:briefs:research-brief-structure"

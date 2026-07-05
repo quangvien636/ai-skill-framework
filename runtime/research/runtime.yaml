@@ -4,7 +4,7 @@ name: "research"
 display_name: "Research Runtime"
 description: "Single-model runtime with a retriever binding over source-reliability guidance, no tools or publisher."
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["framework-maintainers"]
 tags: ["runtime", "research"]
 responsibility: "Bind a research Skill to a model and its required methodology Knowledge."

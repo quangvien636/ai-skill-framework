@@ -102,6 +102,7 @@
         { "kind": "knowledge", "fixture": "knowledge/foundational/research/uncertainty/uncertainty-language.md" },
         { "kind": "knowledge", "fixture": "knowledge/foundational/research/verification/fact-checking-checklist.md" },
         { "kind": "knowledge", "fixture": "knowledge/foundational/research/citations/citation-expectations.md" },
+        { "kind": "runtime", "fixture": "runtime/research/runtime.yaml" },
         { "kind": "workflow", "fixture": "workflows/research-topic-to-brief/workflow.yaml" }
       ],
       "expected_codes": []
@@ -117,6 +118,7 @@
         { "kind": "knowledge", "fixture": "knowledge/foundational/quality/platforms/platform-compliance-checklist.md" },
         { "kind": "knowledge", "fixture": "knowledge/foundational/quality/revisions/revision-recommendation-patterns.md" },
         { "kind": "knowledge", "fixture": "knowledge/foundational/quality/decisions/approval-rejection-rules.md" },
+        { "kind": "runtime", "fixture": "runtime/simple/runtime.yaml" },
         { "kind": "workflow", "fixture": "workflows/draft-to-reviewed-package/workflow.yaml" }
       ],
       "expected_codes": []

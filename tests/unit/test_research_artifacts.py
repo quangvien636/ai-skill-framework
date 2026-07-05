@@ -11,6 +11,7 @@ from asf_validator.version_graph import build_version_graph
 
 SKILL = "skills/research/skill.yaml"
 WORKFLOW = "workflows/research-topic-to-brief/workflow.yaml"
+RUNTIME = "runtime/research/runtime.yaml"
 KNOWLEDGE = {
     "knowledge/foundational/research/briefs/research-brief-structure.md",
     "knowledge/foundational/research/sources/source-reliability-criteria.md",
@@ -54,13 +55,14 @@ class ResearchProductionArtifactTests(unittest.TestCase):
         )
         fixtures = {artifact["fixture"] for artifact in production["artifacts"]}
 
-        self.assertEqual(fixtures, {SKILL, WORKFLOW} | KNOWLEDGE)
+        self.assertEqual(fixtures, {SKILL, WORKFLOW, RUNTIME} | KNOWLEDGE)
         self.assertEqual(production["expected_codes"], [])
 
     def test_canonical_production_package_builds_without_graph_diagnostics(self):
         artifacts = [
             ("skill", SKILL),
             *(("knowledge", path) for path in sorted(KNOWLEDGE)),
+            ("runtime", RUNTIME),
             ("workflow", WORKFLOW),
         ]
         results = [
@@ -73,10 +75,10 @@ class ResearchProductionArtifactTests(unittest.TestCase):
         _version_graph, version_diagnostics = build_version_graph(dependency_graph)
         self.assertEqual(dependency_diagnostics + version_diagnostics, [])
 
-    def test_research_v1_declares_no_runtime_or_tool_dependencies(self):
+    def test_research_v1_declares_runtime_but_no_tool_dependencies(self):
         result = build_ir("skill", _bootstrap.REPO_ROOT / SKILL, self.registry)
         self.assertTrue(result.ok)
-        self.assertEqual(result.ir.dependencies.runtime, ())
+        self.assertEqual(result.ir.dependencies.runtime[0].id, "runtime:research")
         self.assertEqual(result.ir.dependencies.tools, ())
 
 

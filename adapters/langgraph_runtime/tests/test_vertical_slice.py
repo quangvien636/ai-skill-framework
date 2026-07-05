@@ -28,9 +28,11 @@ def _production_catalog():
 
 
 def _snapshot(name, report):
-    actual = json.dumps(report, indent=2, sort_keys=True) + "\n"
-    expected = (SNAPSHOTS / name).read_text(encoding="utf-8")
-    assert actual == expected
+    expected = json.loads((SNAPSHOTS / name).read_text(encoding="utf-8"))
+    assert report == expected
+    assert json.dumps(report, sort_keys=True) == json.dumps(
+        expected, sort_keys=True
+    )
 
 
 def test_content_creation_compiles_end_to_end_without_execution():
@@ -51,3 +53,35 @@ def test_content_creation_compiles_end_to_end_without_execution():
     assert compiled.binding_ir[0].runtime_id == "runtime:content"
     assert compiled.graph.get_graph().nodes
     _snapshot("content-creation.json", compiled.as_dict())
+
+
+def test_research_compiles_end_to_end_without_execution():
+    context = ExecutionContext.create(
+        "golden-research",
+        "workflow:research-topic-to-brief",
+        "1.0.0",
+        {"topic": "Deterministic systems", "objective": "Prepare a brief."},
+    )
+
+    compiled = compile_vertical_slice(context, _production_catalog())
+
+    assert compiled.binding_ir[0].runtime_id == "runtime:research"
+    _snapshot("research.json", compiled.as_dict())
+
+
+def test_review_quality_compiles_end_to_end_without_execution():
+    context = ExecutionContext.create(
+        "golden-review-quality",
+        "workflow:draft-to-reviewed-package",
+        "1.0.0",
+        {
+            "draft": {"title": "Draft"},
+            "brief": "Review the supplied draft.",
+            "output-type": "generic-draft",
+        },
+    )
+
+    compiled = compile_vertical_slice(context, _production_catalog())
+
+    assert compiled.binding_ir[0].runtime_id == "runtime:simple"
+    _snapshot("review-quality.json", compiled.as_dict())

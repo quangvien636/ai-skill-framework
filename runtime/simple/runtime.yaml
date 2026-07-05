@@ -4,7 +4,7 @@ name: "simple"
 display_name: "Simple Runtime"
 description: "Minimal single-model runtime with no retriever, tools, or publisher."
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["framework-maintainers"]
 tags: ["runtime", "simple"]
 responsibility: "Bind a Skill to a single model with conservative operational policy."
