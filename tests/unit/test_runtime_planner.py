@@ -33,7 +33,7 @@ def runtime_fixture_catalog():
 def production_catalog():
     registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
     index = discover_project(
-        _bootstrap.REPO_ROOT, kinds=("skill", "workflow", "knowledge")
+        _bootstrap.REPO_ROOT, kinds=("skill", "workflow", "knowledge", "runtime")
     )
     return build_artifact_catalog(
         build_ir(artifact.kind, artifact.path, registry)
@@ -67,7 +67,8 @@ class RuntimePlannerTests(unittest.TestCase):
         self.assertEqual([step.id for step in plan.steps], ["create-content"])
         self.assertEqual(plan.batches, (("create-content",),))
         self.assertEqual(len(plan.steps[0].knowledge), 5)
-        self.assertEqual(len(plan.resolutions), 6)
+        self.assertEqual(len(plan.resolutions), 7)
+        self.assertEqual(plan.steps[0].runtime[0].target_id, "runtime:content")
         self.assertTrue(
             all(resolution.target_version == "1.0.0" for resolution in plan.resolutions)
         )

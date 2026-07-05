@@ -11,6 +11,7 @@ from asf_validator.version_graph import build_version_graph
 
 SKILL = "skills/content-creation/skill.yaml"
 WORKFLOW = "workflows/content-brief-to-package/workflow.yaml"
+RUNTIME = "runtime/content/runtime.yaml"
 KNOWLEDGE = {
     "knowledge/creative/content/formats/content-structures.md",
     "knowledge/creative/content/style/tone-guidelines.md",
@@ -49,13 +50,14 @@ class ContentCreationProductionArtifactTests(unittest.TestCase):
         )
         fixtures = {artifact["fixture"] for artifact in production["artifacts"]}
 
-        self.assertEqual(fixtures, {SKILL, WORKFLOW} | KNOWLEDGE)
+        self.assertEqual(fixtures, {SKILL, WORKFLOW, RUNTIME} | KNOWLEDGE)
         self.assertEqual(production["expected_codes"], [])
 
     def test_canonical_production_package_builds_without_graph_diagnostics(self):
         artifacts = [
             ("skill", SKILL),
             *(("knowledge", path) for path in sorted(KNOWLEDGE)),
+            ("runtime", RUNTIME),
             ("workflow", WORKFLOW),
         ]
         results = [

@@ -19,7 +19,7 @@ from langgraph_runtime.compiler import compile_plan
 def production_catalog():
     registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
     index = discover_project(
-        _bootstrap.REPO_ROOT, kinds=("skill", "workflow", "knowledge")
+        _bootstrap.REPO_ROOT, kinds=("skill", "workflow", "knowledge", "runtime")
     )
     return build_artifact_catalog(
         build_ir(artifact.kind, artifact.path, registry)

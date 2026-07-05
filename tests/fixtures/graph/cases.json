@@ -87,6 +87,7 @@
         { "kind": "knowledge", "fixture": "knowledge/creative/content/platforms/publishing-constraints.md" },
         { "kind": "knowledge", "fixture": "knowledge/creative/content/hooks/hook-formulas.md" },
         { "kind": "knowledge", "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md" },
+        { "kind": "runtime", "fixture": "runtime/content/runtime.yaml" },
         { "kind": "workflow", "fixture": "workflows/content-brief-to-package/workflow.yaml" }
       ],
       "expected_codes": []
