@@ -88,6 +88,65 @@ class ContentIntegrityTests(unittest.TestCase):
                 codes, {"ASF-REPOSITORY-010", "ASF-REPOSITORY-012"}
             )
 
+    def test_active_orphan_runtime_contract_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = root / "runtime" / "orphan"
+            package.mkdir(parents=True)
+            source = (
+                _bootstrap.REPO_ROOT / "tests/fixtures/contracts/runtime/valid.yaml"
+            ).read_text(encoding="utf-8")
+            source = source.replace('status: "draft"', 'status: "active"')
+            manifest = package / "runtime.yaml"
+            manifest.write_text(source, encoding="utf-8")
+            index = discover_project(root, kinds=("runtime",))
+            result = build_ir("runtime", manifest, self.registry)
+            codes = {item.code for item in validate_content_integrity(index, [result])}
+            self.assertIn("ASF-REPOSITORY-012", codes)
+
+    def test_runtime_referenced_as_fallback_is_not_orphan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = (
+                _bootstrap.REPO_ROOT / "tests/fixtures/contracts/runtime/valid.yaml"
+            ).read_text(encoding="utf-8")
+            active_source = source.replace('status: "draft"', 'status: "active"')
+
+            primary = root / "runtime" / "primary" / "runtime.yaml"
+            primary.parent.mkdir(parents=True)
+            primary.write_text(
+                active_source.replace(
+                    'fallback_profile:\n  enabled: false\n  max_fallback_depth: 1\n',
+                    'fallback_profile:\n  enabled: true\n  fallback_runtime:\n'
+                    '    id: "runtime:target"\n    version: "1.0.0"\n    required: true\n'
+                    '  max_fallback_depth: 1\n',
+                ),
+                encoding="utf-8",
+            )
+            target = root / "runtime" / "target" / "runtime.yaml"
+            target.parent.mkdir(parents=True)
+            target.write_text(
+                active_source.replace('runtime:simple', 'runtime:target').replace(
+                    'name: "simple"', 'name: "target"'
+                ),
+                encoding="utf-8",
+            )
+
+            index = discover_project(root, kinds=("runtime",))
+            results = [
+                build_ir("runtime", primary, self.registry),
+                build_ir("runtime", target, self.registry),
+            ]
+            self.assertTrue(all(result.ok for result in results))
+            diagnostics = validate_content_integrity(index, results)
+            orphaned_ids = {
+                d.artifact for d in diagnostics if d.code == "ASF-REPOSITORY-012"
+            }
+            # "runtime:primary" has no consumer either and is expected to be
+            # flagged; the point of this test is that "runtime:target" is not,
+            # because it is referenced as another active Runtime's fallback.
+            self.assertNotIn("runtime:target", orphaned_ids)
+
     def test_draft_artifact_placeholder_is_allowed(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

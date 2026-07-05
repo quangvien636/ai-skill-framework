@@ -26,6 +26,7 @@ from .diagnostics import (
 from .knowledge_ir import KnowledgeIR
 from .pipeline import AdapterResult
 from .project_discovery import ProjectIndex
+from .runtime_ir import RuntimeIR
 from .skill_ir import SkillIR
 from .workflow_ir import WorkflowIR
 
@@ -284,6 +285,7 @@ def _validate_lifecycle_orphans(
     skills: dict[str, SkillIR] = {}
     workflows: list[WorkflowIR] = []
     knowledge: dict[str, KnowledgeIR] = {}
+    runtimes: dict[str, RuntimeIR] = {}
     for result in results:
         if not result.ok:
             continue
@@ -293,11 +295,20 @@ def _validate_lifecycle_orphans(
             workflows.append(result.ir)
         elif isinstance(result.ir, KnowledgeIR):
             knowledge[result.ir.id] = result.ir
+        elif isinstance(result.ir, RuntimeIR):
+            runtimes[result.ir.metadata.id] = result.ir
     used_skills = {step.skill.id for workflow in workflows for step in workflow.steps}
     used_knowledge = {
         reference.id
         for skill in skills.values()
         for reference in skill.dependencies.knowledge
+    }
+    used_runtimes = {
+        reference.id for skill in skills.values() for reference in skill.dependencies.runtime
+    } | {
+        runtime.fallback_profile.fallback_runtime.id
+        for runtime in runtimes.values()
+        if runtime.fallback_profile.fallback_runtime is not None
     }
     diagnostics: list[Diagnostic] = []
     for skill_id, skill in skills.items():
@@ -306,6 +317,15 @@ def _validate_lifecycle_orphans(
     for knowledge_id, artifact in knowledge.items():
         if artifact.status == "active" and knowledge_id not in used_knowledge:
             diagnostics.append(_orphan(knowledge_id, "Active Knowledge has no Skill consumer."))
+    for runtime_id, runtime in runtimes.items():
+        if runtime.metadata.status == "active" and runtime_id not in used_runtimes:
+            diagnostics.append(
+                _orphan(
+                    runtime_id,
+                    "Active Runtime Contract has no Skill consumer and is not another "
+                    "active Runtime's fallback.",
+                )
+            )
     for artifact in index.by_kind("example"):
         relative = artifact.path.relative_to(index.workspace_root)
         if len(relative.parts) < 4 or relative.parts[0] not in ("skills", "workflows"):
