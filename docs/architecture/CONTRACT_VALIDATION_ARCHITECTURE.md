@@ -1,6 +1,6 @@
 # Contract Validation Architecture
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-04
 
@@ -80,6 +80,15 @@ Semantic validators handle:
 - Knowledge ID/taxonomy/path agreement and required Markdown sections;
 - compatible version resolution and deprecation policy.
 
+The implemented IR-level semantic core is
+`scripts/asf_validator/semantic_validator.py`. It checks metric uniqueness and
+weight totals, Evaluation/Reflection routing, reflectable gates, Workflow input
+and output mapping availability and type equality, retry configuration, and
+entrypoint reachability. It consumes successfully built IR and does not discover
+files or duplicate Dependency/Version Graph rules. ID/taxonomy/path agreement
+requires canonical repository context and remains coupled to Repository
+Discovery.
+
 Repository validators handle unique IDs, reference existence, lifecycle,
 Knowledge Index membership, canonical paths, links, case-insensitive collisions,
 secrets, and package file requirements.
@@ -126,3 +135,4 @@ repository validation because its ID is missing from the Knowledge Index.
 | --- | --- | --- |
 | 0.1 | 2026-07-04 | Established layered contract validation architecture |
 | 0.2 | 2026-07-04 | Aligned "normalized model" terminology with the Sprint 11 IR |
+| 0.3 | 2026-07-05 | Documented the implemented IR-level semantic validator and repository-context boundary |

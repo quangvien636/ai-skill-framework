@@ -118,8 +118,14 @@ Dependency Graph / Version Graph across multiple loaded artifacts:
 ```bash
 python scripts/build_ir.py                 # 40 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
-python -m unittest discover -s tests/unit  # 64 unit tests
+python scripts/build_semantics.py          # 3 semantic conformance scenarios
+python -m unittest discover -s tests/unit  # 68 unit tests
 ```
+
+The semantic layer checks evaluation metric uniqueness and weight totals,
+Evaluation/Reflection routing, Workflow mapping availability and types, retry
+routing, and unreachable steps. It emits structured `ASF-SEMANTIC-*`
+diagnostics over typed IR and performs no discovery or execution.
 
 See `docs/roadmaps/VALIDATOR_ROADMAP.md` (Phases 2-3),
 `docs/adr/ADR-0009-ir-adapter-package-and-scope.md`, and

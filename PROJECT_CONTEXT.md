@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.20
+Version: 0.21
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,22 +88,21 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 20 - Review Quality Skill v1**, adding the third
-production package. `skill:review-quality` evaluates supplied content packages,
-research briefs, and generic drafts for structure, clarity, logic, evidence
-alignment, tone, platform fit, CTA, length, pacing, and safety, then recommends
-approve, revise, or reject. Seven foundational quality documents and
-`workflow:draft-to-reviewed-package` provide reusable criteria and end-to-end
-composition. Production files are registered directly in contract, IR, and
-graph manifests, producing 16/16 contract cases, 40/40 IR cases, and 13/13
-graph scenarios, with 64 passing unit tests.
+The project completed **Sprint 21 - Semantic Validator Core**, returning focus
+to infrastructure. `semantic_validator.py` checks Evaluation metric uniqueness
+and weight totals, Evaluation/Reflection routing and gates, Workflow mapping
+targets, source availability, declared type compatibility, retry routing, and
+entrypoint reachability. `build_semantics.py` provides three offline
+conformance scenarios with nine stable `ASF-SEMANTIC-*` diagnostic codes. The
+existing 16 contract, 40 IR, and 13 graph cases remain green, with 68 passing
+unit tests.
 
 The framework still has no Runtime executor, model invocation, or
-repository-wide discovery. Review v1 therefore evaluates only caller-supplied
-artifacts and cannot execute reviews, retrieve policy, render media, or
-independently verify claims. Skill behavior is
-expressed by contracts, embedded Evaluation/Reflection, examples, and
-Knowledge; current automated proof covers schema, IR, and graph construction. See
+repository-wide discovery. The semantic core consumes explicit typed IR sets;
+canonical ID/path/index/package validation therefore remains the next
+infrastructure milestone. No Skill execution, retrieval, or generation occurs.
+Skill behavior remains expressed by contracts, embedded Evaluation/Reflection,
+examples, and Knowledge. See
 `PROJECT_TRACKER.md` for the exact deferred gaps.
 
 ## Definition of Done
@@ -141,3 +140,4 @@ A change is complete when:
 | 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 production package |
 | 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 production package |
 | 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 production package |
+| 0.21 | 2026-07-05 | Completed Sprint 21 IR-level Semantic Validator core |

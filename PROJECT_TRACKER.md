@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.20
+Version: 0.21
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,54 +12,46 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 20 - Review Quality Skill v1**
+**Sprint 21 - Semantic Validator Core**
 
-Goal: deliver a reusable production Review Skill that evaluates Research and
-Content outputs before a downstream video or content pipeline.
+Goal: implement deterministic semantic rules over typed IR before beginning
+repository-wide discovery.
 
 Status: **Completed**
 
-### Sprint 20 Backlog
+### Sprint 21 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Add an active Skill covering editorial, evidence, tone, platform, CTA, pacing, safety, and disposition review | Done | `skills/review-quality/` |
-| Keep reusable quality criteria outside the Skill | Done | Seven documents under `knowledge/foundational/quality/`; `KNOWLEDGE_INDEX.md` |
-| Add the end-to-end draft-to-reviewed-package Workflow | Done | `workflows/draft-to-reviewed-package/` |
-| Cover approve, revise, reject, and invalid/refusal outcomes | Done | `skills/review-quality/examples/` |
-| Validate canonical production files without fixture-only copies | Done | `tests/fixtures/{contracts,ir,graph}/cases.json` reference production paths directly |
-| Prove all Knowledge and Skill references resolve together | Done | `review-quality-v1-production-artifacts` graph scenario |
-| Document usage, validation, and execution boundaries | Done | Root and package READMEs; `PROJECT_CONTEXT.md` |
-| Preserve IR architecture boundaries | Done | Empty runtime/tool dependencies; embedded Evaluation/Reflection only |
+| Validate unique metric names and total weight | Done | `ASF-SEMANTIC-001..002` |
+| Validate Evaluation/Reflection routing and gates | Done | `ASF-SEMANTIC-003..004` |
+| Validate Workflow mapping targets, sources, and declared types | Done | `ASF-SEMANTIC-005..007` |
+| Validate retry routing and entrypoint reachability | Done | `ASF-SEMANTIC-008..009` |
+| Add offline semantic conformance runner | Done | `scripts/build_semantics.py`; 3/3 cases |
+| Preserve IR and graph layer boundaries | Done | Semantic core consumes IR and does not rediscover files or graph edges |
 
-### Sprint 20 Exit Criteria
+### Sprint 21 Exit Criteria
 
 - `python scripts/validate_contracts.py` passes 16/16.
 - `python scripts/build_ir.py` passes 40/40, including every production Review
   Quality artifact.
 - `python scripts/build_graph.py` passes 13/13, including the production package
   with all required Knowledge and Skill references.
-- `python -m unittest discover` passes all 64 tests.
-- No schema fields, standalone Evaluation/Reflection artifacts, Runtime/Tool
-  graph nodes, review execution, external fact-checking, or unrelated refactors
-  are introduced.
+- `python scripts/build_semantics.py` passes 3/3.
+- `python -m unittest discover` passes all 68 tests.
+- No parser, schema, or graph rule is weakened or duplicated.
 - Repository Markdown links and ADR references remain valid.
 
-### Sprint 20 Deferred / Documented Gaps
+### Sprint 21 Deferred / Documented Gaps
 
-- No Runtime or Generator executes the Skill yet; v1 is a validated framework
-  contract, Knowledge package, examples, and Workflow.
-- No LLM Runtime, external fact-checker, policy retriever, media renderer, or
-  platform verifier exists; v1 defines review artifacts and reasoning only.
-- The current schema can declare the draft and evidence as objects but cannot
-  express their type-specific nested fields; examples and Knowledge document
-  the expected structure without inventing schema fields.
-- Length and pacing checks are text-structural only; final duration, rendering,
-  audio, captions, and accessibility require downstream media review.
-- Safety review is a declared contract and decision rule, not runtime policy
-  enforcement.
-- Repository-wide discovery remains Phase 4, so production artifacts are
-  explicitly registered in the fixture manifests.
+- Canonical Skill and Knowledge ID/path agreement requires Phase 4 Repository
+  Discovery and remains next.
+- Type compatibility is exact declared-type equality; no coercion or structural
+  object subtyping is defined by current specifications.
+- One-responsibility assessment remains human review until an objective rule is
+  specified.
+- Semantic validation consumes explicit IR results and is not yet wired through
+  a unified repository validation command.
 
 ## Sprint History
 
@@ -90,6 +82,7 @@ sprint indefinitely.
 | 18 | Content Creation Skill v1 | Active Skill, five Knowledge documents, end-to-end Workflow, production graph scenario |
 | 19 | Research Skill v1 | Active Skill, six methodology documents, topic-to-brief Workflow, production graph scenario |
 | 20 | Review Quality Skill v1 | Active Skill, seven quality documents, draft-to-reviewed-package Workflow, production graph scenario |
+| 21 | Semantic Validator Core | Nine IR-level semantic rules, conformance runner, structured diagnostics |
 
 ## Risks and Guardrails
 
@@ -104,27 +97,25 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Resume the remaining Phase 3 semantic validators (ID/path, weight-sum,
-   mapping, routing rules) using the Sprint 17 Dependency/Version Graph.
-2. Begin Phase 4: extend the Dependency Graph from an explicit fixture list
+1. Begin Phase 4: extend validation from an explicit fixture list
    to a real repository-wide scan (Project Discovery, `CLI_ARCHITECTURE.md`),
-   plus Knowledge Index and package-structure validation.
-3. When a CLI implementation sprint starts, choose and record its language
+   plus canonical ID/path, Knowledge Index, and package-structure validation.
+2. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-4. Add a lightweight link/anchor check to the fixture-conformance scripts
+3. Add a lightweight link/anchor check to the fixture-conformance scripts
    (or a sibling script) so Sprint 14's manual broken-link scan does not
    need to be repeated by hand every sprint — an Automation Engineer task
    per `.ai/roles/AUTOMATION_ENGINEER.md`.
-5. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+4. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
-6. Add precise line/column source-position tracking to IR adapter
+5. Add precise line/column source-position tracking to IR adapter
    diagnostics (currently field/section names only) — Sprint 16's
    Deferred / Documented Gap, still open.
-7. If pre-release versions are ever adopted, implement full SemVer
+6. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -152,3 +143,4 @@ sprint indefinitely.
 | 0.18 | 2026-07-05 | Completed Sprint 18 Content Creation Skill v1 |
 | 0.19 | 2026-07-05 | Completed Sprint 19 Research Skill v1 |
 | 0.20 | 2026-07-05 | Completed Sprint 20 Review Quality Skill v1 |
+| 0.21 | 2026-07-05 | Completed Sprint 21 Semantic Validator core |

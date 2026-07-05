@@ -1,0 +1,50 @@
+schema_version: "1.0.0"
+id: "skill:mapping-target"
+name: "mapping-target"
+display_name: "Mapping Target"
+description: "Schema-valid Skill used by semantic Workflow fixtures."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+responsibility: "Echo one required string input."
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document."
+outputs:
+  summary:
+    type: "string"
+    required: true
+    description: "Summary."
+dependencies:
+  runtime: []
+  tools: []
+  knowledge: []
+procedure:
+  - id: "echo"
+    action: "Return a summary."
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation:
+  metrics:
+    - name: "accuracy"
+      description: "Output matches input."
+      weight: 1.0
+      rubric:
+        "0": "Incorrect."
+        "50": "Partly correct."
+        "100": "Correct."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 80
+  on_failure: "fail"
+reflection:
+  enabled: false
+  max_attempts: 0
+  minimum_improvement: 0
+  on_exhausted: "fail"
+  reflectable_hard_gates: []

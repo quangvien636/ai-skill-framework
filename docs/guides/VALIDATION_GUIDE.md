@@ -1,6 +1,6 @@
 # Contract Validation Guide
 
-Version: 0.3
+Version: 0.4
 Status: Active
 Last updated: 2026-07-04
 
@@ -44,17 +44,37 @@ any case does not match its expected outcome. It performs no network access
 and never rewrites a fixture or schema.
 
 This prototype only proves schema-level (structural) conformance for the
-fixtures it is told about. It does not walk `skills/` or `workflows/`, and it
-implements none of the semantic or repository-integrity rules in the
-[Contract Validation Architecture](../architecture/CONTRACT_VALIDATION_ARCHITECTURE.md).
-See ADR-0002 for the scope and rationale of this increment.
+fixtures it is told about. It does not walk `skills/` or `workflows/`. See
+ADR-0002 for the scope and rationale of this increment.
+
+### IR, Graph, and Semantic Checks
+
+The current validation core adds three offline layers:
+
+```text
+python scripts/build_ir.py
+python scripts/build_graph.py
+python scripts/build_semantics.py
+python -m unittest discover
+```
+
+`build_semantics.py` loads the explicit cases in
+`tests/fixtures/semantic/cases.json`, builds typed IR, and checks stable
+`ASF-SEMANTIC-*` diagnostics. Current rules cover Evaluation metric-name
+uniqueness and weight totals; Evaluation/Reflection routing and hard gates;
+Workflow mapping targets, sources, and declared type compatibility; retry
+routing; and step reachability from the entrypoint.
+
+The semantic validator does not discover repository artifacts, execute Skills,
+or infer missing types. Repository ID/path/index/package checks remain pending
+Repository Discovery.
 
 ### Current Manual Checks
 
 Contributors must still:
 
 1. compare schema fields with the owning Markdown specification and template;
-2. review semantic rules not yet encoded in JSON Schema or the prototype;
+2. review semantic rules not yet encoded in the current semantic core;
 3. check links, paths, duplicate IDs, secrets, and Git diff;
 4. run the fixture-conformance prototype above and add fixtures for new or
    changed schemas.
@@ -108,3 +128,4 @@ fail semantic validation because their sum is not `1.0`.
 | 0.1 | 2026-07-04 | Established validation usage and review guidance |
 | 0.2 | 2026-07-04 | Documented the Sprint 8 fixture-conformance prototype |
 | 0.3 | 2026-07-04 | Cross-linked the IR Architecture (normalized object = IR, per ADR-0005) |
+| 0.4 | 2026-07-05 | Added IR, graph, and semantic validation commands and current rule coverage |

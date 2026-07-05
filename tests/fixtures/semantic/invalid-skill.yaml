@@ -1,0 +1,58 @@
+schema_version: "1.0.0"
+id: "skill:semantic-invalid"
+name: "semantic-invalid"
+display_name: "Semantic Invalid"
+description: "Schema-valid Skill with intentionally invalid quality semantics."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+responsibility: "Exercise semantic validation rules."
+inputs:
+  document:
+    type: "string"
+    required: true
+    description: "Document."
+outputs:
+  summary:
+    type: "string"
+    required: true
+    description: "Summary."
+dependencies:
+  runtime: []
+  tools: []
+  knowledge: []
+procedure:
+  - id: "summarize"
+    action: "Summarize the document."
+constraints:
+  side_effects: "none"
+  prohibited: []
+evaluation:
+  metrics:
+    - name: "accuracy"
+      description: "First duplicate metric."
+      weight: 0.8
+      rubric:
+        "0": "Incorrect."
+        "50": "Partly correct."
+        "100": "Correct."
+    - name: "accuracy"
+      description: "Second duplicate metric."
+      weight: 0.8
+      rubric:
+        "0": "Incorrect."
+        "50": "Partly correct."
+        "100": "Correct."
+  scoring:
+    scale: "0..100"
+    aggregate: "weighted-mean"
+  acceptance:
+    minimum_score: 80
+    hard_gates: ["output-schema-valid"]
+  on_failure: "fail"
+reflection:
+  enabled: true
+  max_attempts: 1
+  minimum_improvement: 5
+  on_exhausted: "fail"
+  reflectable_hard_gates: ["unknown-gate"]

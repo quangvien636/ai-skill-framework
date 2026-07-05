@@ -1,6 +1,6 @@
 # Contract Validator Roadmap
 
-Version: 0.5
+Version: 0.6
 Status: In Progress
 Last updated: 2026-07-04
 
@@ -89,9 +89,10 @@ Exit: source artifacts normalize into IR without mutation or execution.
 
 ### Phase 3 - Semantic Validators
 
-Status: **In Progress** — Dependency Graph and Version Graph construction
-done (Sprint 17, `scripts/asf_validator/{graph,dependency_graph,version_graph}.py`,
-ADR-0010); ID/path, weight-sum, mapping, and routing rules remain.
+Status: **In Progress** — Dependency/Version Graph construction was completed
+in Sprint 17; IR-level metric, routing, mapping, type, and topology rules were
+completed in Sprint 21. Canonical ID/taxonomy/path agreement remains coupled to
+Phase 4 discovery.
 
 **Done (Sprint 17):**
 
@@ -129,11 +130,22 @@ ADR-0010); ID/path, weight-sum, mapping, and routing rules remain.
   every version by squeezing between two adjacent versions with no integer
   triple between them (`>1.0.0 <1.0.1`).
 
+**Done (Sprint 21):**
+
+- Added `semantic_validator.py`, operating only on successful typed IR results.
+- Added stable `ASF-SEMANTIC-001` through `ASF-SEMANTIC-009` diagnostics for
+  duplicate Evaluation metric names, invalid weight totals,
+  Evaluation/Reflection routing, unknown reflectable hard gates, Workflow
+  mapping targets/sources/types, retry routing, and unreachable steps.
+- Added `scripts/build_semantics.py` with three conformance scenarios and unit
+  coverage. The validator does not rediscover graph relationships or mutate IR.
+
 **Remaining:**
 
-- Implement ID/path, weight-sum, mapping, and routing rules.
-- Assign stable `ASF-SEMANTIC-*` diagnostic codes for those rules.
-- Add cross-rule tests.
+- Implement Skill and Knowledge ID/taxonomy/path agreement using canonical
+  filesystem context from Phase 4 Repository Discovery.
+- Keep one-responsibility assessment as human review until an objective,
+  deterministic rule is specified.
 
 Exit: all rules in Contract Validation Architecture are executable.
 
@@ -189,3 +201,4 @@ requires a Knowledge version range no loaded version satisfies, and reports
 | 0.3 | 2026-07-04 | Aligned Phase 2 terminology with the Sprint 11 IR adapter concept |
 | 0.4 | 2026-07-04 | Closed Phase 2 with implemented IR adapters (Sprint 16, ADR-0009) |
 | 0.5 | 2026-07-04 | Phase 3 Dependency/Version Graph construction done (Sprint 17, ADR-0010); ID/path, weight-sum, mapping, routing rules remain |
+| 0.6 | 2026-07-05 | Added Sprint 21 IR-level semantic rules; canonical path agreement remains with discovery |

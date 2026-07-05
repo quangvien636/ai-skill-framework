@@ -1,0 +1,37 @@
+schema_version: "1.0.0"
+id: "workflow:semantic-invalid"
+name: "semantic-invalid"
+display_name: "Semantic Invalid"
+description: "Schema-valid Workflow with intentionally invalid mappings and topology."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+entrypoint: "first"
+inputs:
+  document:
+    type: "number"
+    required: true
+    description: "Wrong type for the target Skill."
+steps:
+  - id: "first"
+    skill:
+      id: "skill:mapping-target"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      extra-input: "workflow.inputs.missing"
+    on_error: "retry"
+  - id: "orphan"
+    skill:
+      id: "skill:mapping-target"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      document: "workflow.inputs.document"
+    on_error: "fail"
+outputs:
+  summary:
+    type: "string"
+    from: "steps.first.outputs.missing"
+error_handling:
+  default: "fail"

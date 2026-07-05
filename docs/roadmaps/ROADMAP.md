@@ -1,6 +1,6 @@
 ﻿# Roadmap
 
-Version: 0.3
+Version: 0.4
 Status: Active
 
 ## Purpose
@@ -22,7 +22,9 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
 - Completed: Content Creation v1 production package (Sprint 18).
 - Completed: Research v1 production package (Sprint 19).
 - Completed: Review Quality v1 production package (Sprint 20).
-- Next: remaining semantic validation and repository-wide discovery.
+- Completed: IR-level semantic validation for metrics, routing, mappings,
+  types, and Workflow topology (Sprint 21).
+- Next: repository-wide discovery and canonical ID/path integrity.
 - Later: Runtime/Generator execution, declared tools/connectors when schemas
   exist, and thin CLI interfaces. Production Skills intentionally define
   artifact and reasoning contracts without live execution or retrieval.
@@ -34,3 +36,4 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
 | 0.1 | 2026-07-04 | Initial draft |
 | 0.2 | 2026-07-05 | Recorded production Skill milestones and next framework phases. |
 | 0.3 | 2026-07-05 | Recorded Review Quality v1 as the third production Skill package. |
+| 0.4 | 2026-07-05 | Recorded the Sprint 21 IR-level Semantic Validator milestone. |

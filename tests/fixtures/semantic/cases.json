@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "name": "invalid-skill-quality-semantics",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/semantic/invalid-skill.yaml" }
+      ],
+      "expected_codes": [
+        "ASF-SEMANTIC-001",
+        "ASF-SEMANTIC-002",
+        "ASF-SEMANTIC-003",
+        "ASF-SEMANTIC-004"
+      ]
+    },
+    {
+      "name": "invalid-workflow-semantics",
+      "artifacts": [
+        { "kind": "skill", "fixture": "tests/fixtures/semantic/mapping-skill.yaml" },
+        { "kind": "workflow", "fixture": "tests/fixtures/semantic/invalid-workflow.yaml" }
+      ],
+      "expected_codes": [
+        "ASF-SEMANTIC-005",
+        "ASF-SEMANTIC-006",
+        "ASF-SEMANTIC-007",
+        "ASF-SEMANTIC-008",
+        "ASF-SEMANTIC-009"
+      ]
+    },
+    {
+      "name": "production-skill-workflow-semantics",
+      "artifacts": [
+        { "kind": "skill", "fixture": "skills/content-creation/skill.yaml" },
+        { "kind": "workflow", "fixture": "workflows/content-brief-to-package/workflow.yaml" },
+        { "kind": "skill", "fixture": "skills/research/skill.yaml" },
+        { "kind": "workflow", "fixture": "workflows/research-topic-to-brief/workflow.yaml" },
+        { "kind": "skill", "fixture": "skills/review-quality/skill.yaml" },
+        { "kind": "workflow", "fixture": "workflows/draft-to-reviewed-package/workflow.yaml" }
+      ],
+      "expected_codes": []
+    }
+  ]
+}
