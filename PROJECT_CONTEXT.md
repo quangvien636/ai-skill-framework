@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.24
+Version: 0.26
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,19 +88,32 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 24 - Repository Integrity Completion**.
-`content_integrity.py` automates local Markdown links and anchors, duplicate
-anchors, ADR references, retired canonical identities, active-package
-placeholders, high-confidence secret signatures, and active Skill/Knowledge
-consumer policy. These checks run inside unified repository validation with
-structured `ASF-REPOSITORY-006..013` diagnostics. All prior validation and
-Runtime planning remain green, with 101 passing unit tests.
+The project's strategy changed: ASF builds only its differentiated
+intellectual property (Skill/Knowledge/Workflow frameworks, contracts,
+shared IR, semantic validation, repository discovery, runtime planning,
+evaluation, reflection, review, and the adapter layer) and reuses mature
+open-source projects for everything else — a graph execution engine,
+scheduler, retry engine, state management, streaming, tool/MCP runtime,
+RAG/vector engine, and LLM SDKs are no longer things ASF builds. See
+`docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md` and
+`docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md`.
 
-The framework still has no Runtime executor or model invocation. Discovery,
-validation, and planning are deterministic and offline; no Skill execution,
-retrieval, or generation occurs. The next infrastructure priority is
-Tool/Connector contract design before execution. See
-`PROJECT_TRACKER.md` for the exact deferred gaps.
+The project completed **Sprint 25 - Tool and Connector Contracts** (schemas,
+IR adapters, repository discovery, and dependency graph nodes/edges for
+Tool and Connector artifacts, ADR-0012) and **Sprint 26 - Build vs Reuse
+Execution Strategy**: the ADR above, the adapter Protocol seams
+(`PlanCompiler`, `ToolBinding`, `KnowledgeRetriever`, `ModelInvoker`), and a
+first working adapter, `adapters/mcp_tools/`, which binds validated ToolIR/
+ConnectorIR to the real MCP Python SDK's wire types. All prior validation
+and Runtime planning remain green, with 106 passing core unit tests plus 3
+passing adapter tests exercised against the real `mcp` package.
+
+The framework still has no live executor process — planning (ADR-0011)
+produces an `ExecutionPlan`/tool binding, but nothing yet drives a compiled
+LangGraph graph or a running MCP server end-to-end. That gap is now
+intentional and permanent by policy: it will be closed by adapters calling
+into external frameworks, not by a native ASF executor. See
+`PROJECT_TRACKER.md`'s Next Actions for the remaining adapter work.
 
 ## Definition of Done
 
@@ -141,3 +154,5 @@ A change is complete when:
 | 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |
 | 0.23 | 2026-07-05 | Completed Sprint 23 non-executing Runtime planning foundation |
 | 0.24 | 2026-07-05 | Completed Sprint 24 bounded Repository Integrity rules |
+| 0.25 | 2026-07-05 | Completed Sprint 25 Tool and Connector Contracts |
+| 0.26 | 2026-07-05 | Adopted Build vs Reuse execution strategy (Sprint 26); framework no longer builds execution-layer subsystems |

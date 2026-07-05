@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.24
+Version: 0.26
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,46 +12,61 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 24 - Repository Integrity Completion**
+**Sprint 26 - Build vs Reuse Execution Strategy**
 
-Goal: complete bounded deterministic repository content and lifecycle checks.
+Goal: stop building execution-layer subsystems the framework does not
+differentiate on, and adopt mature OSS behind an explicit adapter layer,
+per the "do not reinvent solved problems" strategy change.
 
-Status: **Completed**
+Status: **Completed (first adapter proven); roadmap continues into Sprint 27**
 
-### Sprint 24 Backlog
+### Sprint 26 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Automate internal Markdown file and anchor checks | Done | `ASF-REPOSITORY-006..008` |
-| Validate ADR reference consistency | Done | `ASF-REPOSITORY-009` |
-| Forbid unfinished markers in active shipped artifacts | Done | `ASF-REPOSITORY-010`; draft/template exception |
-| Detect narrow obvious committed secrets | Done | `ASF-REPOSITORY-011` |
-| Define lifecycle/orphan policy | Done | `ASF-REPOSITORY-012` |
-| Detect explicitly retired canonical references | Done | `ASF-REPOSITORY-013` |
+| Record the Build vs Reuse policy and per-subsystem decisions | Done | `docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md` |
+| Define adapter Protocol seams and package boundary | Done | `docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md` |
+| Prove the pattern with one real adapter | Done | `adapters/mcp_tools/` (ToolBinding seam, MCP Python SDK, 3 passing tests) |
+| Point Runtime Architecture's next-steps at adapters instead of an implied native executor | Done | `RUNTIME_ARCHITECTURE.md` v0.2 |
 
-### Sprint 24 Exit Criteria
+### Sprint 26 Exit Criteria
 
-- `python scripts/validate_contracts.py` passes 16/16.
-- `python scripts/build_ir.py` passes 40/40, including every production Review
-  Quality artifact.
-- `python scripts/build_graph.py` passes 13/13, including the production package
-  with all required Knowledge and Skill references.
-- `python scripts/build_semantics.py` passes 3/3.
+- `python scripts/validate_contracts.py` passes 20/20.
 - `python scripts/validate_repository.py` reports zero errors and warnings.
-- `python -m unittest discover` passes all 101 tests.
-- Repository validation covers content integrity without noisy entropy or
-  speculative lifecycle heuristics.
-- Repository Markdown links and ADR references remain valid.
+- `python -m unittest discover -s tests/unit` passes all 106 tests.
+- `adapters/mcp_tools/tests/test_binding.py` passes 3/3 against the real
+  `mcp` package (no mocking of the reuse target).
+- No execution-backend dependency (`mcp`, or any future `langgraph`/
+  `llama-index`) appears in `requirements-validator.txt` or is imported by
+  `scripts/asf_validator/` or `scripts/asf_runtime/`.
 
-### Sprint 24 Deferred / Documented Gaps
+### Sprint 26 Deferred / Documented Gaps
 
-- Secret detection intentionally uses only explicit high-confidence signatures;
-  it is not entropy analysis or credential-provider verification.
-- The stale-reference rule is an explicit denylist and grows only when a
-  canonical identity is retired.
-- Workflows are entry roots and are not treated as orphans. Embedded
-  Evaluation/Reflection inherit Skill lifecycle.
-- A machine-readable Reporter remains Phase 5 work.
+- Only the `ToolBinding` seam has a concrete adapter. `PlanCompiler`
+  (LangGraph), `KnowledgeRetriever` (LlamaIndex), and `ModelInvoker`
+  (provider SDKs / Ollama) are specified in
+  `EXECUTION_ADAPTER_ARCHITECTURE.md` but not yet implemented.
+- The `mcp_tools` adapter is pinned to MCP SDK v1 (`mcp>=1.27,<2`). v2 lands
+  2026-07-27 and renames `FastMCP` to `MCPServer`; migrating is untracked
+  work until that release is stable.
+- No adapter is wired into a live server/graph process; `MCPToolRegistry`
+  is exercised only via direct unit tests, not an end-to-end MCP session.
+
+## Previous Sprint
+
+**Sprint 25 - Tool and Connector Contracts**
+
+Goal: extend declarative contracts, IR, and the dependency graph to cover
+Tool and Connector artifacts, per ADR-0012.
+
+Status: **Completed**
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Tool/Connector schemas and lifecycle | Done | `schemas/tool.schema.json`, `schemas/connector.schema.json`, `docs/architecture/TOOL_CONNECTOR_ARCHITECTURE.md`, ADR-0012 |
+| Tool/Connector IR adapters | Done | `scripts/asf_validator/tool_ir.py`, `connector_ir.py` |
+| Repository discovery includes Tool/Connector artifacts | Done | commit `92f9dad` |
+| Dependency graph Tool/Connector nodes and edges (`skill-tool`, `tool-connector`) | Done | `dependency_graph.py`, `valid-tool-connector` fixture, commit `55bca39` |
 
 ## Sprint History
 
@@ -86,6 +101,8 @@ sprint indefinitely.
 | 22 | Repository Discovery and Integrity | Workspace/Project index, five repository rules, integrated validation command |
 | 23 | Runtime Planning Foundation | Immutable context/catalog/plan, exact resolutions, deterministic batches, ADR-0011 |
 | 24 | Repository Integrity Completion | Links, anchors, ADRs, secrets, stale identities, placeholders, lifecycle policy |
+| 25 | Tool and Connector Contracts | `tool.schema.json`, `connector.schema.json`, IR adapters, dependency graph nodes/edges, ADR-0012 |
+| 26 | Build vs Reuse Execution Strategy | ADR-0013, `EXECUTION_ADAPTER_ARCHITECTURE.md`, `adapters/mcp_tools/` (ToolBinding proof of concept) |
 
 ## Risks and Guardrails
 
@@ -100,23 +117,35 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Design Tool/Connector contracts and interfaces without external execution,
-   including LLM, browser, search, filesystem, MCP, and connector capability
-   boundaries.
-2. Extend Runtime planning with explicit state/failure models and full boundary
-   value validation before implementing any executor.
-3. When a CLI implementation sprint starts, choose and record its language
+1. Implement the `PlanCompiler` adapter (`adapters/langgraph_runtime/`):
+   compile an `ExecutionPlan` into a LangGraph `StateGraph` (steps -> nodes,
+   `depends_on` -> edges, `on_error`/`max_attempts` -> `RetryPolicy`), per
+   `EXECUTION_ADAPTER_ARCHITECTURE.md`. This is the highest-value next
+   adapter: it is the seam every Workflow execution eventually needs.
+2. Implement the `KnowledgeRetriever` adapter (`adapters/llamaindex_retrieval/`)
+   over resolved Knowledge documents.
+3. Implement `ModelInvoker` adapter(s) (`adapters/model_invokers/`) for at
+   least one provider SDK plus Ollama, selected by a Skill's
+   `dependencies.runtime` reference.
+4. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
+   `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
+   ships, and update the `mcp>=1.27,<2` pin deliberately rather than
+   incidentally.
+5. Wire at least one adapter into a live end-to-end example (a real MCP
+   server process, or a compiled-and-invoked LangGraph run) — current
+   adapter tests exercise the translation logic only, not a live session.
+6. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-4. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+7. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
-5. Add precise line/column source-position tracking to IR adapter
+8. Add precise line/column source-position tracking to IR adapter
    diagnostics (currently field/section names only) — Sprint 16's
    Deferred / Documented Gap, still open.
-6. If pre-release versions are ever adopted, implement full SemVer
+9. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -148,3 +177,5 @@ sprint indefinitely.
 | 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |
 | 0.23 | 2026-07-05 | Completed Sprint 23 Runtime planning foundation |
 | 0.24 | 2026-07-05 | Completed Sprint 24 Repository Integrity Phase 4 |
+| 0.25 | 2026-07-05 | Completed Sprint 25 Tool and Connector Contracts (schemas, IR, discovery, dependency graph) |
+| 0.26 | 2026-07-05 | Completed Sprint 26 Build vs Reuse Execution Strategy (ADR-0013, adapter architecture, mcp_tools proof of concept) |
