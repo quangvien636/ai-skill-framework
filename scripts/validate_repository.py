@@ -26,7 +26,7 @@ def run(start: Path) -> int:
     loadable = [
         artifact
         for artifact in index.artifacts
-        if artifact.kind in ("skill", "workflow", "knowledge")
+        if artifact.kind in ("skill", "workflow", "knowledge", "tool", "connector", "runtime")
     ]
     results = [
         build_ir(artifact.kind, artifact.path, registry) for artifact in loadable

@@ -18,6 +18,7 @@ class ProjectDiscoveryTests(unittest.TestCase):
         self.assertEqual(len(index.by_kind("example")), 12)
         self.assertEqual(len(index.by_kind("tool")), 0)
         self.assertEqual(len(index.by_kind("connector")), 0)
+        self.assertEqual(len(index.by_kind("runtime")), 0)
 
     def test_evaluation_and_reflection_are_embedded_skill_locations(self):
         index = discover_project(
@@ -60,6 +61,24 @@ class ProjectDiscoveryTests(unittest.TestCase):
     def test_unknown_kind_is_rejected(self):
         with self.assertRaises(ValueError):
             discover_project(_bootstrap.REPO_ROOT, kinds=("fake_kind",))
+
+    def test_runtime_discovers_both_canonical_locations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            direct = root / "runtime" / "simple" / "runtime.yaml"
+            direct.parent.mkdir(parents=True)
+            direct.write_text("id: runtime:simple", encoding="utf-8")
+            nested = root / "contracts" / "runtime" / "hybrid" / "runtime.yaml"
+            nested.parent.mkdir(parents=True)
+            nested.write_text("id: runtime:hybrid", encoding="utf-8")
+            index = discover_project(root, kinds=("runtime",))
+            self.assertEqual(
+                sorted(index.relative_path(a).as_posix() for a in index.artifacts),
+                [
+                    "contracts/runtime/hybrid/runtime.yaml",
+                    "runtime/simple/runtime.yaml",
+                ],
+            )
 
     def test_discovery_enumerates_without_parsing_invalid_source(self):
         with tempfile.TemporaryDirectory() as directory:
