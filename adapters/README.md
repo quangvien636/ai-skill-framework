@@ -13,8 +13,10 @@ An adapter package:
 - ships its own `requirements-<name>.txt` so core validator/runtime
   dependencies stay untouched by execution-backend churn;
 - translates ASF's already-validated contracts into the backend's native
-  constructs and back — it never implements execution, retries, transport,
-  or storage itself.
+  constructs and back;
+- owns only the bounded behavior declared by its seam. Compile-only adapters
+  never execute; the Ollama adapter performs only explicit local text
+  generation for the canonical composite workflow.
 
 | Package | Seam | Reuse target |
 | --- | --- | --- |
@@ -23,3 +25,4 @@ An adapter package:
 | [`llamaindex_retrieval/`](llamaindex_retrieval/) | `RetrievalConfigCompiler` (config half of `KnowledgeRetriever`) | LlamaIndex (`llama-index-core`) |
 | [`model_invokers/`](model_invokers/) | `ModelDescriptorCompiler` (descriptor half of `ModelInvoker`) | none yet — declarative only, no SDK dependency (Priority 3) |
 | [`publisher_adapters/`](publisher_adapters/) | `ExportDescriptorCompiler` (descriptor half of `PublisherAdapter`) | none yet — declarative only, no SDK dependency (Priority 4) |
+| [`ollama_execution/`](ollama_execution/) | Canonical composite `StepExecutor` | local Ollama HTTP API, loopback only |

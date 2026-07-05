@@ -104,15 +104,26 @@ The reviewed package snapshot is deliberately marked `revise`: it demonstrates
 shape without pretending that research, generation, review, or fact-checking
 ran.
 
-## First Execution Milestone
+## Local Ollama Execution Milestone
 
-The first execution milestone should live outside the compiler and bind one
-real `step_executor` to the already compiled graph. It should:
+The first execution milestone is implemented in
+[`adapters/ollama_execution/`](../../adapters/ollama_execution/README.md).
+It leaves the compiler unchanged and:
 
-1. consume the immutable `ExecutionPlan` and resolved bindings;
-2. invoke one selected provider through an adapter-owned implementation;
-3. validate values at every declared artifact boundary;
-4. persist audit metadata and failures without changing compiler contracts;
-5. stop at Reviewed Content Package.
+1. consumes the immutable `ExecutionPlan`, Skill IR, Knowledge IR, and resolved
+   Runtime bindings;
+2. invokes only a loopback Ollama endpoint with no API key;
+3. executes only the canonical three-step workflow, sequentially;
+4. validates research, content, and reviewed-package artifact boundaries;
+5. persists JSON, human-readable, and per-step reports under `runs/`;
+6. stops at Reviewed Content Package.
 
-Rendering and publishing should remain later, separate adapter milestones.
+Dry-run remains the default and does not construct an Ollama executor.
+Live-local requires both an explicit mode and model:
+
+```bash
+python scripts/asf.py run content-workflow --topic "Local AI" --mode dry-run
+python scripts/asf.py run content-workflow --topic "Local AI" --mode live-local --model llama3
+```
+
+Rendering and publishing remain separate, unimplemented external milestones.

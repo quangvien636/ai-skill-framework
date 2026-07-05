@@ -1,6 +1,6 @@
 ﻿# Roadmap
 
-Version: 0.11
+Version: 0.12
 Status: Active
 
 ## Purpose
@@ -51,8 +51,11 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
   Research -> Content -> Review artifact flow, Reviewed Content Package
   boundary, three-step ExecutionPlan/StateGraph compilation, five golden
   snapshots, and composite CLI surfaces (Sprint 29).
-- Next: implement the first external execution milestone by binding one real
-  step executor to the compiled plan without changing compiler contracts.
+- Completed: first bounded execution adapter using local Ollama, canonical
+  three-step sequential execution, artifact-boundary checks, deterministic
+  reports, and explicit dry-run/live-local CLI modes (Sprint 30).
+- Next: improve local-model conformance and operational guidance without
+  broadening execution beyond the canonical workflow.
 - Later: implement the execute halves every compile-only adapter deferred
   (`KnowledgeRetriever.query`, `ModelInvoker.invoke`,
   `PublisherAdapter.publish`, an actually-invoked `PlanCompiler` graph),
@@ -75,3 +78,4 @@ directions. Detailed validator work remains in `VALIDATOR_ROADMAP.md`.
 | 0.9 | 2026-07-05 | Recorded Sprint 27 adapter layer build-out (all five Protocol seams, compile/describe half). |
 | 0.10 | 2026-07-05 | Recorded Sprint 28 Runtime Contract milestone (schema, IR, discovery, graph, semantic, planning, adapter binding, five canonical examples). |
 | 0.11 | 2026-07-05 | Recorded Sprint 29 completion of the composite compiler proof and Reviewed Content Package boundary. |
+| 0.12 | 2026-07-05 | Recorded Sprint 30 local Ollama execution adapter and canonical runner. |

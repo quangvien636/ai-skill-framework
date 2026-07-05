@@ -1,6 +1,6 @@
 # Execution Adapter Architecture
 
-Version: 0.1
+Version: 0.7
 Status: Active
 Last updated: 2026-07-05
 
@@ -239,6 +239,28 @@ remains the Dependency Graph and `asf_runtime.planner`'s job) — they take
 already-resolved IR as input, matching the boundary every other adapter in
 this document already observes.
 
+### Local Ollama Step Execution
+
+`adapters/ollama_execution/` is the first execute-half implementation. It is a
+deliberately narrow post-compiler adapter, not a Runtime Engine:
+
+- only `workflow:research-content-review` is accepted;
+- steps run sequentially in the already-planned order;
+- endpoint hosts are restricted to HTTP loopback addresses;
+- RuntimeBinding supplies timeout and, for an Ollama binding, model;
+- CLI `--model` provides an explicit local override for production bindings
+  that describe another provider;
+- Skill and resolved Knowledge IR produce deterministic JSON-only prompts;
+- results carry step, Skill, binding, input, output, diagnostics, status,
+  error, and duration metadata;
+- artifact boundaries fail before a downstream step when required output is
+  absent or malformed;
+- no publisher, renderer, scheduler, queue, worker, or arbitrary-workflow
+  execution exists.
+
+The adapter uses Python's standard HTTP library against Ollama's local API. It
+has no provider SDK, API key, cloud fallback, or paid-provider execution path.
+
 ### What Stays Unchanged
 
 - `ArtifactLoader`, `CatalogBuilder`, `WorkflowPlanner`, `PlanStore`
@@ -281,3 +303,4 @@ this document already observes.
 | 0.4 | 2026-07-05 | Split `ModelInvoker` into `ModelDescriptorCompiler` (implemented, `adapters/model_invokers/`, zero SDK dependency) and an unimplemented `invoke` half, per Priority 3's declarative-only scope |
 | 0.5 | 2026-07-05 | Added a fifth seam, `PublisherAdapter`, split into `ExportDescriptorCompiler` (implemented, `adapters/publisher_adapters/`, zero SDK dependency) and an unimplemented `publish` half, per Priority 4's declarative-only scope |
 | 0.6 | 2026-07-05 | Added Runtime Contract binding functions to all five adapters (ADR-0014 Phase 6): binding only, no invocation, no new external dependency |
+| 0.7 | 2026-07-05 | Added the loopback-only Ollama StepExecutor and canonical composite runner as the first bounded execute-half implementation. |

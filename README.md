@@ -130,7 +130,7 @@ python scripts/build_ir.py                 # 46 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
 python scripts/build_semantics.py          # 4 semantic conformance scenarios
 python scripts/validate_repository.py       # discover and validate canonical artifacts
-python -m unittest discover -s tests/unit  # 116 core unit tests
+python -m unittest discover -s tests/unit  # core unit tests
 ```
 
 Each `adapters/<name>/` package has its own isolated test suite (own
@@ -138,11 +138,12 @@ Each `adapters/<name>/` package has its own isolated test suite (own
 never require an execution-backend dependency:
 
 ```bash
-cd adapters/langgraph_runtime/tests && python -m pytest        # 9 tests
-cd adapters/mcp_tools/tests && python -m pytest                # 5 tests
-cd adapters/llamaindex_retrieval/tests && python -m pytest     # 7 tests
-cd adapters/model_invokers/tests && python -m pytest           # 11 tests
-cd adapters/publisher_adapters/tests && python -m pytest       # 12 tests
+cd adapters/langgraph_runtime/tests && python -m pytest
+cd adapters/mcp_tools/tests && python -m pytest
+cd adapters/llamaindex_retrieval/tests && python -m pytest
+cd adapters/model_invokers/tests && python -m pytest
+cd adapters/publisher_adapters/tests && python -m pytest
+cd adapters/ollama_execution/tests && python -m pytest
 ```
 
 The semantic layer checks evaluation metric uniqueness and weight totals,
@@ -183,7 +184,8 @@ assumptions, and deferred work.
 tools, and publisher plus timeout/retry/safety/audit/concurrency/fallback
 policy — the missing link between a Skill and the adapter layer below. Five
 canonical examples ship in `runtime/`: `simple`, `content`, `research`,
-`offline`, and `hybrid` (all `status: draft`, not yet wired to any Skill).
+`offline`, and `hybrid`. The production Skills consume active Runtime
+Contracts; offline and hybrid remain declarative examples.
 `asf_runtime.planner` resolves a Skill's `dependencies.runtime` reference and
 that Runtime Contract's own Knowledge/Tool/fallback references, entirely at
 planning time — no model, tool, retriever, or publisher is ever invoked. See
@@ -197,15 +199,16 @@ runtime planning, evaluation, reflection, review, export planning, and the
 adapter layer. It does not rebuild a graph execution engine, scheduler,
 retry engine, state manager, streaming layer, tool runtime, MCP runtime,
 RAG engine, vector database, publishing/auth flows, or LLM SDK — mature
-open-source projects already solve those, or (for export/model invocation)
-no live execution is in scope yet at all. See
+open-source projects already solve those. The one bounded execution path is
+local Ollama text generation for the canonical composite workflow. See
 [ADR-0013](docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md) for the
 per-subsystem decisions and
 [Execution Adapter Architecture](docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
 for the five Protocol seams and package boundary.
 
-`adapters/` (see [adapters/README.md](adapters/README.md)) currently has five
-packages, one per seam. Each also has a Runtime Contract binding function
+`adapters/` (see [adapters/README.md](adapters/README.md)) contains the five
+compile/binding packages plus the isolated local Ollama execution adapter.
+Each compile package also has a Runtime Contract binding function
 (ADR-0014, Phase 6) that takes an already-resolved `RuntimeIR` and produces
 that adapter's descriptor/registration — no new dependency, no invocation:
 
@@ -216,6 +219,7 @@ that adapter's descriptor/registration — no new dependency, no invocation:
 | [`llamaindex_retrieval/`](adapters/llamaindex_retrieval/) | `RetrievalConfigCompiler` | LlamaIndex | Compiles Knowledge IR into retrieval config; no indexing/embedding/vector store | `retrieval_config_from_runtime(...)` |
 | [`model_invokers/`](adapters/model_invokers/) | `ModelDescriptorCompiler` | none yet (declarative only) | Describes an OpenAI/Anthropic/Google/Ollama call; never makes one | `model_descriptor_from_runtime(...)` |
 | [`publisher_adapters/`](adapters/publisher_adapters/) | `ExportDescriptorCompiler` | none yet (declarative only) | Describes a YouTube/TikTok/Facebook/WordPress/Markdown export; never performs one | `export_descriptor_from_runtime(...)` |
+| [`ollama_execution/`](adapters/ollama_execution/) | canonical `StepExecutor` | local Ollama | Runs only Research -> Content -> Review with explicit opt-in; no cloud, rendering, or publishing | consumes resolved `RuntimeBinding`; `--model` overrides non-Ollama production bindings locally |
 
 Every package ships its own `requirements-<name>.txt`, isolated from
 `requirements-validator.txt` and from every other adapter package (adapters
@@ -238,8 +242,11 @@ python scripts/asf.py compile content-workflow
 python scripts/asf.py snapshot
 python scripts/asf.py inspect
 python scripts/asf.py explain
+python scripts/asf.py run content-workflow --topic "Local AI" --mode dry-run
+python scripts/asf.py run content-workflow --topic "Local AI" --mode live-local --model llama3
 ```
 
 Use `--format json` before the command for a versioned structured report.
-`compile` returns a compiled `StateGraph` description only. The CLI has no
-execute, invoke, publish, query, network, or model-SDK path.
+`compile` returns a compiled `StateGraph` description only. `run` defaults to
+dry-run and calls no model. `live-local` is the only execution mode and accepts
+only a loopback Ollama endpoint. No command renders or publishes.

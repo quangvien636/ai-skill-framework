@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.29
+Version: 0.30
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,41 +12,52 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 29 - Canonical Composite Compiler Proof**
+**Sprint 30 - Local Ollama Execution Adapter**
 
-Goal: prove one compile-only Research -> Content Creation -> Review Quality
-workflow ending at Reviewed Content Package.
+Goal: execute only the canonical Research -> Content Creation -> Review
+workflow through local Ollama and stop at Reviewed Content Package.
 
 Status: **Completed**
 
-### Sprint 29 Backlog
+### Sprint 30 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Composite workflow | Done | `workflow:research-content-review` composes the three production Skills |
-| Artifact flow | Done | Research brief -> Content input; Content package -> Review draft |
-| Reviewed Content Package | Done | Canonical editorial output envelope and static shape snapshot |
-| Composite planning | Done | Deterministic three-step, three-batch `ExecutionPlan` |
-| LangGraph compilation | Done | One five-node, four-edge compiled `StateGraph`; never invoked |
-| Golden snapshots | Done | Workflow, binding, plan, graph, and reviewed package snapshots |
-| CLI | Done | `compile content-workflow`, `snapshot`, `inspect`, `explain` |
-| Documentation | Done | `docs/guides/COMPILER_LIFECYCLE.md` |
+| Execution results | Done | Serializable step/report models with artifacts, diagnostics, status, errors, and duration |
+| Ollama StepExecutor | Done | Loopback-only HTTP, model/timeout configuration, no API key |
+| Composite runner | Done | Sequential canonical three-step execution only |
+| Artifact boundaries | Done | Research, content, and final reviewed-package checks |
+| Modes | Done | Dry-run default; live-local requires explicit mode and model |
+| CLI | Done | `asf run content-workflow` |
+| Reports | Done | JSON, human-readable, and per-step output under `runs/` |
+| Tests | Done | Missing server/model, boundaries, CLI, dry-run, and opt-in live test |
 
-### Sprint 29 Exit Criteria
+### Sprint 30 Exit Criteria
 
-- Contract, IR, graph, semantic, repository, core, and adapter suites pass.
-- Artifact mappings are statically validated for ancestry and type.
-- Composite plan, bindings, and StateGraph match deterministic snapshots.
-- No execution, provider call, rendering, media generation, or publishing.
+- Compiler v1 contracts, IR, binding, planner, and interfaces remain unchanged.
+- Dry-run performs no Ollama request.
+- Live-local accepts only loopback Ollama and has no paid/cloud path.
+- Normal tests do not require Ollama; the real live test requires explicit
+  `ASF_TEST_OLLAMA=1`.
+- No publishing, rendering, video package, scheduler, queue, or worker.
 
-### Sprint 29 Deferred / Documented Gaps
+### Sprint 30 Deferred / Documented Gaps
 
-- Skill invocation and value-level artifact validation require an external
-  execution milestone.
-- Reviewed Content Package is editorial structured data; rendering and
-  publishing remain external.
+- Arbitrary workflow execution is unsupported.
+- Rendering and publishing remain external and unimplemented.
+- Live output quality depends on the locally installed model.
 
 ## Previous Sprint
+
+**Sprint 29 - Canonical Composite Compiler Proof**
+
+Status: **Completed**
+
+Canonical three-Skill Workflow, explicit artifact flow, Reviewed Content
+Package boundary, golden snapshots, and composite CLI were completed without
+execution.
+
+## Earlier Sprint
 
 **Sprint 28 - Runtime Contract (Phases 1-7)**
 
@@ -95,7 +106,7 @@ Status: **Completed**
 - The `mcp_tools` adapter remains pinned to MCP SDK v1; v2 (stable
   2026-07-27) migration is still untracked work.
 
-## Earlier Sprint
+## Earlier Adapter Sprint
 
 **Sprint 27 - Adapter Layer Build-Out (Priorities 1-4)**
 
@@ -150,6 +161,7 @@ sprint indefinitely.
 | 27 | Adapter Layer Build-Out (Priorities 1-4) | `adapters/langgraph_runtime/`, `llamaindex_retrieval/`, `model_invokers/`, `publisher_adapters/` (34 tests total) |
 | 28 | Runtime Contract (Phases 1-7) | `runtime.schema.json`, `runtime_ir.py`, graph/semantic/planning/orphan extensions, 5 adapter bindings, 5 canonical examples, ADR-0014 |
 | 29 | Canonical Composite Compiler Proof | Three-Skill workflow, artifact flow, Reviewed Content Package, golden snapshots, composite CLI |
+| 30 | Local Ollama Execution Adapter | Loopback StepExecutor, canonical runner, artifact checks, reports, dry/live CLI |
 
 ## Risks and Guardrails
 
@@ -232,3 +244,4 @@ sprint indefinitely.
 | 0.27 | 2026-07-05 | Completed Sprint 27 Adapter Layer Build-Out: langgraph_runtime, llamaindex_retrieval, model_invokers, publisher_adapters (34 adapter tests) |
 | 0.28 | 2026-07-05 | Completed Sprint 28 Runtime Contract: schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples, ADR-0014 |
 | 0.29 | 2026-07-05 | Completed Sprint 29 composite compiler proof, snapshots, CLI, and Reviewed Content Package boundary |
+| 0.30 | 2026-07-05 | Completed Sprint 30 local Ollama execution adapter and canonical workflow runner |
