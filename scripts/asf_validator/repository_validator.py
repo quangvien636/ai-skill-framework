@@ -19,6 +19,7 @@ from .pipeline import AdapterResult
 from .project_discovery import ArtifactLocation, ProjectIndex
 from .skill_ir import SkillIR
 from .workflow_ir import WorkflowIR
+from .content_integrity import validate_content_integrity
 
 _INDEX_ROW_RE = re.compile(
     r"^\|\s*`(?P<id>kb:[^`]+)`\s*\|.*\|\s*`(?P<path>knowledge/[^`]+)`\s*\|"
@@ -115,6 +116,7 @@ def validate_repository(
                     suggestion="Fix or remove the stale Knowledge Index row.",
                 )
             )
+    diagnostics.extend(validate_content_integrity(index, results))
     return diagnostics
 
 

@@ -1,6 +1,6 @@
 # Contract Validator Roadmap
 
-Version: 0.7
+Version: 0.8
 Status: In Progress
 Last updated: 2026-07-05
 
@@ -151,9 +151,9 @@ Exit: all rules in Contract Validation Architecture are executable.
 
 ### Phase 4 - Repository Integrity
 
-Status: **In Progress** — deterministic Workspace/Project Discovery, canonical
-path checks, package requirements, Knowledge Index agreement, and
-case-insensitive path collision checks completed in Sprint 22.
+Status: **Done** — discovery and structural repository checks completed in
+Sprint 22; bounded content, secret, stale-reference, and lifecycle/orphan rules
+completed in Sprint 24.
 
 - Resolve local artifact references and lifecycle using the Sprint 17
   Dependency Graph as the underlying structure, extended with real
@@ -178,9 +178,17 @@ case-insensitive path collision checks completed in Sprint 22.
 
 **Remaining:**
 
-- Automate Markdown link/anchor and secret checks.
-- Define any additional lifecycle/orphan policy before enforcing it.
-- Add one stable machine-readable Reporter when thin interfaces begin.
+- Add one stable machine-readable Reporter when Phase 5 thin interfaces begin.
+
+**Done (Sprint 24):**
+
+- Added local Markdown target/anchor checks and duplicate-anchor detection.
+- Added ADR reference consistency and an explicit retired-identity denylist.
+- Added high-confidence secret signatures without entropy heuristics.
+- Forbid unfinished markers only in active shipped artifacts; templates and
+  drafts remain explicit exceptions.
+- Defined active Skill and Knowledge consumer requirements. Workflows remain
+  entry roots, and Evaluation/Reflection lifecycle remains embedded.
 
 Exit: repository-wide validation is deterministic and offline.
 
@@ -225,3 +233,4 @@ requires a Knowledge version range no loaded version satisfies, and reports
 | 0.5 | 2026-07-04 | Phase 3 Dependency/Version Graph construction done (Sprint 17, ADR-0010); ID/path, weight-sum, mapping, routing rules remain |
 | 0.6 | 2026-07-05 | Added Sprint 21 IR-level semantic rules; canonical path agreement remains with discovery |
 | 0.7 | 2026-07-05 | Added Sprint 22 Workspace/Project Discovery and initial repository integrity validation |
+| 0.8 | 2026-07-05 | Completed Phase 4 with Sprint 24 content-integrity and lifecycle rules |

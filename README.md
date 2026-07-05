@@ -121,7 +121,7 @@ python scripts/build_ir.py                 # 40 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
 python scripts/build_semantics.py          # 3 semantic conformance scenarios
 python scripts/validate_repository.py       # discover and validate canonical artifacts
-python -m unittest discover -s tests/unit  # 96 unit tests
+python -m unittest discover -s tests/unit  # 101 unit tests
 ```
 
 The semantic layer checks evaluation metric uniqueness and weight totals,
@@ -134,6 +134,12 @@ builds a deterministic internal index, loads all canonical artifacts, and runs
 every implemented validation layer. The current repository index contains 42
 locations, including embedded Evaluation/Reflection locations and executable
 examples, and loads 24 Skill/Workflow/Knowledge artifacts.
+
+Repository validation also checks local Markdown targets and section anchors,
+duplicate anchors, ADR references, explicit stale canonical identities,
+production placeholders, narrow obvious-secret signatures, and active
+Skill/Knowledge orphan policy. Drafts and templates retain their documented
+placeholder allowance.
 
 ## Runtime Preparation
 

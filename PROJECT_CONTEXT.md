@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.23
+Version: 0.24
 Status: Active
 Last updated: 2026-07-05
 
@@ -88,18 +88,18 @@ component-level description.
 
 ## Current Focus
 
-The project completed **Sprint 23 - Runtime Planning Foundation**. The
-non-executing `asf_runtime` core builds an artifact catalog from shared IR,
-freezes execution context, resolves exact active Workflow, Skill, and Knowledge
-versions, and produces immutable deterministic execution plans and ready-step
-batches. Tool-neutral loader, catalog, planner, and plan-store interfaces define
-future seams. ADR-0011 records why planning precedes execution. All prior
-validation remains green, with 96 passing unit tests.
+The project completed **Sprint 24 - Repository Integrity Completion**.
+`content_integrity.py` automates local Markdown links and anchors, duplicate
+anchors, ADR references, retired canonical identities, active-package
+placeholders, high-confidence secret signatures, and active Skill/Knowledge
+consumer policy. These checks run inside unified repository validation with
+structured `ASF-REPOSITORY-006..013` diagnostics. All prior validation and
+Runtime planning remain green, with 101 passing unit tests.
 
 The framework still has no Runtime executor or model invocation. Discovery,
 validation, and planning are deterministic and offline; no Skill execution,
-retrieval, or generation occurs. The next infrastructure priority is bounded
-repository completion and Tool/Connector contract design before execution. See
+retrieval, or generation occurs. The next infrastructure priority is
+Tool/Connector contract design before execution. See
 `PROJECT_TRACKER.md` for the exact deferred gaps.
 
 ## Definition of Done
@@ -140,3 +140,4 @@ A change is complete when:
 | 0.21 | 2026-07-05 | Completed Sprint 21 IR-level Semantic Validator core |
 | 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |
 | 0.23 | 2026-07-05 | Completed Sprint 23 non-executing Runtime planning foundation |
+| 0.24 | 2026-07-05 | Completed Sprint 24 bounded Repository Integrity rules |

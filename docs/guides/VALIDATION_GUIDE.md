@@ -1,6 +1,6 @@
 # Contract Validation Guide
 
-Version: 0.5
+Version: 0.6
 Status: Active
 Last updated: 2026-07-05
 
@@ -76,6 +76,13 @@ Workflow, and Knowledge artifact, then runs graph, version, semantic, canonical
 path, package-file, Knowledge Index, and case-collision validation. It exits
 nonzero when any error is present and never rewrites source.
 
+Repository content checks use `ASF-REPOSITORY-006` through
+`ASF-REPOSITORY-013`. They validate local Markdown files and anchors, duplicate
+anchors, ADR numbers, explicitly retired canonical identities, active-package
+TODO/FIXME/TBD and angle-token placeholders, obvious credential signatures,
+and active Skill/Knowledge consumers. Secret checks deliberately recognize
+only high-confidence formats; they are not an entropy scanner.
+
 ### Current Manual Checks
 
 Contributors must still:
@@ -137,3 +144,4 @@ fail semantic validation because their sum is not `1.0`.
 | 0.3 | 2026-07-04 | Cross-linked the IR Architecture (normalized object = IR, per ADR-0005) |
 | 0.4 | 2026-07-05 | Added IR, graph, and semantic validation commands and current rule coverage |
 | 0.5 | 2026-07-05 | Added integrated Project Discovery and repository validation usage |
+| 0.6 | 2026-07-05 | Documented automated content-integrity and lifecycle policies |

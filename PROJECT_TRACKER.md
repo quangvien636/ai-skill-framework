@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.23
+Version: 0.24
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,25 +12,24 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 23 - Runtime Planning Foundation**
+**Sprint 24 - Repository Integrity Completion**
 
-Goal: prepare immutable Runtime models, dependency resolution, and deterministic
-Workflow planning without implementing execution.
+Goal: complete bounded deterministic repository content and lifecycle checks.
 
 Status: **Completed**
 
-### Sprint 23 Backlog
+### Sprint 24 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Build immutable execution context and plan models | Done | `asf_runtime/models.py` |
-| Load a Runtime catalog from shared IR | Done | `asf_runtime/catalog.py`; 24 artifacts |
-| Resolve exact active Workflow, Skill, and Knowledge versions | Done | Shared Version IR range semantics |
-| Produce deterministic topological order and ready batches | Done | `asf_runtime/planner.py` |
-| Define tool-neutral pipeline interfaces | Done | `asf_runtime/interfaces.py` |
-| Record planning-before-execution boundary | Done | Runtime Architecture; ADR-0011 |
+| Automate internal Markdown file and anchor checks | Done | `ASF-REPOSITORY-006..008` |
+| Validate ADR reference consistency | Done | `ASF-REPOSITORY-009` |
+| Forbid unfinished markers in active shipped artifacts | Done | `ASF-REPOSITORY-010`; draft/template exception |
+| Detect narrow obvious committed secrets | Done | `ASF-REPOSITORY-011` |
+| Define lifecycle/orphan policy | Done | `ASF-REPOSITORY-012` |
+| Detect explicitly retired canonical references | Done | `ASF-REPOSITORY-013` |
 
-### Sprint 23 Exit Criteria
+### Sprint 24 Exit Criteria
 
 - `python scripts/validate_contracts.py` passes 16/16.
 - `python scripts/build_ir.py` passes 40/40, including every production Review
@@ -39,20 +38,20 @@ Status: **Completed**
   with all required Knowledge and Skill references.
 - `python scripts/build_semantics.py` passes 3/3.
 - `python scripts/validate_repository.py` reports zero errors and warnings.
-- `python -m unittest discover` passes all 96 tests.
-- Production Workflows plan with exact dependency versions and no executor,
-  provider, tool, connector, or side effect is introduced.
+- `python -m unittest discover` passes all 101 tests.
+- Repository validation covers content integrity without noisy entropy or
+  speculative lifecycle heuristics.
 - Repository Markdown links and ADR references remain valid.
 
-### Sprint 23 Deferred / Documented Gaps
+### Sprint 24 Deferred / Documented Gaps
 
-- No Skill/LLM/tool/connector executor, retry loop, state machine, or persistence.
-- Runtime input validation checks declared top-level types and presence only;
-  complete field constraints and output boundaries remain future work.
-- Optional-step, Reflection, manual-review, failure-record, and resume behavior
-  is not executed.
-- Runtime and Tool declarations remain non-graph references until schemas and IR
-  adapters exist.
+- Secret detection intentionally uses only explicit high-confidence signatures;
+  it is not entropy analysis or credential-provider verification.
+- The stale-reference rule is an explicit denylist and grows only when a
+  canonical identity is retired.
+- Workflows are entry roots and are not treated as orphans. Embedded
+  Evaluation/Reflection inherit Skill lifecycle.
+- A machine-readable Reporter remains Phase 5 work.
 
 ## Sprint History
 
@@ -86,6 +85,7 @@ sprint indefinitely.
 | 21 | Semantic Validator Core | Nine IR-level semantic rules, conformance runner, structured diagnostics |
 | 22 | Repository Discovery and Integrity | Workspace/Project index, five repository rules, integrated validation command |
 | 23 | Runtime Planning Foundation | Immutable context/catalog/plan, exact resolutions, deterministic batches, ADR-0011 |
+| 24 | Repository Integrity Completion | Links, anchors, ADRs, secrets, stale identities, placeholders, lifecycle policy |
 
 ## Risks and Guardrails
 
@@ -100,29 +100,23 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Finish bounded Phase 4 rules: automate Markdown link/anchor validation and
-   define secret/lifecycle policy before enforcement.
-2. Design Tool/Connector contracts and interfaces without external execution,
+1. Design Tool/Connector contracts and interfaces without external execution,
    including LLM, browser, search, filesystem, MCP, and connector capability
    boundaries.
-3. Extend Runtime planning with explicit state/failure models and full boundary
+2. Extend Runtime planning with explicit state/failure models and full boundary
    value validation before implementing any executor.
-4. When a CLI implementation sprint starts, choose and record its language
+3. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-5. Add a lightweight link/anchor check to the fixture-conformance scripts
-   (or a sibling script) so Sprint 14's manual broken-link scan does not
-   need to be repeated by hand every sprint — an Automation Engineer task
-   per `.ai/roles/AUTOMATION_ENGINEER.md`.
-6. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+4. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
-7. Add precise line/column source-position tracking to IR adapter
+5. Add precise line/column source-position tracking to IR adapter
    diagnostics (currently field/section names only) — Sprint 16's
    Deferred / Documented Gap, still open.
-8. If pre-release versions are ever adopted, implement full SemVer
+6. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -153,3 +147,4 @@ sprint indefinitely.
 | 0.21 | 2026-07-05 | Completed Sprint 21 Semantic Validator core |
 | 0.22 | 2026-07-05 | Completed Sprint 22 Repository Discovery and initial integrity validation |
 | 0.23 | 2026-07-05 | Completed Sprint 23 Runtime planning foundation |
+| 0.24 | 2026-07-05 | Completed Sprint 24 Repository Integrity Phase 4 |

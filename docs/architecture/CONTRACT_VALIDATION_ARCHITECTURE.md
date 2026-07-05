@@ -1,6 +1,6 @@
 # Contract Validation Architecture
 
-Version: 0.4
+Version: 0.5
 Status: Active
 Last updated: 2026-07-05
 
@@ -99,7 +99,16 @@ Workflow, and Knowledge paths; required package files; Knowledge Index
 membership/path agreement; and case-insensitive path collisions.
 `validate_repository.py` composes discovery, IR, Dependency/Version Graph,
 semantic, and repository checks without adding validation meaning of its own.
-Link, secret, and broader lifecycle policy automation remain future rules.
+Machine-readable reporting remains a future thin-interface concern.
+
+`content_integrity.py` completes the bounded content rules with local Markdown
+file/anchor resolution, duplicate-anchor detection, ADR reference consistency,
+an explicit stale-reference denylist, narrow credential signatures, and
+lifecycle/orphan checks. Placeholder markers are errors only in active shipped
+Skill, Workflow, and Knowledge packages; draft and template sources are
+intentional exceptions. Active Skills require a Workflow consumer and active
+Knowledge requires a Skill consumer. Workflows are valid entry roots, and
+embedded Evaluation/Reflection inherit their owning Skill lifecycle.
 
 ### Diagnostics
 
@@ -145,3 +154,4 @@ repository validation because its ID is missing from the Knowledge Index.
 | 0.2 | 2026-07-04 | Aligned "normalized model" terminology with the Sprint 11 IR |
 | 0.3 | 2026-07-05 | Documented the implemented IR-level semantic validator and repository-context boundary |
 | 0.4 | 2026-07-05 | Documented Project Discovery integration and implemented repository integrity rules |
+| 0.5 | 2026-07-05 | Added deterministic Markdown, ADR, stale-reference, placeholder, secret, and orphan policies |
