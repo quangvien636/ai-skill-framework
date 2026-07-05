@@ -131,6 +131,12 @@
       "fixture": "workflows/draft-to-reviewed-package/workflow.yaml",
       "schema": "workflow.schema.json",
       "expected": "valid"
+    },
+    {
+      "name": "research-content-review-v1-workflow",
+      "fixture": "workflows/research-content-review/workflow.yaml",
+      "schema": "workflow.schema.json",
+      "expected": "valid"
     }
   ]
 }

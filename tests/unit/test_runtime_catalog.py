@@ -28,10 +28,13 @@ class RuntimeCatalogTests(unittest.TestCase):
         cls.catalog = build_artifact_catalog(cls.results)
 
     def test_catalog_contains_all_loadable_production_artifacts(self):
-        self.assertEqual(len(self.catalog.artifacts), 24)
+        self.assertEqual(len(self.catalog.artifacts), 25)
         self.assertEqual(len(self.catalog.candidates("skill:content-creation")), 1)
         self.assertEqual(
             len(self.catalog.candidates("workflow:research-topic-to-brief")), 1
+        )
+        self.assertEqual(
+            len(self.catalog.candidates("workflow:research-content-review")), 1
         )
 
     def test_exact_resolution_returns_active_artifact(self):

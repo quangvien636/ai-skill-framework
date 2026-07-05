@@ -249,6 +249,12 @@
       "expected": "valid"
     },
     {
+      "name": "research-content-review-v1-workflow",
+      "fixture": "workflows/research-content-review/workflow.yaml",
+      "kind": "workflow",
+      "expected": "valid"
+    },
+    {
       "name": "review-checklist-structure-v1-knowledge",
       "fixture": "knowledge/foundational/quality/checklists/review-checklist-structure.md",
       "kind": "knowledge",

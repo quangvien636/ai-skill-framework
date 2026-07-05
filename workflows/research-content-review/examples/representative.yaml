@@ -1,0 +1,39 @@
+case: "representative"
+workflow:
+  id: "workflow:research-content-review"
+  version: "1.0.0"
+input:
+  topic: "5 AI technologies to watch over the next two years"
+  objective: "Prepare a practical short-video brief for working adults and small businesses."
+  scope: "Caller-supplied evidence only; preserve uncertainty."
+  supplied-sources: []
+  evidence-notes: []
+  content-type: "short-video-script"
+  brief: "Explain five potentially concerning AI technologies without exaggeration."
+  audience: "Working adults, small shop owners, and content creators."
+  platform: "youtube"
+  tone: "Dramatic, clear, practical, and measured."
+  source-facts: []
+  call-to-action: "Ask which technology deserves the closest attention."
+  research-constraints:
+    - "Do not invent sources or findings."
+  content-constraints:
+    - "Target 60 to 90 seconds."
+  review-constraints:
+    - "Reject unsupported material claims."
+  output-type: "content-package"
+expected_plan:
+  batches:
+    - ["research-topic"]
+    - ["create-content"]
+    - ["review-content"]
+expected_artifact_flow:
+  - "steps.research-topic.outputs.research-brief -> steps.create-content.inputs.research-brief"
+  - "steps.create-content.outputs.content-package -> steps.review-content.inputs.draft"
+expected_outputs:
+  - "research-brief"
+  - "research-quality-report"
+  - "content-package"
+  - "content-quality-report"
+  - "review-report"
+  - "reviewed-content-package"

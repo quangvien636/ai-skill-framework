@@ -66,6 +66,11 @@ inputs:
       max_items: 50
       items:
         type: "string"
+  research-brief:
+    type: "object"
+    required: false
+    description: "Optional structured Research Skill output used as traceable context; gaps and uncertainty remain binding."
+    default: {}
   call-to-action:
     type: "string"
     required: false
@@ -137,11 +142,11 @@ dependencies:
       purpose: "Close with one proportional, specific audience action."
 procedure:
   - id: "validate-brief"
-    action: "Validate all declared inputs and identify missing facts without inventing them."
+    action: "Validate all declared inputs, including any mapped research brief, and identify missing facts without inventing them."
   - id: "select-format"
     action: "Select the requested content structure and applicable platform constraints from resolved knowledge."
   - id: "draft-package"
-    action: "Draft one complete content package using only the brief, approved source facts, and declared assumptions."
+    action: "Draft one complete content package using only the brief, approved source facts, mapped research findings with their uncertainty preserved, and declared assumptions."
   - id: "check-quality"
     action: "Check factual support, format completeness, tone consistency, platform fit, and call-to-action proportionality."
   - id: "return-package"

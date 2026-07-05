@@ -122,6 +122,37 @@
         { "kind": "workflow", "fixture": "workflows/draft-to-reviewed-package/workflow.yaml" }
       ],
       "expected_codes": []
+    },
+    {
+      "name": "research-content-review-v1-production-artifacts",
+      "artifacts": [
+        { "kind": "skill", "fixture": "skills/research/skill.yaml" },
+        { "kind": "skill", "fixture": "skills/content-creation/skill.yaml" },
+        { "kind": "skill", "fixture": "skills/review-quality/skill.yaml" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/briefs/research-brief-structure.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/sources/source-reliability-criteria.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/evidence/claim-evidence-mapping.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/uncertainty/uncertainty-language.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/verification/fact-checking-checklist.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/research/citations/citation-expectations.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/formats/content-structures.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/style/tone-guidelines.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/platforms/publishing-constraints.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/hooks/hook-formulas.md" },
+        { "kind": "knowledge", "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/checklists/review-checklist-structure.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/rubrics/content-quality-rubric.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/claims/unsupported-claim-detection.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/tone/tone-consistency-criteria.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/platforms/platform-compliance-checklist.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/revisions/revision-recommendation-patterns.md" },
+        { "kind": "knowledge", "fixture": "knowledge/foundational/quality/decisions/approval-rejection-rules.md" },
+        { "kind": "runtime", "fixture": "runtime/research/runtime.yaml" },
+        { "kind": "runtime", "fixture": "runtime/content/runtime.yaml" },
+        { "kind": "runtime", "fixture": "runtime/simple/runtime.yaml" },
+        { "kind": "workflow", "fixture": "workflows/research-content-review/workflow.yaml" }
+      ],
+      "expected_codes": []
     }
   ]
 }

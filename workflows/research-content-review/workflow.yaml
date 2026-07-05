@@ -1,0 +1,162 @@
+schema_version: "1.0.0"
+id: "workflow:research-content-review"
+name: "research-content-review"
+display_name: "Research, Content, and Review"
+description: "Composes Research, Content Creation, and Review Quality into one compile-only production workflow."
+version: "1.0.0"
+status: "active"
+owners:
+  - "framework-maintainers"
+tags:
+  - "research"
+  - "content"
+  - "review"
+  - "composite"
+entrypoint: "research-topic"
+inputs:
+  topic:
+    type: "string"
+    required: true
+    description: "Topic or question to research and turn into content."
+  objective:
+    type: "string"
+    required: true
+    description: "Intended use, audience, and decision for the research."
+  scope:
+    type: "string"
+    required: false
+    description: "Research boundaries."
+    default: ""
+  supplied-sources:
+    type: "array"
+    required: false
+    description: "Caller-supplied source records."
+    default: []
+  evidence-notes:
+    type: "array"
+    required: false
+    description: "Caller-supplied evidence records used by research and review."
+    default: []
+  content-type:
+    type: "string"
+    required: true
+    description: "Requested Content Creation deliverable type."
+  brief:
+    type: "string"
+    required: true
+    description: "Content and review brief."
+  audience:
+    type: "string"
+    required: true
+    description: "Intended content audience."
+  platform:
+    type: "string"
+    required: true
+    description: "Target platform."
+  tone:
+    type: "string"
+    required: false
+    description: "Requested content tone."
+    default: "clear and conversational"
+  source-facts:
+    type: "array"
+    required: false
+    description: "Approved factual material supplied directly by the caller."
+    default: []
+  call-to-action:
+    type: "string"
+    required: false
+    description: "Desired audience action."
+    default: ""
+  research-constraints:
+    type: "array"
+    required: false
+    description: "Research-specific constraints."
+    default: []
+  content-constraints:
+    type: "array"
+    required: false
+    description: "Content-specific constraints."
+    default: []
+  review-constraints:
+    type: "array"
+    required: false
+    description: "Review-specific constraints."
+    default: []
+  output-type:
+    type: "string"
+    required: false
+    description: "Review output type; canonical value is content-package."
+    default: "content-package"
+steps:
+  - id: "research-topic"
+    skill:
+      id: "skill:research"
+      version: ">=1.0.0 <2.0.0"
+    depends_on: []
+    input_mapping:
+      topic: "workflow.inputs.topic"
+      objective: "workflow.inputs.objective"
+      scope: "workflow.inputs.scope"
+      supplied-sources: "workflow.inputs.supplied-sources"
+      evidence-notes: "workflow.inputs.evidence-notes"
+      constraints: "workflow.inputs.research-constraints"
+    on_error: "manual-review"
+  - id: "create-content"
+    skill:
+      id: "skill:content-creation"
+      version: ">=1.0.0 <2.0.0"
+    depends_on:
+      - "research-topic"
+    input_mapping:
+      content-type: "workflow.inputs.content-type"
+      brief: "workflow.inputs.brief"
+      audience: "workflow.inputs.audience"
+      platform: "workflow.inputs.platform"
+      tone: "workflow.inputs.tone"
+      source-facts: "workflow.inputs.source-facts"
+      research-brief: "steps.research-topic.outputs.research-brief"
+      call-to-action: "workflow.inputs.call-to-action"
+      constraints: "workflow.inputs.content-constraints"
+    on_error: "manual-review"
+  - id: "review-content"
+    skill:
+      id: "skill:review-quality"
+      version: ">=1.0.0 <2.0.0"
+    depends_on:
+      - "create-content"
+    input_mapping:
+      draft: "steps.create-content.outputs.content-package"
+      brief: "workflow.inputs.brief"
+      output-type: "workflow.inputs.output-type"
+      platform: "workflow.inputs.platform"
+      evidence: "workflow.inputs.evidence-notes"
+      constraints: "workflow.inputs.review-constraints"
+    on_error: "manual-review"
+outputs:
+  research-brief:
+    type: "object"
+    description: "Traceable Research Skill output retained in the final envelope."
+    from: "steps.research-topic.outputs.research-brief"
+  research-quality-report:
+    type: "object"
+    description: "Research self-review retained for provenance."
+    from: "steps.research-topic.outputs.quality-report"
+  content-package:
+    type: "object"
+    description: "Canonical content fields and production guidance produced by Content Creation."
+    from: "steps.create-content.outputs.content-package"
+  content-quality-report:
+    type: "object"
+    description: "Content quality metrics and limitations."
+    from: "steps.create-content.outputs.quality-report"
+  review-report:
+    type: "object"
+    description: "Review findings, safety disposition, revisions, and recommendation."
+    from: "steps.review-content.outputs.review-report"
+  reviewed-content-package:
+    type: "object"
+    description: "Canonical final ASF artifact: reviewed content plus status, corrections, and unresolved items."
+    from: "steps.review-content.outputs.reviewed-package"
+error_handling:
+  default: "manual-review"
