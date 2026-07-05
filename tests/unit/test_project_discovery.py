@@ -16,6 +16,8 @@ class ProjectDiscoveryTests(unittest.TestCase):
         self.assertEqual(len(index.by_kind("evaluation")), 3)
         self.assertEqual(len(index.by_kind("reflection")), 3)
         self.assertEqual(len(index.by_kind("example")), 12)
+        self.assertEqual(len(index.by_kind("tool")), 0)
+        self.assertEqual(len(index.by_kind("connector")), 0)
 
     def test_evaluation_and_reflection_are_embedded_skill_locations(self):
         index = discover_project(
@@ -57,7 +59,7 @@ class ProjectDiscoveryTests(unittest.TestCase):
 
     def test_unknown_kind_is_rejected(self):
         with self.assertRaises(ValueError):
-            discover_project(_bootstrap.REPO_ROOT, kinds=("connector",))
+            discover_project(_bootstrap.REPO_ROOT, kinds=("fake_kind",))
 
     def test_discovery_enumerates_without_parsing_invalid_source(self):
         with tempfile.TemporaryDirectory() as directory:

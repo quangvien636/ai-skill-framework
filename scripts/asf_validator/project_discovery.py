@@ -18,6 +18,8 @@ SUPPORTED_DISCOVERY_KINDS = (
     "evaluation",
     "reflection",
     "example",
+    "tool",
+    "connector",
 )
 _EXAMPLE_SUFFIXES = frozenset({".yaml", ".yml", ".json", ".md"})
 
@@ -80,6 +82,16 @@ def discover_project(
 
     if "skill" in requested:
         artifacts.extend(ArtifactLocation("skill", path) for path in skills())
+    if "tool" in requested:
+        artifacts.extend(
+            ArtifactLocation("tool", path)
+            for path in (root / "tools").glob("*/tool.yaml")
+        )
+    if "connector" in requested:
+        artifacts.extend(
+            ArtifactLocation("connector", path)
+            for path in (root / "connectors").glob("*/connector.yaml")
+        )
     if "workflow" in requested:
         artifacts.extend(
             ArtifactLocation("workflow", path)
@@ -102,7 +114,7 @@ def discover_project(
     if "example" in requested:
         artifacts.extend(
             ArtifactLocation("example", path)
-            for package_root in (root / "skills", root / "workflows")
+            for package_root in (root / "skills", root / "workflows", root / "tools", root / "connectors")
             for path in package_root.glob("*/examples/**/*")
             if _is_example_artifact(path)
         )
