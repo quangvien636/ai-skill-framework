@@ -117,19 +117,34 @@ deployment concern this adapter does not perform. The adapter never defines
 a tool's operation itself — it binds shape to behavior, it does not invent
 the behavior.
 
-#### `KnowledgeRetriever`
+#### `KnowledgeRetriever` (split into compile and query halves)
+
+Following the same "compile only" pattern as `PlanCompiler`, this seam is
+implemented in two stages, only the first of which is built today:
 
 ```python
+class RetrievalConfigCompiler(Protocol):
+    def compile(
+        self, knowledge_docs: Sequence[KnowledgeIR], similarity_top_k: int = 5
+    ) -> RetrievalConfig: ...
+
+
 class KnowledgeRetriever(Protocol):
-    def query(self, knowledge_ids: Sequence[str], query: str) -> RetrievalResult: ...
+    def query(self, config: RetrievalConfig, query: str) -> RetrievalResult: ...
 ```
 
-Takes resolved Knowledge document IDs (from a plan's knowledge
-`DependencyResolution`s) and a query string, and returns retrieved content.
-The `llamaindex_retrieval` adapter implements this by indexing Knowledge
-Markdown documents (chunking, embedding, and vector storage are all
-LlamaIndex's responsibility, not ASF's) and running a query engine scoped to
-the resolved document set.
+`adapters/llamaindex_retrieval/retrieval_config.py` implements
+`RetrievalConfigCompiler.compile` (as `compile_retrieval_config`): it
+translates validated `KnowledgeIR` into `llama_index.core.schema.Document`
+objects (plain data containers) and an ASF-owned `RetrievalConfig`
+(documents, knowledge IDs, `similarity_top_k`). It performs **no indexing,
+no embedding generation, and no vector database access** — those remain
+LlamaIndex's responsibility once a deployer builds an actual index (e.g.
+`VectorStoreIndex.from_documents(config.documents, ...)`) from this config
+and chooses an embedding model and vector store. `KnowledgeRetriever.query`
+itself — actually running a query engine — is unimplemented; it is next on
+the roadmap once a `RetrievalConfig` needs to be executed rather than only
+produced.
 
 #### `ModelInvoker`
 
@@ -182,3 +197,4 @@ the runtime reference ASF already validates.
 | --- | --- | --- |
 | 0.1 | 2026-07-05 | Initial adapter Protocol seams and package boundary for the Build vs Reuse strategy |
 | 0.2 | 2026-07-05 | Implemented `PlanCompiler` (`adapters/langgraph_runtime/`); finalized its signature with a caller-supplied `step_executor` and documented the state-merge reducer needed for parallel batches |
+| 0.3 | 2026-07-05 | Split `KnowledgeRetriever` into `RetrievalConfigCompiler` (implemented, `adapters/llamaindex_retrieval/`) and an unimplemented `query` half, per Priority 2's configuration-only scope |
