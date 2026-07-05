@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.26
+Version: 0.27
 Status: Active
 Last updated: 2026-07-05
 
@@ -12,15 +12,65 @@ project's definition of done.
 
 ## Current Sprint
 
+**Sprint 27 - Adapter Layer Build-Out (Priorities 1-4)**
+
+Goal: implement the compile-only half of every adapter seam
+`EXECUTION_ADAPTER_ARCHITECTURE.md` specified but had not yet built, per the
+Build vs Reuse strategy's four stated priorities.
+
+Status: **Completed**
+
+### Sprint 27 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Priority 1: `PlanCompiler` — ExecutionPlan -> LangGraph `StateGraph` | Done | `adapters/langgraph_runtime/` (7 tests); `PlanStep.timeout_seconds` added; `PlanCompiler` Protocol added to `asf_runtime.interfaces` |
+| Priority 2: `RetrievalConfigCompiler` — Knowledge IR -> LlamaIndex config | Done | `adapters/llamaindex_retrieval/` (5 tests, `llama-index-core` only) |
+| Priority 3: `ModelDescriptorCompiler` — declarative provider descriptors | Done | `adapters/model_invokers/` (9 tests, zero SDK dependency) |
+| Priority 4: `ExportDescriptorCompiler` — declarative cross-platform export | Done | `adapters/publisher_adapters/` (10 tests, zero SDK dependency); added as a fifth Protocol seam for "Export planning" |
+
+### Sprint 27 Exit Criteria
+
+- `python scripts/validate_contracts.py`, `build_ir.py`, `build_graph.py`,
+  `build_semantics.py`, `validate_repository.py` all pass with zero
+  regressions after every milestone commit.
+- `python -m unittest discover -s tests/unit` passes all 106 core tests
+  (unchanged — no adapter imports leak into core).
+- Every adapter package's own test suite passes against its real dependency
+  (no mocking): `langgraph_runtime` 7/7, `mcp_tools` 3/3,
+  `llamaindex_retrieval` 5/5, `model_invokers` 9/9, `publisher_adapters`
+  10/10 — 34 adapter tests total.
+- `model_invokers` and `publisher_adapters` ship with zero external
+  dependencies and actively reject credential-shaped parameter/metadata
+  keys, enforcing "no API keys"/"no authentication" rather than only
+  documenting it.
+
+### Sprint 27 Deferred / Documented Gaps
+
+- Only the *compile* half of `KnowledgeRetriever`, `ModelInvoker`, and
+  `PublisherAdapter` exists. Their *execute* halves (`query`, `invoke`,
+  `publish`) are unimplemented by design — Priorities 2-4 explicitly scoped
+  this sprint to configuration/description only.
+- No Runtime contract schema exists to resolve a Skill's
+  `dependencies.runtime` reference to a specific `ModelDescriptor` (ADR-0011
+  defers Runtime artifact schemas); `model_invokers` documents this gap
+  rather than inventing a resolution mechanism.
+- No adapter is wired into a live process end-to-end (a running MCP server,
+  an invoked LangGraph run, an actual LlamaIndex query engine, a real model
+  or publish call). All five adapter packages are exercised only via direct
+  unit tests against their real dependency's data/config types.
+- The `mcp_tools` adapter remains pinned to MCP SDK v1; v2 (stable
+  2026-07-27) migration is still untracked work.
+
+## Previous Sprint
+
 **Sprint 26 - Build vs Reuse Execution Strategy**
 
 Goal: stop building execution-layer subsystems the framework does not
 differentiate on, and adopt mature OSS behind an explicit adapter layer,
 per the "do not reinvent solved problems" strategy change.
 
-Status: **Completed (first adapter proven); roadmap continues into Sprint 27**
-
-### Sprint 26 Backlog
+Status: **Completed**
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
@@ -28,31 +78,6 @@ Status: **Completed (first adapter proven); roadmap continues into Sprint 27**
 | Define adapter Protocol seams and package boundary | Done | `docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md` |
 | Prove the pattern with one real adapter | Done | `adapters/mcp_tools/` (ToolBinding seam, MCP Python SDK, 3 passing tests) |
 | Point Runtime Architecture's next-steps at adapters instead of an implied native executor | Done | `RUNTIME_ARCHITECTURE.md` v0.2 |
-
-### Sprint 26 Exit Criteria
-
-- `python scripts/validate_contracts.py` passes 20/20.
-- `python scripts/validate_repository.py` reports zero errors and warnings.
-- `python -m unittest discover -s tests/unit` passes all 106 tests.
-- `adapters/mcp_tools/tests/test_binding.py` passes 3/3 against the real
-  `mcp` package (no mocking of the reuse target).
-- No execution-backend dependency (`mcp`, or any future `langgraph`/
-  `llama-index`) appears in `requirements-validator.txt` or is imported by
-  `scripts/asf_validator/` or `scripts/asf_runtime/`.
-
-### Sprint 26 Deferred / Documented Gaps
-
-- Only the `ToolBinding` seam has a concrete adapter. `PlanCompiler`
-  (LangGraph), `KnowledgeRetriever` (LlamaIndex), and `ModelInvoker`
-  (provider SDKs / Ollama) are specified in
-  `EXECUTION_ADAPTER_ARCHITECTURE.md` but not yet implemented.
-- The `mcp_tools` adapter is pinned to MCP SDK v1 (`mcp>=1.27,<2`). v2 lands
-  2026-07-27 and renames `FastMCP` to `MCPServer`; migrating is untracked
-  work until that release is stable.
-- No adapter is wired into a live server/graph process; `MCPToolRegistry`
-  is exercised only via direct unit tests, not an end-to-end MCP session.
-
-## Previous Sprint
 
 **Sprint 25 - Tool and Connector Contracts**
 
@@ -103,6 +128,7 @@ sprint indefinitely.
 | 24 | Repository Integrity Completion | Links, anchors, ADRs, secrets, stale identities, placeholders, lifecycle policy |
 | 25 | Tool and Connector Contracts | `tool.schema.json`, `connector.schema.json`, IR adapters, dependency graph nodes/edges, ADR-0012 |
 | 26 | Build vs Reuse Execution Strategy | ADR-0013, `EXECUTION_ADAPTER_ARCHITECTURE.md`, `adapters/mcp_tools/` (ToolBinding proof of concept) |
+| 27 | Adapter Layer Build-Out (Priorities 1-4) | `adapters/langgraph_runtime/`, `llamaindex_retrieval/`, `model_invokers/`, `publisher_adapters/` (34 tests total) |
 
 ## Risks and Guardrails
 
@@ -117,35 +143,37 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Implement the `PlanCompiler` adapter (`adapters/langgraph_runtime/`):
-   compile an `ExecutionPlan` into a LangGraph `StateGraph` (steps -> nodes,
-   `depends_on` -> edges, `on_error`/`max_attempts` -> `RetryPolicy`), per
-   `EXECUTION_ADAPTER_ARCHITECTURE.md`. This is the highest-value next
-   adapter: it is the seam every Workflow execution eventually needs.
-2. Implement the `KnowledgeRetriever` adapter (`adapters/llamaindex_retrieval/`)
-   over resolved Knowledge documents.
-3. Implement `ModelInvoker` adapter(s) (`adapters/model_invokers/`) for at
-   least one provider SDK plus Ollama, selected by a Skill's
-   `dependencies.runtime` reference.
+1. Design and implement a Runtime contract schema (new artifact kind, IR
+   adapter, discovery, and dependency-graph node) so a Skill's
+   `dependencies.runtime` reference can resolve to a specific
+   `ModelDescriptor` — `model_invokers` currently has no way to make that
+   selection, per Sprint 27's documented gap.
+2. Implement the execute halves the compile-only adapters deliberately
+   deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
+   query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
+   real provider SDK or Ollama from a `ModelDescriptor`), and
+   `PublisherAdapter.publish` (call a real platform API from an
+   `ExportDescriptor`). Each needs its own explicit Build vs Reuse note for
+   the chosen SDK before implementation, per the engineering rules.
+3. Wire `adapters/langgraph_runtime/compile_plan()` into a live, invoked run
+   with a real `step_executor` bound to an actual Skill-invocation path —
+   current tests only prove compilation and a stub executor contract.
 4. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-5. Wire at least one adapter into a live end-to-end example (a real MCP
-   server process, or a compiled-and-invoked LangGraph run) — current
-   adapter tests exercise the translation logic only, not a live session.
-6. When a CLI implementation sprint starts, choose and record its language
+5. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-7. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+6. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
-8. Add precise line/column source-position tracking to IR adapter
+7. Add precise line/column source-position tracking to IR adapter
    diagnostics (currently field/section names only) — Sprint 16's
    Deferred / Documented Gap, still open.
-9. If pre-release versions are ever adopted, implement full SemVer
+8. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -179,3 +207,4 @@ sprint indefinitely.
 | 0.24 | 2026-07-05 | Completed Sprint 24 Repository Integrity Phase 4 |
 | 0.25 | 2026-07-05 | Completed Sprint 25 Tool and Connector Contracts (schemas, IR, discovery, dependency graph) |
 | 0.26 | 2026-07-05 | Completed Sprint 26 Build vs Reuse Execution Strategy (ADR-0013, adapter architecture, mcp_tools proof of concept) |
+| 0.27 | 2026-07-05 | Completed Sprint 27 Adapter Layer Build-Out: langgraph_runtime, llamaindex_retrieval, model_invokers, publisher_adapters (34 adapter tests) |

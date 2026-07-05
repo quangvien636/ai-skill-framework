@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.26
+Version: 0.27
 Status: Active
 Last updated: 2026-07-05
 
@@ -98,21 +98,32 @@ RAG/vector engine, and LLM SDKs are no longer things ASF builds. See
 `docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md` and
 `docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md`.
 
-The project completed **Sprint 25 - Tool and Connector Contracts** (schemas,
-IR adapters, repository discovery, and dependency graph nodes/edges for
-Tool and Connector artifacts, ADR-0012) and **Sprint 26 - Build vs Reuse
-Execution Strategy**: the ADR above, the adapter Protocol seams
-(`PlanCompiler`, `ToolBinding`, `KnowledgeRetriever`, `ModelInvoker`), and a
-first working adapter, `adapters/mcp_tools/`, which binds validated ToolIR/
-ConnectorIR to the real MCP Python SDK's wire types. All prior validation
-and Runtime planning remain green, with 106 passing core unit tests plus 3
-passing adapter tests exercised against the real `mcp` package.
+The project completed **Sprint 25 - Tool and Connector Contracts**,
+**Sprint 26 - Build vs Reuse Execution Strategy** (ADR-0013, the adapter
+Protocol seams, and a first working adapter, `adapters/mcp_tools/`), and
+**Sprint 27 - Adapter Layer Build-Out**: the compile-only half of every
+remaining seam. `adapters/` now has five packages: `langgraph_runtime`
+(`PlanCompiler` — `ExecutionPlan` -> LangGraph `StateGraph`), `mcp_tools`
+(`ToolBinding` — Tool/Connector IR -> MCP wire types), `llamaindex_retrieval`
+(`RetrievalConfigCompiler` — Knowledge IR -> retrieval config, no indexing/
+embedding/vector store), `model_invokers` (`ModelDescriptorCompiler` —
+declarative OpenAI/Anthropic/Google/Ollama descriptors, zero SDK
+dependency), and `publisher_adapters` (`ExportDescriptorCompiler` —
+declarative YouTube/TikTok/Facebook/WordPress/Markdown export descriptors,
+zero SDK dependency). All prior validation and Runtime planning remain
+green, with 106 passing core unit tests plus 34 passing adapter tests
+across all five packages, each exercised against its real dependency (no
+mocking).
 
 The framework still has no live executor process — planning (ADR-0011)
-produces an `ExecutionPlan`/tool binding, but nothing yet drives a compiled
-LangGraph graph or a running MCP server end-to-end. That gap is now
-intentional and permanent by policy: it will be closed by adapters calling
-into external frameworks, not by a native ASF executor. See
+produces an `ExecutionPlan`, and the adapters above compile/describe, but
+nothing yet invokes a compiled LangGraph graph, runs a live MCP server,
+queries a real LlamaIndex index, calls a model provider, or publishes to a
+platform. That gap is intentional and permanent by policy for the graph/
+tool/retrieval execution itself (closed by adapters calling into external
+frameworks, never a native ASF executor); for model invocation and
+publishing specifically, it is also incomplete by explicit scope —
+Priorities 3 and 4 stopped at description, not execution. See
 `PROJECT_TRACKER.md`'s Next Actions for the remaining adapter work.
 
 ## Definition of Done
@@ -156,3 +167,4 @@ A change is complete when:
 | 0.24 | 2026-07-05 | Completed Sprint 24 bounded Repository Integrity rules |
 | 0.25 | 2026-07-05 | Completed Sprint 25 Tool and Connector Contracts |
 | 0.26 | 2026-07-05 | Adopted Build vs Reuse execution strategy (Sprint 26); framework no longer builds execution-layer subsystems |
+| 0.27 | 2026-07-05 | Completed Sprint 27: implemented the compile/describe half of all five adapter Protocol seams |

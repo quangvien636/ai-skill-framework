@@ -123,7 +123,19 @@ python scripts/build_ir.py                 # 40 IR fixture cases
 python scripts/build_graph.py              # 13 multi-artifact graph scenarios
 python scripts/build_semantics.py          # 3 semantic conformance scenarios
 python scripts/validate_repository.py       # discover and validate canonical artifacts
-python -m unittest discover -s tests/unit  # 101 unit tests
+python -m unittest discover -s tests/unit  # 106 core unit tests
+```
+
+Each `adapters/<name>/` package has its own isolated test suite (own
+`_bootstrap.py`, own dependency), run independently so core validator tests
+never require an execution-backend dependency:
+
+```bash
+cd adapters/langgraph_runtime/tests && python -m pytest        # 7 tests
+cd adapters/mcp_tools/tests && python -m pytest                # 3 tests
+cd adapters/llamaindex_retrieval/tests && python -m pytest     # 5 tests
+cd adapters/model_invokers/tests && python -m pytest           # 9 tests
+cd adapters/publisher_adapters/tests && python -m pytest       # 10 tests
 ```
 
 The semantic layer checks evaluation metric uniqueness and weight totals,
@@ -159,15 +171,28 @@ assumptions, and deferred work.
 ## Build vs Reuse Strategy
 
 ASF builds contracts, shared IR, semantic validation, repository discovery,
-runtime planning, evaluation, reflection, review, and the adapter layer. It
-does not rebuild a graph execution engine, scheduler, retry engine, state
-manager, streaming layer, tool runtime, MCP runtime, RAG engine, vector
-database, or LLM SDK — mature open-source projects already solve those.
-`adapters/` packages translate ASF's validated IR and `ExecutionPlan` into
-external execution backends (LangGraph, the MCP Python SDK, LlamaIndex,
-provider SDKs) and translate results back, without weakening any validation
-or planning guarantee. See
+runtime planning, evaluation, reflection, review, export planning, and the
+adapter layer. It does not rebuild a graph execution engine, scheduler,
+retry engine, state manager, streaming layer, tool runtime, MCP runtime,
+RAG engine, vector database, publishing/auth flows, or LLM SDK — mature
+open-source projects already solve those, or (for export/model invocation)
+no live execution is in scope yet at all. See
 [ADR-0013](docs/adr/ADR-0013-build-vs-reuse-execution-strategy.md) for the
 per-subsystem decisions and
 [Execution Adapter Architecture](docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
-for the Protocol seams and package boundary.
+for the five Protocol seams and package boundary.
+
+`adapters/` (see [adapters/README.md](adapters/README.md)) currently has five
+packages, one per seam:
+
+| Package | Seam | Reuse target | Scope |
+| --- | --- | --- | --- |
+| [`langgraph_runtime/`](adapters/langgraph_runtime/) | `PlanCompiler` | LangGraph | Compiles an `ExecutionPlan` into a `StateGraph`; never invokes it |
+| [`mcp_tools/`](adapters/mcp_tools/) | `ToolBinding` | MCP Python SDK | Binds `ToolIR`/`ConnectorIR` to MCP wire types and a caller-supplied handler |
+| [`llamaindex_retrieval/`](adapters/llamaindex_retrieval/) | `RetrievalConfigCompiler` | LlamaIndex | Compiles Knowledge IR into retrieval config; no indexing/embedding/vector store |
+| [`model_invokers/`](adapters/model_invokers/) | `ModelDescriptorCompiler` | none yet (declarative only) | Describes an OpenAI/Anthropic/Google/Ollama call; never makes one |
+| [`publisher_adapters/`](adapters/publisher_adapters/) | `ExportDescriptorCompiler` | none yet (declarative only) | Describes a YouTube/TikTok/Facebook/WordPress/Markdown export; never performs one |
+
+Every package ships its own `requirements-<name>.txt`, isolated from
+`requirements-validator.txt` and from every other adapter package (adapters
+never import each other).
