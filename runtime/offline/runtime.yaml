@@ -1,0 +1,40 @@
+schema_version: "1.0.0"
+id: "runtime:offline"
+name: "offline"
+display_name: "Offline Runtime"
+description: "Single local-model runtime (Ollama) with no retriever, tools, or publisher."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+tags: ["runtime", "offline"]
+responsibility: "Bind a Skill to a locally served model for offline/no-network operation."
+execution_profile: "sync"
+model:
+  enabled: true
+  provider: "ollama"
+  model: "llama3"
+  endpoint: "http://localhost:11434"
+retriever:
+  enabled: false
+  knowledge: []
+tools:
+  enabled: false
+  refs: []
+publisher:
+  enabled: false
+timeout_policy:
+  timeout_seconds: 120
+  on_timeout: "fail"
+retry_policy:
+  max_attempts: 1
+  backoff: "none"
+safety_profile:
+  content_filter: "strict"
+audit_profile:
+  log_level: "detailed"
+concurrency_profile:
+  max_parallel_steps: 1
+  max_parallel_tool_calls: 1
+fallback_profile:
+  enabled: false
+  max_fallback_depth: 1

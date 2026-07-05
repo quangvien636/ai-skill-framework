@@ -16,9 +16,9 @@ class ProjectDiscoveryTests(unittest.TestCase):
         self.assertEqual(len(index.by_kind("evaluation")), 3)
         self.assertEqual(len(index.by_kind("reflection")), 3)
         self.assertEqual(len(index.by_kind("example")), 12)
-        self.assertEqual(len(index.by_kind("tool")), 0)
+        self.assertEqual(len(index.by_kind("tool")), 1)
         self.assertEqual(len(index.by_kind("connector")), 0)
-        self.assertEqual(len(index.by_kind("runtime")), 0)
+        self.assertEqual(len(index.by_kind("runtime")), 5)
 
     def test_evaluation_and_reflection_are_embedded_skill_locations(self):
         index = discover_project(

@@ -1,0 +1,59 @@
+schema_version: "1.0.0"
+id: "runtime:hybrid"
+name: "hybrid"
+display_name: "Hybrid Runtime"
+description: "Full binding: model, retriever, tools, and publisher, with an offline fallback."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+tags: ["runtime", "hybrid"]
+responsibility: "Bind a Skill to every capability at once, falling back to a local model on timeout."
+execution_profile: "async"
+model:
+  enabled: true
+  provider: "anthropic"
+  model: "claude-sonnet-5"
+  parameters:
+    temperature: 0.3
+retriever:
+  enabled: true
+  knowledge:
+    - id: "kb:foundational:research:sources:source-reliability-criteria"
+      version: "1.0.0"
+      required: true
+      purpose: "Assess source reliability before citing evidence."
+  similarity_top_k: 5
+tools:
+  enabled: true
+  refs:
+    - id: "tool:read-file"
+      version: "1.0.0"
+      required: true
+publisher:
+  enabled: true
+  target: "markdown"
+  metadata:
+    front_matter:
+      draft: true
+timeout_policy:
+  timeout_seconds: 60
+  on_timeout: "fallback"
+retry_policy:
+  max_attempts: 2
+  backoff: "exponential"
+safety_profile:
+  content_filter: "strict"
+  blocked_terms: []
+audit_profile:
+  log_level: "detailed"
+  redact_fields: []
+concurrency_profile:
+  max_parallel_steps: 2
+  max_parallel_tool_calls: 2
+fallback_profile:
+  enabled: true
+  fallback_runtime:
+    id: "runtime:offline"
+    version: "1.0.0"
+    required: true
+  max_fallback_depth: 1

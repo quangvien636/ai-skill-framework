@@ -1,0 +1,46 @@
+schema_version: "1.0.0"
+id: "runtime:research"
+name: "research"
+display_name: "Research Runtime"
+description: "Single-model runtime with a retriever binding over source-reliability guidance, no tools or publisher."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+tags: ["runtime", "research"]
+responsibility: "Bind a research Skill to a model and its required methodology Knowledge."
+execution_profile: "sync"
+model:
+  enabled: true
+  provider: "anthropic"
+  model: "claude-sonnet-5"
+  parameters:
+    temperature: 0.1
+retriever:
+  enabled: true
+  knowledge:
+    - id: "kb:foundational:research:sources:source-reliability-criteria"
+      version: "1.0.0"
+      required: true
+      purpose: "Assess source reliability before citing evidence."
+  similarity_top_k: 5
+tools:
+  enabled: false
+  refs: []
+publisher:
+  enabled: false
+timeout_policy:
+  timeout_seconds: 60
+  on_timeout: "fail"
+retry_policy:
+  max_attempts: 1
+  backoff: "none"
+safety_profile:
+  content_filter: "standard"
+audit_profile:
+  log_level: "detailed"
+concurrency_profile:
+  max_parallel_steps: 1
+  max_parallel_tool_calls: 1
+fallback_profile:
+  enabled: false
+  max_fallback_depth: 1

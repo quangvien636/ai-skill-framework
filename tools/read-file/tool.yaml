@@ -1,0 +1,25 @@
+schema_version: "1.0.0"
+id: "tool:read-file"
+name: "read-file"
+display_name: "Read File"
+description: "Reads content from a specified absolute file path."
+version: "1.0.0"
+status: "active"
+owners: ["framework-maintainers"]
+responsibility: "Read content from a specified absolute file path."
+inputs:
+  path:
+    type: "string"
+    required: true
+    description: "Absolute path to the file."
+outputs:
+  content:
+    type: "string"
+    required: true
+    description: "The file content."
+dependencies:
+  connectors: []
+constraints:
+  side_effects: "none"
+  requires_network: false
+  requires_local_filesystem: true

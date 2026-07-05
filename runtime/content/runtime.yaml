@@ -1,0 +1,45 @@
+schema_version: "1.0.0"
+id: "runtime:content"
+name: "content"
+display_name: "Content Runtime"
+description: "Single-model runtime with a WordPress publisher binding, no retriever or tools."
+version: "1.0.0"
+status: "draft"
+owners: ["framework-maintainers"]
+tags: ["runtime", "content"]
+responsibility: "Bind a content-producing Skill to a model and a WordPress export target."
+execution_profile: "sync"
+model:
+  enabled: true
+  provider: "anthropic"
+  model: "claude-sonnet-5"
+  parameters:
+    temperature: 0.4
+retriever:
+  enabled: false
+  knowledge: []
+tools:
+  enabled: false
+  refs: []
+publisher:
+  enabled: true
+  target: "wordpress"
+  metadata:
+    status: "draft"
+    categories: ["content"]
+timeout_policy:
+  timeout_seconds: 45
+  on_timeout: "fail"
+retry_policy:
+  max_attempts: 2
+  backoff: "fixed"
+safety_profile:
+  content_filter: "standard"
+audit_profile:
+  log_level: "basic"
+concurrency_profile:
+  max_parallel_steps: 1
+  max_parallel_tool_calls: 1
+fallback_profile:
+  enabled: false
+  max_fallback_depth: 1
