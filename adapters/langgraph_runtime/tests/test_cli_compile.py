@@ -31,3 +31,33 @@ def test_cli_compile_returns_compiled_graph_without_execution():
     assert exit_code == 0
     assert report["compiled"]["graph"]["nodes"][1]["id"] == "create-content"
     assert report["compiled"]["bindings"][0]["runtime_id"] == "runtime:content"
+
+
+def test_cli_compile_content_workflow_alias_uses_canonical_inputs():
+    output = io.StringIO()
+    with redirect_stdout(output):
+        exit_code = main(
+            (
+                "--format",
+                "json",
+                "--start",
+                str(_bootstrap.REPO_ROOT),
+                "compile",
+                "content-workflow",
+                "--execution-id",
+                "cli-composite",
+            )
+        )
+
+    report = json.loads(output.getvalue())
+    assert exit_code == 0
+    assert [step["id"] for step in report["compiled"]["plan"]["steps"]] == [
+        "research-topic",
+        "create-content",
+        "review-content",
+    ]
+    assert [binding["runtime_id"] for binding in report["compiled"]["bindings"]] == [
+        "runtime:research",
+        "runtime:content",
+        "runtime:simple",
+    ]

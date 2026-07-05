@@ -102,3 +102,42 @@ class CliTests(unittest.TestCase):
         self.assertEqual(exit_code, 2)
         self.assertIn("ASF-CLI-001", output.getvalue())
         self.assertIn("Suggestion:", output.getvalue())
+
+    def test_composite_cli_surfaces_are_read_only_and_structured(self):
+        exit_code, compiled = self.run_cli(
+            "compile",
+            "content-workflow",
+            "--execution-id",
+            "cli-composite",
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            [step["id"] for step in compiled["compiled"]["plan"]["steps"]],
+            ["research-topic", "create-content", "review-content"],
+        )
+
+        exit_code, snapshots = self.run_cli("snapshot")
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(len(snapshots["snapshots"]), 5)
+
+        exit_code, inspected = self.run_cli("inspect")
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(len(inspected["artifact"]["steps"]), 3)
+
+        exit_code, explained = self.run_cli("explain")
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            explained["chain"],
+            ["research-topic", "create-content", "review-content"],
+        )
+        self.assertEqual(len(explained["artifact_transfers"]), 2)
+
+    def test_compile_rejects_alias_and_explicit_workflow_together(self):
+        exit_code, report = self.run_cli(
+            "compile",
+            "content-workflow",
+            "--workflow",
+            "workflow:research-content-review",
+        )
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(report["diagnostics"][0]["code"], "ASF-CLI-001")

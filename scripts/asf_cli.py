@@ -23,6 +23,7 @@ from asf_validator.schema_registry import build_schema_registry
 from asf_validator.semantic_validator import validate_semantics
 from asf_validator.skill_ir import SkillIR
 from asf_validator.version_graph import build_version_graph
+from asf_validator.workflow_ir import WorkflowIR
 from asf_validator.workspace_discovery import discover_workspace_root
 
 
@@ -32,6 +33,18 @@ class Workspace:
     index: ProjectIndex
     results: tuple[AdapterResult, ...]
     catalog: ArtifactCatalog
+
+
+CONTENT_WORKFLOW_ALIAS = "content-workflow"
+CONTENT_WORKFLOW_ID = "workflow:research-content-review"
+CONTENT_WORKFLOW_INPUTS = {
+    "topic": "5 AI technologies to watch over the next two years",
+    "objective": "Prepare a practical short-video research brief.",
+    "content-type": "short-video-script",
+    "brief": "Explain five potentially concerning AI technologies without exaggeration.",
+    "audience": "Working adults, small shop owners, and content creators.",
+    "platform": "youtube",
+}
 
 
 def load_workspace(start: Path) -> Workspace:
@@ -76,15 +89,128 @@ def diagnostic_dict(item: Diagnostic) -> dict[str, Any]:
 
 
 def _context(args: argparse.Namespace) -> ExecutionContext:
-    try:
-        inputs = json.loads(args.inputs)
-    except json.JSONDecodeError as error:
-        raise ValueError(f"--inputs is not valid JSON: {error.msg}") from error
+    workflow_id = _workflow_id(args)
+    if args.inputs is None:
+        inputs = (
+            dict(CONTENT_WORKFLOW_INPUTS)
+            if getattr(args, "target", None) == CONTENT_WORKFLOW_ALIAS
+            else {}
+        )
+    else:
+        try:
+            inputs = json.loads(args.inputs)
+        except json.JSONDecodeError as error:
+            raise ValueError(f"--inputs is not valid JSON: {error.msg}") from error
     if not isinstance(inputs, dict):
         raise ValueError("--inputs must decode to a JSON object")
     return ExecutionContext.create(
-        args.execution_id, args.workflow, args.version, inputs
+        args.execution_id, workflow_id, args.version, inputs
     )
+
+
+def _workflow_id(args: argparse.Namespace) -> str:
+    workflow = getattr(args, "workflow", None)
+    target = getattr(args, "target", None)
+    if workflow and target:
+        raise ValueError("Use either a compile target or --workflow, not both.")
+    if workflow:
+        return workflow
+    if target == CONTENT_WORKFLOW_ALIAS:
+        return CONTENT_WORKFLOW_ID
+    if target:
+        raise ValueError(
+            f"Unknown compile target '{target}'; supported alias: {CONTENT_WORKFLOW_ALIAS}."
+        )
+    raise ValueError("--workflow is required when no compile target is supplied.")
+
+
+def _snapshot_report(workspace: Workspace) -> dict[str, Any]:
+    directory = (
+        workspace.root / "workflows" / "research-content-review" / "snapshots"
+    )
+    names = (
+        "composite-workflow.json",
+        "composite-binding.json",
+        "composite-execution-plan.json",
+        "compiled-state-graph.json",
+        "reviewed-content-package.json",
+    )
+    snapshots = {
+        name.removesuffix(".json"): json.loads(
+            (directory / name).read_text(encoding="utf-8")
+        )
+        for name in names
+    }
+    return {
+        "command": "snapshot",
+        "status": "ok",
+        "workflow_id": CONTENT_WORKFLOW_ID,
+        "snapshots": snapshots,
+    }
+
+
+def _inspect_report(args: argparse.Namespace, workspace: Workspace) -> dict[str, Any]:
+    artifact_id = (
+        CONTENT_WORKFLOW_ID
+        if args.artifact == CONTENT_WORKFLOW_ALIAS
+        else args.artifact
+    )
+    artifact = workspace.catalog.exact(artifact_id, args.version)
+    if not isinstance(artifact.ir, WorkflowIR):
+        raise ValueError(
+            f"inspect currently supports Workflow artifacts; '{artifact_id}' is not one."
+        )
+    workflow = artifact.ir
+    return {
+        "command": "inspect",
+        "status": "ok",
+        "artifact": {
+            "id": workflow.metadata.id,
+            "version": workflow.metadata.version.raw,
+            "status": workflow.metadata.status,
+            "entrypoint": workflow.entrypoint,
+            "inputs": list(workflow.inputs),
+            "steps": [
+                {
+                    "id": step.id,
+                    "skill_id": step.skill.id,
+                    "version": step.skill.version.raw,
+                    "depends_on": list(step.depends_on),
+                    "input_mapping": dict(step.input_mapping),
+                }
+                for step in workflow.steps
+            ],
+            "outputs": {
+                name: output.source for name, output in workflow.outputs.items()
+            },
+        },
+    }
+
+
+def _explain_report(args: argparse.Namespace, workspace: Workspace) -> dict[str, Any]:
+    inspected = _inspect_report(args, workspace)["artifact"]
+    transfers = []
+    for step in inspected["steps"]:
+        for target, source in step["input_mapping"].items():
+            if source.startswith("steps."):
+                transfers.append(
+                    {
+                        "source": source,
+                        "target": f"steps.{step['id']}.inputs.{target}",
+                    }
+                )
+    return {
+        "command": "explain",
+        "status": "ok",
+        "workflow_id": inspected["id"],
+        "chain": [step["id"] for step in inspected["steps"]],
+        "artifact_transfers": transfers,
+        "final_artifact": "reviewed-content-package",
+        "boundary": (
+            "ASF compiles through Reviewed Content Package. Skill execution, "
+            "rendering, media generation, export, and publishing are external."
+        ),
+    }
 
 
 def _plan_dict(plan) -> dict[str, Any]:
@@ -189,6 +315,12 @@ def _run_command(args: argparse.Namespace, workspace: Workspace) -> dict[str, An
                 "repository_valid": not any(item.is_error() for item in diagnostics),
             },
         }
+    if args.command == "snapshot":
+        return _snapshot_report(workspace)
+    if args.command == "inspect":
+        return _inspect_report(args, workspace)
+    if args.command == "explain":
+        return _explain_report(args, workspace)
 
     context = _context(args)
     plan = plan_workflow(context, workspace.catalog)
@@ -232,12 +364,24 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
     for name in ("validate", "build-ir", "graph", "doctor"):
         subparsers.add_parser(name)
-    for name in ("bindings", "plan", "compile"):
+    for name in ("bindings", "plan"):
         command = subparsers.add_parser(name)
         command.add_argument("--workflow", required=True)
         command.add_argument("--version", default="1.0.0")
-        command.add_argument("--inputs", default="{}")
+        command.add_argument("--inputs")
         command.add_argument("--execution-id", default="asf-dry-run")
+    compile_command = subparsers.add_parser("compile")
+    compile_command.add_argument("target", nargs="?")
+    compile_command.add_argument("--workflow")
+    compile_command.add_argument("--version", default="1.0.0")
+    compile_command.add_argument("--inputs")
+    compile_command.add_argument("--execution-id", default="asf-dry-run")
+    snapshot_command = subparsers.add_parser("snapshot")
+    snapshot_command.add_argument("target", nargs="?", default=CONTENT_WORKFLOW_ALIAS)
+    for name in ("inspect", "explain"):
+        command = subparsers.add_parser(name)
+        command.add_argument("artifact", nargs="?", default=CONTENT_WORKFLOW_ALIAS)
+        command.add_argument("--version", default="1.0.0")
     return parser
 
 
@@ -288,6 +432,21 @@ def _render(report: dict[str, Any], output_format: str) -> None:
             f"{len(compiled['graph']['nodes'])} nodes, "
             f"{len(compiled['graph']['edges'])} edges (not executed)"
         )
+    elif report["command"] == "snapshot":
+        print(
+            f"  {report['workflow_id']}: "
+            f"{len(report['snapshots'])} golden snapshots"
+        )
+    elif report["command"] == "inspect":
+        artifact = report["artifact"]
+        print(
+            f"  {artifact['id']}@{artifact['version']}: "
+            f"{len(artifact['steps'])} steps, {len(artifact['outputs'])} outputs"
+        )
+    elif report["command"] == "explain":
+        print("  " + " -> ".join(report["chain"]))
+        print(f"  final artifact: {report['final_artifact']}")
+        print(f"  boundary: {report['boundary']}")
     elif report["status"] == "ok":
         print(json.dumps(report, indent=2, sort_keys=True))
 
