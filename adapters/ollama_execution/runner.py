@@ -563,7 +563,7 @@ def _validate_topic_relevance(
     if not text.strip():
         return []
     result = evaluate_topic_relevance(topic, text, config=_TOPIC_RELEVANCE_CONFIG)
-    if result.relevant:
+    if result.passed:
         return []
     return [
         _boundary_diagnostic(
