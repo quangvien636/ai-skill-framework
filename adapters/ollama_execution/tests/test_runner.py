@@ -45,6 +45,8 @@ def _context(execution_id="runner-test", topic="AI"):
 
 
 _CONCERNING_AI_TOPIC = "5 công nghệ AI đáng sợ nhất trong 2 năm tới"
+_CONCERNING_AI_TOPIC_EN = "5 scariest AI technologies in the next two years"
+_UNRELATED_TOPIC = "Best pasta recipes for a family dinner party"
 
 
 def _research():
@@ -164,6 +166,137 @@ def _review():
         },
         "reviewed-package": {
             "draft": _content()["content-package"],
+            "status": "approve",
+            "applied-corrections": [],
+            "unresolved-items": [],
+        },
+    }
+
+
+def _research_en():
+    return {
+        "research-brief": {
+            "objective": "Identify the scariest AI technologies to watch.",
+            "scope": "Supplied evidence only.",
+            "research-questions": [],
+            "source-requirements": [],
+            "findings": [
+                "Deepfake technologies can imitate real people's voices and faces.",
+                "Autonomous AI agents can take multi-step actions without oversight.",
+                "AI-assisted cyberattacks can personalize scams at scale.",
+                "Surveillance AI technologies can predict and track human behavior.",
+                "Persuasion AI technologies can scale convincing misinformation.",
+            ],
+            "claim-evidence-map": [],
+            "uncertainties": [],
+            "gaps": ["No evidence supplied."],
+            "citations": [],
+            "next-steps": ["Supply evidence."],
+        },
+        "quality-report": {
+            "traceability": "No findings.",
+            "source-reliability": "Not assessed.",
+            "contradictions": "Not assessed.",
+            "fact-check-status": "Not checked.",
+            "limitations": ["No evidence."],
+        },
+    }
+
+
+def _content_en():
+    return {
+        "content-package": {
+            "content-type": "short-video-script",
+            "primary-content": {
+                "title": "5 Scariest AI Technologies You Should Know",
+                "script": (
+                    "Let's explore five scariest AI technologies raising real "
+                    "concerns today, from deepfake video generation to "
+                    "autonomous AI agents that can act without oversight. "
+                )
+                * 5,
+                "scenes": [
+                    {
+                        "id": f"scene-{index}",
+                        "visual": "A presenter speaks directly to camera.",
+                        "voice-over": (
+                            "AI is reshaping how attacks and surveillance can "
+                            "scale."
+                        ),
+                        "on-screen-text": "Scary AI Tech",
+                    }
+                    for index in range(1, 6)
+                ],
+                "voice-over-text": (
+                    "These AI technologies are reshaping cybersecurity, "
+                    "surveillance, and misinformation risks; each deserves "
+                    "careful scrutiny. "
+                )
+                * 4,
+                "on-screen-text": [
+                    "Deepfakes",
+                    "AI agents",
+                    "Cyberattacks",
+                    "Surveillance",
+                    "Misinformation",
+                ],
+                "call-to-action": "Which AI technology worries you the most?",
+                "hashtags": ["#AI", "#TechNews", "#Cybersecurity"],
+                "metadata": {
+                    "language": "English",
+                    "platform": "youtube",
+                },
+            },
+            "hook": "Which scary AI technologies should you watch for?",
+            "call-to-action": "Which AI technology worries you the most?",
+            "alternatives": [],
+            "production-notes": [],
+            "assumptions": ["Fixture."],
+        },
+        "quality-report": {
+            "constraint-compliance": "Pass.",
+            "unsupported-claims": "None.",
+            "platform-fit": "Pass.",
+            "limitations": [],
+        },
+    }
+
+
+def _offtopic_environment_content_en():
+    """An English package that structurally passes but drifted off-topic."""
+    content = _content_en()
+    package = content["content-package"]
+    primary = package["primary-content"]
+    primary["title"] = "How AI Helps Protect the Environment"
+    primary["script"] = (
+        "Discover how AI technology helps protect the environment and "
+        "fight climate change. AI analyzes greenhouse gas emissions, "
+        "tracks air pollution, and recommends renewable energy solutions "
+        "for a sustainable future. "
+    ) * 4
+    primary["voice-over-text"] = (
+        "AI is helping humanity protect the environment by monitoring "
+        "climate change and optimizing renewable energy across "
+        "industries. "
+    ) * 4
+    package["hook"] = "Did you know AI can help protect the environment?"
+    return content
+
+
+def _review_en():
+    return {
+        "review-report": {
+            "summary": "Fixture review.",
+            "checklist-results": [],
+            "findings": [],
+            "evidence-alignment": "No claims.",
+            "safety-review": "Pass.",
+            "required-revisions": [],
+            "optional-improvements": [],
+            "recommendation": "approve",
+        },
+        "reviewed-package": {
+            "draft": _content_en()["content-package"],
             "status": "approve",
             "applied-corrections": [],
             "unresolved-items": [],
@@ -410,6 +543,54 @@ def test_valid_ai_technology_output_is_accepted():
     )
     assert report.status == "succeeded"
     assert report.final_artifact["reviewed-content-package"]["status"] == "approve"
+
+
+def test_english_valid_ai_technology_output_is_accepted():
+    report = run_content_workflow(
+        _context("valid-ai-topic-en", topic=_CONCERNING_AI_TOPIC_EN),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research_en(), _content_en(), _review_en())),
+        ),
+        compiled={},
+    )
+    assert report.status == "succeeded"
+    assert report.final_artifact["reviewed-content-package"]["status"] == "approve"
+
+
+def test_english_offtopic_environmental_drift_is_rejected():
+    report = run_content_workflow(
+        _context("offtopic-drift-en", topic=_CONCERNING_AI_TOPIC_EN),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient(
+                (_research_en(), _offtopic_environment_content_en())
+            ),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-013"
+    assert "off-topic" in report.steps[-1].error_message
+
+
+def test_completely_unrelated_topic_is_rejected():
+    report = run_content_workflow(
+        _context("unrelated-topic", topic=_UNRELATED_TOPIC),
+        _catalog(),
+        mode="live-local",
+        executor=OllamaStepExecutor(
+            model="local-test",
+            client=SequenceClient((_research_en(),)),
+        ),
+        compiled={},
+    )
+    assert report.status == "failed"
+    assert report.steps[-1].diagnostics[-1].code == "ASF-EXEC-BOUNDARY-013"
 
 
 @pytest.mark.skipif(

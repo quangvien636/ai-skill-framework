@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import re
 import time
-import unicodedata
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -24,9 +23,12 @@ from asf_validator.workflow_ir import WorkflowIR
 
 from .executor import OllamaStepExecutor
 from .models import ExecutionDiagnostic, ExecutionReport, StepExecutionResult
+from .topic_relevance import evaluate_topic_relevance
+from .topic_relevance_config import load_topic_relevance_config
 
 CANONICAL_WORKFLOW_ID = "workflow:research-content-review"
 _SAFE_EXECUTION_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$")
+_TOPIC_RELEVANCE_CONFIG = load_topic_relevance_config()
 
 
 def run_content_workflow(
@@ -551,80 +553,6 @@ def _semantic_text(skill_id: str, output: Mapping[str, Any]) -> str:
     return ""
 
 
-_SHORT_KEYWORD_ALLOW = frozenset({"ai", "ml", "vr", "ar", "5g", "iot"})
-
-_STOPWORDS = frozenset(
-    {
-        "the", "and", "for", "with", "that", "this", "from", "are", "was",
-        "were", "have", "has", "will", "about", "into", "your", "you", "not",
-        "but", "can", "its", "video", "script",
-        "trong", "nhung", "mot", "nay", "cho", "duoc", "cua", "voi", "den",
-        "khi", "hay", "hon", "toi", "nhat", "nam", "cac", "la", "va", "de",
-        "co", "se", "tu", "ve", "sao", "nao", "gi", "bang", "theo", "tren",
-        "duoi", "truoc", "sau", "con", "neu", "thi", "hoac", "cung", "rat",
-        "qua", "chi", "luon", "nhung", "nhieu",
-    }
-)
-
-
-def _normalize_text(text: str) -> str:
-    decomposed = unicodedata.normalize("NFD", text.lower())
-    return "".join(char for char in decomposed if not unicodedata.combining(char))
-
-
-def _extract_keywords(text: str) -> set[str]:
-    normalized = _normalize_text(text)
-    tokens = re.findall(r"[a-z0-9]+", normalized)
-    keywords: set[str] = set()
-    for token in tokens:
-        if token in _SHORT_KEYWORD_ALLOW:
-            keywords.add(token)
-        elif len(token) >= 3 and token not in _STOPWORDS:
-            keywords.add(token)
-    return keywords
-
-
-_TOPIC_RELEVANCE_MIN_SCORE = 0.2
-
-
-def _topic_relevance_score(topic: str, text: str) -> float | None:
-    topic_keywords = _extract_keywords(topic)
-    if not topic_keywords:
-        return None
-    text_normalized = _normalize_text(text)
-    hits = sum(1 for keyword in topic_keywords if keyword in text_normalized)
-    return hits / len(topic_keywords)
-
-
-_OFFTOPIC_DRIFT_TERMS: dict[str, tuple[str, ...]] = {
-    "environmental-protection": (
-        "moi truong",
-        "bien doi khi hau",
-        "khi thai",
-        "o nhiem",
-        "sinh thai",
-        "nang luong xanh",
-        "environment",
-        "environmental",
-        "climate change",
-        "greenhouse gas",
-        "sustainability",
-    ),
-}
-
-
-def _detect_offtopic_drift(topic: str, text: str) -> str | None:
-    topic_normalized = _normalize_text(topic)
-    text_normalized = _normalize_text(text)
-    for domain, indicators in _OFFTOPIC_DRIFT_TERMS.items():
-        if any(term in topic_normalized for term in indicators):
-            continue
-        occurrences = sum(text_normalized.count(term) for term in indicators)
-        if occurrences >= 2:
-            return domain
-    return None
-
-
 def _validate_topic_relevance(
     step: PlanStep,
     skill: SkillIR,
@@ -634,34 +562,17 @@ def _validate_topic_relevance(
     text = _semantic_text(skill.metadata.id, output)
     if not text.strip():
         return []
-    drift = _detect_offtopic_drift(topic, text)
-    if drift is not None:
-        return [
-            _boundary_diagnostic(
-                "ASF-EXEC-BOUNDARY-013",
-                step,
-                "semantic-relevance",
-                (
-                    f"Output for step '{step.id}' drifted to an off-topic "
-                    f"'{drift}' subject unrelated to the requested topic "
-                    f"'{topic}'."
-                ),
-            )
-        ]
-    score = _topic_relevance_score(topic, text)
-    if score is not None and score < _TOPIC_RELEVANCE_MIN_SCORE:
-        return [
-            _boundary_diagnostic(
-                "ASF-EXEC-BOUNDARY-013",
-                step,
-                "semantic-relevance",
-                (
-                    f"Output for step '{step.id}' does not appear relevant to "
-                    f"the requested topic '{topic}' (keyword overlap too low)."
-                ),
-            )
-        ]
-    return []
+    result = evaluate_topic_relevance(topic, text, config=_TOPIC_RELEVANCE_CONFIG)
+    if result.relevant:
+        return []
+    return [
+        _boundary_diagnostic(
+            "ASF-EXEC-BOUNDARY-013",
+            step,
+            "semantic-relevance",
+            f"Output for step '{step.id}' {result.reason}.",
+        )
+    ]
 
 
 def _boundary_diagnostic(
