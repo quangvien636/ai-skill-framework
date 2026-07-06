@@ -77,3 +77,57 @@ def test_keyword_domain_classifier_respects_custom_min_occurrences_threshold():
     assert strict.matches(text) == frozenset({"finance"})  # exactly 3 occurrences
     stricter = KeywordDomainClassifier(domain_terms, min_occurrences=4)
     assert stricter.matches(text) == frozenset()
+
+
+def test_single_word_indicator_does_not_match_inside_an_unrelated_word():
+    # "car" must not fire on "cartoon"; "net" must not fire on "internet".
+    classifier = KeywordDomainClassifier(
+        domain_terms={"automotive": ("car",), "networking": ("net",)},
+        min_occurrences=1,
+    )
+    text = "We watched a cartoon about the internet and streaming."
+    assert classifier.matches(text) == frozenset()
+
+
+def test_single_word_indicator_still_matches_as_a_whole_word():
+    classifier = KeywordDomainClassifier(
+        domain_terms={"automotive": ("car",)},
+        min_occurrences=1,
+    )
+    assert classifier.matches("I need to park the car.") == frozenset({"automotive"})
+
+
+def test_multi_word_phrase_matching_is_unaffected_by_word_boundaries():
+    classifier = KeywordDomainClassifier(
+        domain_terms={
+            "finance": ("financial market",),
+            "ai": ("machine learning",),
+        },
+        min_occurrences=1,
+    )
+    text = "The financial market is increasingly shaped by machine learning."
+    assert classifier.matches(text) == frozenset({"finance", "ai"})
+
+
+def test_multi_word_phrase_does_not_match_when_a_word_is_extended():
+    # "climate change" must not match "climate changed" (trailing "d" is
+    # part of the same word, so there is no boundary after "change").
+    classifier = KeywordDomainClassifier(
+        domain_terms={"environment": ("climate change",)},
+        min_occurrences=1,
+    )
+    assert classifier.matches("The climate changed drastically.") == frozenset()
+    assert classifier.matches("The climate change is drastic.") == frozenset(
+        {"environment"}
+    )
+
+
+def test_indicator_terms_with_regex_special_characters_do_not_crash():
+    classifier = KeywordDomainClassifier(
+        domain_terms={"finance": ("c++ trading", "a/b testing")},
+        min_occurrences=1,
+    )
+    assert classifier.matches("We rely on a/b testing for growth.") == frozenset(
+        {"finance"}
+    )
+    assert classifier.matches("No relevant content here.") == frozenset()
