@@ -77,6 +77,7 @@ class TopicRelevanceResult:
     domain_score: Optional[float] = None
     matched_keywords: frozenset[str] = frozenset()
     missing_keywords: frozenset[str] = frozenset()
+    detected_domains: frozenset[str] = frozenset()
     drift_domain: Optional[str] = None
     reason: Optional[str] = None
     validator_chain: tuple[str, ...] = ()
@@ -97,6 +98,7 @@ class TopicRelevanceResult:
             "domain_score": self.domain_score,
             "matched_keywords": sorted(self.matched_keywords),
             "missing_keywords": sorted(self.missing_keywords),
+            "detected_domains": sorted(self.detected_domains),
             "drift_domain": self.drift_domain,
             "reason": self.reason,
             "validator_chain": list(self.validator_chain),
@@ -140,11 +142,15 @@ class LexicalTopicRelevanceValidator:
         )
 
     def evaluate(self, topic: str, text: str) -> TopicRelevanceResult:
-        drift_domain = self._detect_drift(topic, text)
-        if drift_domain is not None:
+        topic_domains = self._domain_classifier.matches(topic)
+        text_domains = self._domain_classifier.matches(text)
+        drifted = text_domains - topic_domains
+        if drifted:
+            drift_domain = min(drifted)
             return TopicRelevanceResult(
                 passed=False,
                 domain_score=0.0,
+                detected_domains=text_domains,
                 drift_domain=drift_domain,
                 reason=(
                     f"drifted to an off-topic '{drift_domain}' subject "
@@ -152,18 +158,18 @@ class LexicalTopicRelevanceValidator:
                 ),
                 validator_chain=("lexical",),
             )
-        return self._score_keyword_overlap(topic, text)
+        return self._score_keyword_overlap(topic, text, text_domains)
 
-    def _detect_drift(self, topic: str, text: str) -> Optional[str]:
-        topic_domains = self._domain_classifier.matches(topic)
-        drifted = self._domain_classifier.matches(text) - topic_domains
-        return min(drifted) if drifted else None
-
-    def _score_keyword_overlap(self, topic: str, text: str) -> TopicRelevanceResult:
+    def _score_keyword_overlap(
+        self, topic: str, text: str, detected_domains: frozenset[str]
+    ) -> TopicRelevanceResult:
         topic_keywords = self._keywords(topic)
         if not topic_keywords:
             return TopicRelevanceResult(
-                passed=True, domain_score=1.0, validator_chain=("lexical",)
+                passed=True,
+                domain_score=1.0,
+                detected_domains=detected_domains,
+                validator_chain=("lexical",),
             )
         text_keywords = self._keywords(text)
         matched = topic_keywords & text_keywords
@@ -177,6 +183,7 @@ class LexicalTopicRelevanceValidator:
             domain_score=1.0,
             matched_keywords=matched,
             missing_keywords=missing,
+            detected_domains=detected_domains,
             confidence=lexical_score,
             reason=(
                 None
@@ -231,6 +238,7 @@ def _fold_semantic_result(
         domain_score=lexical_result.domain_score,
         matched_keywords=lexical_result.matched_keywords,
         missing_keywords=lexical_result.missing_keywords,
+        detected_domains=lexical_result.detected_domains,
         reason=semantic.reason,
         confidence=semantic.score,
         validator_chain=validator_chain,

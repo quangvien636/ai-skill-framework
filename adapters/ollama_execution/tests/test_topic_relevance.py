@@ -53,6 +53,7 @@ def test_vietnamese_ai_topic_environment_drift_is_rejected():
     assert result.passed is False
     assert result.drift_domain == "environment"
     assert result.domain_score == 0.0
+    assert result.detected_domains == frozenset({"environment"})
     assert "off-topic" in result.reason
 
 
@@ -64,6 +65,7 @@ def test_english_ai_topic_relevant_content_is_accepted():
     result = evaluate_topic_relevance(_ENGLISH_AI_TOPIC, text)
     assert result.passed is True
     assert result.drift_domain is None
+    assert result.detected_domains == frozenset()
     assert "technologies" in result.matched_keywords
 
 
@@ -100,9 +102,30 @@ def test_result_as_dict_is_json_ready_for_structured_logging():
     payload = result.as_dict()
     assert payload["passed"] is False
     assert payload["drift_domain"] == "environment"
+    assert payload["detected_domains"] == ["environment"]
     assert isinstance(payload["matched_keywords"], list)
     assert isinstance(payload["missing_keywords"], list)
     assert isinstance(payload["validator_chain"], list)
+
+
+def test_detected_domains_are_reported_even_when_topic_shares_the_domain():
+    """A passing result still surfaces which configured domains the text
+    touched -- observability that doesn't depend on a rejection happening.
+    Here the topic itself is about the environment (mentioned enough times
+    to clear the domain-detection threshold), so touching that domain is
+    expected and must not cause a drift rejection, but the domain should
+    still show up in `detected_domains` for debugging/dashboards.
+    """
+    topic = "AI technology that helps protect the environment and address climate change"
+    text = (
+        "This AI technology helps protect the environment and address "
+        "climate change by monitoring greenhouse gas emissions across "
+        "industries."
+    )
+    result = evaluate_topic_relevance(topic, text)
+    assert result.passed is True
+    assert result.drift_domain is None
+    assert result.detected_domains == frozenset({"environment"})
 
 
 def test_lexical_rejection_short_circuits_before_semantic_runs():
