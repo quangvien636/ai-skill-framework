@@ -15,9 +15,15 @@ Extension point
 Register a smarter tokenizer per language (a real Vietnamese
 word-segmenter, a CJK tokenizer, etc.) by implementing the ``Tokenizer``
 protocol and calling ``TokenizerRegistry.register(language, tokenizer)``.
-Nothing else in the topic-relevance subsystem needs to change: consumers
-resolve tokenizers through the registry, never by importing a concrete
-class directly.
+
+Note: :class:`~.topic_relevance.LexicalTopicRelevanceValidator` currently
+takes a single ``Tokenizer`` via constructor injection (default
+``DEFAULT_TOKENIZER``); it does not yet resolve a tokenizer per-language
+through this registry, since nothing upstream currently tracks the
+topic/text language. The registry exists so that wiring -- resolve a
+language, call ``registry.get(language)``, pass the result as the
+``tokenizer=`` argument -- can be added later without changing this
+module or the ``Tokenizer`` protocol itself.
 """
 
 from __future__ import annotations
