@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import json
 import os
+import warnings
 from dataclasses import dataclass, replace
 from pathlib import Path
 from types import MappingProxyType
@@ -49,6 +50,18 @@ from typing import Mapping
 _ENV_VAR = "ASF_OLLAMA_TOPIC_RELEVANCE_CONFIG"
 _SUPPORTED_CONFIG_VERSIONS = frozenset({"1"})
 _LEGACY_DOMAIN_TERMS_KEY = "offtopic_drift_terms"
+_KNOWN_OVERRIDE_KEYS = frozenset(
+    {
+        "config_version",
+        "min_relevance_score",
+        "min_domain_indicator_occurrences",
+        "semantic_similarity_threshold",
+        "short_keyword_allowlist",
+        "stopwords",
+        "domain_terms",
+        _LEGACY_DOMAIN_TERMS_KEY,
+    }
+)
 
 
 class TopicRelevanceConfigError(ValueError):
@@ -213,6 +226,7 @@ def _read_overrides(path: Path) -> Mapping[str, object]:
 def _merge_overrides(
     base: TopicRelevanceConfig, overrides: Mapping[str, object]
 ) -> TopicRelevanceConfig:
+    _warn_unknown_keys(overrides)
     updates: dict[str, object] = {}
     if "config_version" in overrides:
         updates["config_version"] = str(overrides["config_version"])
@@ -258,19 +272,66 @@ def _merge_domain_terms(
     raw_legacy = overrides.get(_LEGACY_DOMAIN_TERMS_KEY)
     if raw_new is None and raw_legacy is None:
         return None
-    merged = dict(base_terms)
-    for raw in (raw_legacy, raw_new):
-        if raw is None:
-            continue
-        if not isinstance(raw, Mapping):
-            raise TopicRelevanceConfigError(
-                "'domain_terms' (and its deprecated alias "
-                f"'{_LEGACY_DOMAIN_TERMS_KEY}') must be a JSON object mapping "
-                f"domain name to a list of indicator phrases, got {type(raw).__name__}."
-            )
-        for domain, terms in raw.items():
-            merged[domain] = tuple(str(term).lower() for term in terms)
+
+    merged = {domain.casefold(): terms for domain, terms in base_terms.items()}
+    if raw_legacy is not None:
+        warnings.warn(
+            f"'{_LEGACY_DOMAIN_TERMS_KEY}' is a deprecated alias for "
+            "'domain_terms' and may be removed in a future config_version; "
+            "rename the key in your override file.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        legacy_terms = _normalize_domain_terms(raw_legacy, _LEGACY_DOMAIN_TERMS_KEY)
+        merged.update(legacy_terms)
+    if raw_new is not None:
+        new_terms = _normalize_domain_terms(raw_new, "domain_terms")
+        if raw_legacy is not None:
+            reshadowed = sorted(set(new_terms) & set(legacy_terms))
+            if reshadowed:
+                warnings.warn(
+                    f"Domain(s) {reshadowed} defined in both 'domain_terms' "
+                    f"and deprecated '{_LEGACY_DOMAIN_TERMS_KEY}'; the "
+                    "'domain_terms' definition wins.",
+                    UserWarning,
+                    stacklevel=3,
+                )
+        merged.update(new_terms)
     return MappingProxyType(merged)
+
+
+def _normalize_domain_terms(
+    raw: object, source_label: str
+) -> dict[str, tuple[str, ...]]:
+    if not isinstance(raw, Mapping):
+        raise TopicRelevanceConfigError(
+            f"'{source_label}' must be a JSON object mapping domain name to "
+            f"a list of indicator phrases, got {type(raw).__name__}."
+        )
+    normalized: dict[str, tuple[str, ...]] = {}
+    original_names: dict[str, str] = {}
+    for domain, terms in raw.items():
+        key = str(domain).casefold()
+        if key in original_names and original_names[key] != domain:
+            raise TopicRelevanceConfigError(
+                f"Duplicate domain definition in '{source_label}': "
+                f"'{domain}' and '{original_names[key]}' both normalize to "
+                f"the same domain label '{key}'. Use one consistent name."
+            )
+        original_names[key] = domain
+        normalized[key] = tuple(str(term).lower() for term in terms)
+    return normalized
+
+
+def _warn_unknown_keys(overrides: Mapping[str, object]) -> None:
+    unknown = sorted(set(overrides) - _KNOWN_OVERRIDE_KEYS)
+    if unknown:
+        warnings.warn(
+            f"Unknown topic-relevance config field(s) ignored: {unknown}. "
+            f"Recognized fields: {sorted(_KNOWN_OVERRIDE_KEYS)}.",
+            UserWarning,
+            stacklevel=3,
+        )
 
 
 def _as_float(value: object, field_name: str) -> float:

@@ -157,6 +157,92 @@ def test_config_is_immutable_and_hashable_fields_are_frozensets():
     assert isinstance(DEFAULT_TOPIC_RELEVANCE_CONFIG.stopwords, frozenset)
 
 
+def test_out_of_range_semantic_similarity_threshold_raises_via_override(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(
+        json.dumps({"semantic_similarity_threshold": -0.1}), encoding="utf-8"
+    )
+    with pytest.raises(TopicRelevanceConfigError, match="semantic_similarity_threshold"):
+        load_topic_relevance_config(str(override))
+
+
+def test_unknown_top_level_field_is_ignored_but_warns(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(
+        json.dumps({"min_relevance_score": 0.3, "totally_made_up_field": 42}),
+        encoding="utf-8",
+    )
+    with pytest.warns(UserWarning, match="totally_made_up_field"):
+        config = load_topic_relevance_config(str(override))
+    # The known field still applies; the unknown one is ignored, not fatal.
+    assert config.min_relevance_score == 0.3
+
+
+def test_no_warning_when_every_field_is_recognized(tmp_path, recwarn):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(json.dumps({"min_relevance_score": 0.3}), encoding="utf-8")
+    load_topic_relevance_config(str(override))
+    assert len(recwarn) == 0
+
+
+def test_legacy_key_usage_emits_a_deprecation_warning(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(
+        json.dumps({"offtopic_drift_terms": {"travel": ["flight booking"]}}),
+        encoding="utf-8",
+    )
+    with pytest.warns(DeprecationWarning, match="offtopic_drift_terms"):
+        load_topic_relevance_config(str(override))
+
+
+def test_duplicate_domain_definition_within_one_source_raises(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    # "Finance" and "finance" normalize to the same domain label -- ambiguous
+    # which one should win, so this must fail loudly rather than pick one.
+    override.write_text(
+        json.dumps(
+            {
+                "domain_terms": {
+                    "Finance": ["stock market"],
+                    "finance": ["crypto trading"],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(TopicRelevanceConfigError, match="Duplicate domain"):
+        load_topic_relevance_config(str(override))
+
+
+def test_domain_defined_in_both_legacy_and_new_key_warns_and_new_wins(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(
+        json.dumps(
+            {
+                "offtopic_drift_terms": {"finance": ["old indicator"]},
+                "domain_terms": {"finance": ["new indicator"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.warns(UserWarning, match="finance"):
+        config = load_topic_relevance_config(str(override))
+    assert config.domain_terms["finance"] == ("new indicator",)
+
+
+def test_domain_key_casing_is_normalized_against_built_in_domains(tmp_path):
+    override = tmp_path / "topic_relevance.json"
+    override.write_text(
+        json.dumps({"domain_terms": {"Environment": ["extra indicator"]}}),
+        encoding="utf-8",
+    )
+    config = load_topic_relevance_config(str(override))
+    # "Environment" folds onto the built-in "environment" domain rather than
+    # creating a separate, near-duplicate entry.
+    assert "Environment" not in config.domain_terms
+    assert "extra indicator" in config.domain_terms["environment"]
+
+
 def test_direct_construction_validates_invariants():
     with pytest.raises(TopicRelevanceConfigError):
         TopicRelevanceConfig(
