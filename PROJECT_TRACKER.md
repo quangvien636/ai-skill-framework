@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.36
+Version: 0.37
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,29 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 37 - Ollama Runtime promotion approval and readiness**
+
+Goal: durably record the human-approved promotion scope and define mechanical
+readiness gates before wiring or lifecycle mutation.
+
+Status: **Completed**
+
+### Sprint 37 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Record human approval | Done | `docs/guides/RUNTIME_PROMOTION_READINESS.md` scopes approval to `runtime:offline@1.0.0` and `skill:content-creation@1.0.0` only |
+| Define readiness and rollback gates | Done | Checklist requires binding resolution, loopback-only execution, structured failures, real installed-model/live evidence, full validation, and a bounded rollback |
+| Preserve lifecycle | Done | No artifact status or Skill dependency changes in this sprint |
+
+### Sprint 37 Exit Criteria
+
+- Full offline repository validation and unit tests pass.
+- No live Ollama or external API call is made in this documentation/readiness
+  sprint.
+
+## Previous Sprint
 
 **Sprint 36 - CLI implementation language and phased adoption decision**
 
@@ -34,7 +57,7 @@ Status: **Completed as a proposal pending human ADR acceptance**
   delegation.
 - Full repository validation and unit tests pass.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 35 - Real line/column tracking for parse-error diagnostics**
 
@@ -85,7 +108,7 @@ open in Next Actions for the remainder)
 - No existing test asserted the old placeholder location strings (`"<yaml>"`,
   bare `"line N"` without column) — confirmed by grep before changing them.
 
-## Earlier Sprint
+## Earlier Diagnostics Sprint
 
 **Sprint 34 - ADR Status field mechanical check**
 
@@ -210,6 +233,7 @@ sprint indefinitely.
 | 34 | ADR Status field mechanical check | `ASF-REPOSITORY-014`, `content_integrity._validate_adr_status()`; 5 new tests; all 15 real ADRs already pass |
 | 35 | Real line/column tracking for parse-error diagnostics | `loader.py`'s YAML/JSON parse errors now report a real `line N, column N`; narrowed scope (schema/semantic diagnostics still report a field path, not a line — remains open) |
 | 36 | CLI implementation language and phased adoption decision | Proposed ADR-0016 selects Python, retains the existing single-module CLI until a real split trigger, confirms `validate` already wraps the shared IR/graph pipeline, and records the missing Generator implementation prerequisite |
+| 37 | Ollama Runtime promotion approval and readiness | Durable human-approval scope and readiness/rollback gates for `runtime:offline@1.0.0` -> `skill:content-creation@1.0.0`; no lifecycle mutation |
 
 ## Risks and Guardrails
 
@@ -224,15 +248,11 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. **Human/reviewed decision needed** (per `.ai/governance/DECISION_RIGHTS.md`
-   — lifecycle promotion past `draft` is not an AI Decision Right, no
-   session-delegation carve-out): wire `runtime:offline` (or another
-   Ollama-backed canonical Runtime Contract) into a production Skill's
-   `dependencies.runtime` and flip its `status` to `active`. Sprint 32
-   proved the technical wiring works (a real invoked LangGraph run through
-   a local-Ollama `RuntimeBinding`) without touching any lifecycle status;
-   this item is the human sign-off to make it a real, discoverable
-   production binding rather than a test-only proof.
+1. Wire the approved `runtime:offline@1.0.0` into
+   `skill:content-creation@1.0.0` using the existing RuntimeBinding and
+   loopback-only Ollama adapter. Satisfy
+   `docs/guides/RUNTIME_PROMOTION_READINESS.md`; lifecycle promotion remains
+   a separate following sprint and requires truthful live Ollama evidence.
 2. Implement the execute halves the compile-only adapters deliberately
    deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
    query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
@@ -304,3 +324,4 @@ sprint indefinitely.
 | 0.34 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
 | 0.35 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope; schema/semantic diagnostics remain open in Next Actions) |
 | 0.36 | 2026-07-12 | Completed Sprint 36 as a proposal: ADR-0016 selects Python/current CLI layout, confirms existing Validator Integration, and records the missing Generator reference implementation prerequisite |
+| 0.37 | 2026-07-12 | Completed Sprint 37: recorded bounded human approval and readiness/rollback gates for the local Ollama Runtime promotion; no lifecycle mutation |

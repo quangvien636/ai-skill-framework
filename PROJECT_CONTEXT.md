@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.34
+Version: 0.35
 Status: Active
 Last updated: 2026-07-12
 
@@ -196,6 +196,14 @@ on a real Generator Architecture reference implementation, so no placeholder
 `generate` command was added. ADR-0016 remains `Proposed` pending the human
 acceptance required by `.ai/governance/DECISION_RIGHTS.md`.
 
+**Sprint 37** records the human maintainer's bounded approval to wire
+`runtime:offline@1.0.0` into `skill:content-creation@1.0.0` and, only after
+real local readiness evidence, promote that Runtime Contract to `active`.
+`docs/guides/RUNTIME_PROMOTION_READINESS.md` now makes the gates and rollback
+explicit. This readiness sprint changes no artifact lifecycle or dependency,
+makes no live Ollama call, and authorizes no cloud, credential, rendering,
+publishing, or MCP v2 behavior.
+
 ## Definition of Done
 
 A change is complete when:
@@ -245,3 +253,4 @@ A change is complete when:
 | 0.32 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
 | 0.33 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope) |
 | 0.34 | 2026-07-12 | Completed Sprint 36 as a proposal: recorded the Python/current-module CLI choice in proposed ADR-0016, confirmed existing Validator Integration, and documented the Generator implementation prerequisite |
+| 0.35 | 2026-07-12 | Completed Sprint 37: recorded scoped human approval and readiness/rollback gates for the local Ollama Runtime promotion without changing lifecycle |
