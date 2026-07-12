@@ -1,8 +1,8 @@
 # AI Skill Framework - Project Context
 
-Version: 0.28
+Version: 0.29
 Status: Active
-Last updated: 2026-07-05
+Last updated: 2026-07-12
 
 ## Purpose
 
@@ -122,23 +122,54 @@ adapter's existing descriptor — `model_descriptor_from_runtime`,
 runtime_bindings=...)` — still binding only, never invoking. Five canonical
 examples ship in `runtime/` (`simple`, `content`, `research`, `offline`,
 `hybrid`, all `status: draft`), plus the first real production Tool
-artifact, `tools/read-file/tool.yaml`. All prior validation and Runtime
-planning remain green, with 116 passing core unit tests plus 44 passing
-adapter tests across all five packages, each exercised against its real
-dependency (no mocking).
+artifact, `tools/read-file/tool.yaml`.
 
-The framework still has no live executor process — planning (ADR-0011)
-produces an `ExecutionPlan`, Runtime Contracts describe a binding, and the
-adapters compile/describe/bind, but nothing yet invokes a compiled
-LangGraph graph, runs a live MCP server, queries a real LlamaIndex index,
-calls a model provider, or publishes to a platform. That gap is intentional
-and permanent by policy for the graph/tool/retrieval execution itself
-(closed by adapters calling into external frameworks, never a native ASF
-executor); for model invocation and publishing specifically, it is also
-incomplete by explicit scope — Runtime Contract binding extends the same
-"describe, never execute" boundary Priorities 3 and 4 established. None of
-the five canonical Runtime Contracts are wired into a production Skill yet
-either. See `PROJECT_TRACKER.md`'s Next Actions for the remaining work.
+**Sprint 29** proved the canonical three-Skill composite (Research ->
+Content Creation -> Review) compiles end-to-end without execution: explicit
+artifact flow, a Reviewed Content Package boundary, golden snapshots, and a
+composite CLI (`workflows/research-content-review/`). **Sprint 30** added
+the framework's first adapter that actually executes something for real:
+`adapters/ollama_execution`'s loopback-only `OllamaStepExecutor` runs the
+canonical composite workflow through a local Ollama model (dry-run default;
+live-local requires an explicit mode and model, no API key, no cloud path),
+plus a deterministic topic-relevance semantic gate with word-boundary
+domain matching for its content pipeline. **Sprint 31** adopted
+**ADR-0015** (Dependency Resolution and Runtime Binding): a Dependency
+Resolver (`scripts/asf_runtime/dependency_resolver.py`) that walks a
+Runtime Contract's fallback chain and resolves inheritance/override per
+capability, a `RuntimeBinding`/`BindingIR` engine
+(`scripts/asf_runtime/binding.py`) that is the single resolved source of a
+Skill's runtime dependencies, seven new `ASF-BINDING-001..007` diagnostics,
+and -- closing ADR-0015 Section 5, the piece Sprint 28's Phase 6 explicitly
+deferred -- an additive `*_from_binding` function on each of the five
+adapters (`model_descriptor_from_binding`, `retrieval_config_from_binding`,
+`bind_binding_tools`, `export_descriptor_from_binding`,
+`compile_plan_from_binding`), every existing `*_from_runtime` function left
+untouched. All prior validation and Runtime planning remain green, with 154
+passing core unit tests plus 66 passing adapter tests across all five
+compile-only packages, each exercised against its real dependency (no
+mocking).
+
+The framework still has no live executor process for the general case --
+planning (ADR-0011) produces an `ExecutionPlan`, Runtime Contracts describe
+a binding, and `langgraph_runtime`/`llamaindex_retrieval`/`model_invokers`/
+`publisher_adapters`/`mcp_tools` compile/describe/bind, but none of them
+yet invokes a compiled LangGraph graph, runs a live MCP server, queries a
+real LlamaIndex index, calls a cloud model provider, or publishes to a
+platform. That gap is intentional and permanent by policy for the
+graph/tool/retrieval execution itself (closed by adapters calling into
+external frameworks, never a native ASF executor); for model invocation and
+publishing specifically, it is also incomplete by explicit scope -- Runtime
+Contract binding (both the `*_from_runtime` and new `*_from_binding` forms)
+extends the same "describe, never execute" boundary Priorities 3 and 4
+established. The one exception is `adapters/ollama_execution` (Sprint 30):
+it consumes a resolved `RuntimeBinding` directly and makes a real local
+Ollama call, but through its own bespoke `StepExecutor`, not through
+`langgraph_runtime`'s compiled graph or `model_invokers`' `ModelDescriptor`
+-- neither of those two seams is wired into a live invocation yet. None of
+the five canonical Runtime Contracts are wired into a production Skill's
+`dependencies.runtime` either. See `PROJECT_TRACKER.md`'s Next Actions for
+the remaining work.
 
 ## Definition of Done
 
@@ -183,3 +214,4 @@ A change is complete when:
 | 0.26 | 2026-07-05 | Adopted Build vs Reuse execution strategy (Sprint 26); framework no longer builds execution-layer subsystems |
 | 0.27 | 2026-07-05 | Completed Sprint 27: implemented the compile/describe half of all five adapter Protocol seams |
 | 0.28 | 2026-07-05 | Completed Sprint 28: Runtime Contract (schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples), ADR-0014 |
+| 0.29 | 2026-07-12 | Documented Sprints 29-31: composite compiler proof, local Ollama execution adapter, and ADR-0015 (Dependency Resolver, RuntimeBinding/BindingIR, 5 adapter `*_from_binding` functions) |
