@@ -147,6 +147,82 @@ class ContentIntegrityTests(unittest.TestCase):
             # because it is referenced as another active Runtime's fallback.
             self.assertNotIn("runtime:target", orphaned_ids)
 
+    def test_real_adrs_all_have_a_valid_status_field(self):
+        codes = {
+            item.code
+            for item in validate_content_integrity(
+                self.empty_index(_bootstrap.REPO_ROOT), []
+            )
+            if item.code == "ASF-REPOSITORY-014"
+        }
+        self.assertEqual(codes, set())
+
+    def test_adr_missing_status_field_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adr_dir = root / "docs" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-0001-no-status.md").write_text(
+                "# ADR-0001: No Status\n\n- **Date:** 2026-07-12\n", encoding="utf-8"
+            )
+            codes = {
+                item.code
+                for item in validate_content_integrity(self.empty_index(root), [])
+            }
+            self.assertEqual(codes, {"ASF-REPOSITORY-014"})
+
+    def test_adr_unrecognized_status_value_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adr_dir = root / "docs" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-0001-bad-status.md").write_text(
+                "# ADR-0001: Bad Status\n\n- **Status:** Draft\n", encoding="utf-8"
+            )
+            codes = {
+                item.code
+                for item in validate_content_integrity(self.empty_index(root), [])
+            }
+            self.assertEqual(codes, {"ASF-REPOSITORY-014"})
+
+    def test_adr_superseded_by_unknown_adr_is_detected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adr_dir = root / "docs" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-0001-superseded.md").write_text(
+                "# ADR-0001: Superseded\n\n- **Status:** Superseded by ADR-9999\n",
+                encoding="utf-8",
+            )
+            codes = {
+                item.code
+                for item in validate_content_integrity(self.empty_index(root), [])
+            }
+            # ADR-9999 is flagged twice, by design: ASF-REPOSITORY-009 (a
+            # dangling ADR-XXXX mention anywhere in Markdown body text) and
+            # the new ASF-REPOSITORY-014 (the Status field specifically
+            # names a non-existent ADR) -- two different, independently
+            # useful signals over the same real problem, not a duplicate.
+            self.assertEqual(codes, {"ASF-REPOSITORY-009", "ASF-REPOSITORY-014"})
+
+    def test_adr_superseded_by_known_adr_is_allowed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adr_dir = root / "docs" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-0001-old.md").write_text(
+                "# ADR-0001: Old\n\n- **Status:** Superseded by ADR-0002\n",
+                encoding="utf-8",
+            )
+            (adr_dir / "ADR-0002-new.md").write_text(
+                "# ADR-0002: New\n\n- **Status:** Accepted\n", encoding="utf-8"
+            )
+            codes = {
+                item.code
+                for item in validate_content_integrity(self.empty_index(root), [])
+            }
+            self.assertEqual(codes, set())
+
     def test_draft_artifact_placeholder_is_allowed(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -14,6 +14,7 @@ from urllib.parse import unquote
 from .diagnostics import (
     Diagnostic,
     REPOSITORY_ADR_REFERENCE_INVALID,
+    REPOSITORY_ADR_STATUS_INVALID,
     REPOSITORY_ANCHOR_MISSING,
     REPOSITORY_DUPLICATE_ANCHOR,
     REPOSITORY_LIFECYCLE_ORPHAN,
@@ -34,6 +35,9 @@ _MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\((?P<target>[^)]+)\)")
 _HEADING_RE = re.compile(r"^#{1,6}\s+(?P<title>.+?)\s*#*\s*$")
 _EXPLICIT_ANCHOR_RE = re.compile(r"<a\s+(?:name|id)=[\"'](?P<id>[^\"']+)[\"']", re.I)
 _ADR_RE = re.compile(r"ADR-(?P<number>\d{4})(?![\w-])")
+_ADR_STATUS_LINE_RE = re.compile(r"^-\s+\*\*Status:\*\*\s*(?P<value>.+?)\s*$", re.MULTILINE)
+_ADR_SUPERSEDED_RE = re.compile(r"^Superseded by (?P<adr>ADR-\d{4})$")
+_ADR_ALLOWED_STATUSES = frozenset({"Proposed", "Accepted"})
 _PLACEHOLDER_RE = re.compile(r"\b(?:TODO|FIXME|TBD)\b|<[a-z][a-z0-9-]*>")
 _STALE_REFERENCES = (
     "knowledge/research/" + "methodology/",
@@ -74,6 +78,7 @@ def validate_content_integrity(
         diagnostics.extend(_validate_links(index.workspace_root, path, anchors, anchor_cache))
 
     diagnostics.extend(_validate_adr_references(index.workspace_root, markdown))
+    diagnostics.extend(_validate_adr_status(index.workspace_root))
     diagnostics.extend(_validate_shipped_placeholders(index, results))
     diagnostics.extend(_validate_stale_references(index.workspace_root))
     diagnostics.extend(_validate_obvious_secrets(index.workspace_root))
@@ -180,6 +185,75 @@ def _validate_adr_references(root: Path, markdown: tuple[Path, ...]) -> list[Dia
                         suggestion="Fix the ADR number or add the referenced decision record.",
                     )
                 )
+    return diagnostics
+
+
+def _validate_adr_status(root: Path) -> list[Diagnostic]:
+    """ASF-REPOSITORY-014: each canonical ADR's own `- **Status:**` field
+    must be one of the values ADR_TEMPLATE.md declares as allowed
+    (`Proposed`, `Accepted`, or `Superseded by ADR-<NNNN>` naming a real
+    ADR) -- a lightweight mechanical check for
+    `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance convention, which
+    otherwise has no automated way to catch a typo'd or stale Status value.
+    This only checks the field's *value* is well-formed; it never infers or
+    changes what a Status should be -- accepting an ADR remains a human
+    decision (DECISION_RIGHTS.md), this only keeps the field mechanically
+    honest once a human has set it.
+    """
+    adr_dir = root / "docs" / "adr"
+    paths = sorted(adr_dir.glob("ADR-[0-9][0-9][0-9][0-9]-*.md"))
+    known = {path.name[:8] for path in paths}
+    diagnostics: list[Diagnostic] = []
+    for path in paths:
+        relative = path.relative_to(root).as_posix()
+        text = path.read_text(encoding="utf-8")
+        match = _ADR_STATUS_LINE_RE.search(text)
+        if match is None:
+            diagnostics.append(
+                Diagnostic(
+                    code=REPOSITORY_ADR_STATUS_INVALID,
+                    severity=Severity.ERROR,
+                    artifact=relative,
+                    location="Status",
+                    message="ADR has no '- **Status:**' field.",
+                    suggestion="Add a Status field matching ADR_TEMPLATE.md.",
+                )
+            )
+            continue
+        value = match.group("value")
+        superseded = _ADR_SUPERSEDED_RE.match(value)
+        if value in _ADR_ALLOWED_STATUSES:
+            continue
+        if superseded and superseded.group("adr") in known:
+            continue
+        if superseded:
+            diagnostics.append(
+                Diagnostic(
+                    code=REPOSITORY_ADR_STATUS_INVALID,
+                    severity=Severity.ERROR,
+                    artifact=relative,
+                    location="Status",
+                    message=(
+                        f"ADR Status references '{superseded.group('adr')}', "
+                        "which has no canonical ADR document."
+                    ),
+                    suggestion="Fix the ADR number or add the referenced decision record.",
+                )
+            )
+            continue
+        diagnostics.append(
+            Diagnostic(
+                code=REPOSITORY_ADR_STATUS_INVALID,
+                severity=Severity.ERROR,
+                artifact=relative,
+                location="Status",
+                message=(
+                    f"ADR Status '{value}' is not one of "
+                    f"{sorted(_ADR_ALLOWED_STATUSES)} or 'Superseded by ADR-<NNNN>'."
+                ),
+                suggestion="Use a Status value matching ADR_TEMPLATE.md.",
+            )
+        )
     return diagnostics
 
 
