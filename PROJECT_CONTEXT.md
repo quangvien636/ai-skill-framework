@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.36
+Version: 0.37
 Status: Active
 Last updated: 2026-07-12
 
@@ -154,8 +154,7 @@ The framework still has no live executor process for the general case --
 planning (ADR-0011) produces an `ExecutionPlan`, Runtime Contracts describe
 a binding, and `langgraph_runtime`/`llamaindex_retrieval`/`model_invokers`/
 `publisher_adapters`/`mcp_tools` compile/describe/bind, but none of them
-yet invokes a compiled LangGraph graph, runs a live MCP server, queries a
-real LlamaIndex index, calls a cloud model provider, or publishes to a
+yet runs a live MCP server, calls a general model provider, or publishes to a
 platform. That gap is intentional and permanent by policy for the
 graph/tool/retrieval execution itself (closed by adapters calling into
 external frameworks, never a native ASF executor); for model invocation and
@@ -212,6 +211,15 @@ active orphan. Planner tests lock active-only and exactly-one resolution, the
 existing adapter still reports unavailable-server/missing-model failures, and
 the opt-in compiled-binding test passed against a real local Ollama server.
 
+**Sprint 39** implemented the first remaining compile-only execute half:
+`llamaindex_retrieval.KnowledgeRetriever.query` now builds a real in-memory
+LlamaIndex `VectorStoreIndex` from `RetrievalConfig` and executes ranked
+retrieval. Proposed ADR-0017 selects a local scikit-learn hashing embedding to
+keep the path deterministic, credential-free, network-free, and independent of
+model downloads; the documented tradeoff is lexical rather than neural
+semantic similarity. LlamaIndex still owns indexing/scoring/retrieval, and no
+LLM response synthesizer is constructed.
+
 ## Definition of Done
 
 A change is complete when:
@@ -263,3 +271,4 @@ A change is complete when:
 | 0.34 | 2026-07-12 | Completed Sprint 36 as a proposal: recorded the Python/current-module CLI choice in proposed ADR-0016, confirmed existing Validator Integration, and documented the Generator implementation prerequisite |
 | 0.35 | 2026-07-12 | Completed Sprint 37: recorded scoped human approval and readiness/rollback gates for the local Ollama Runtime promotion without changing lifecycle |
 | 0.36 | 2026-07-12 | Completed Sprint 38: atomic production wiring and active promotion for `runtime:offline`, with planner invariants and real local Ollama evidence |
+| 0.37 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution using deterministic scikit-learn hashing embeddings |

@@ -1,6 +1,5 @@
-# llamaindex_retrieval adapter dependencies. llama-index-core only -- the
-# meta-package (`llama-index`) bundles a default embedding model and vector
-# store, which would let indexing/embedding leak into this adapter. Pinning
-# to core keeps "configuration only" (no indexing, no embedding generation,
-# no vector database) true at the dependency level, not just by convention.
+# llamaindex_retrieval adapter dependencies. Avoid the llama-index meta-package
+# and its implicit provider defaults. Core owns the real in-memory index and
+# retrieval; scikit-learn supplies deterministic, local hashing embeddings.
 llama-index-core>=0.12,<0.13
+scikit-learn>=1.6,<2

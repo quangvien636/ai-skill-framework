@@ -1,8 +1,8 @@
 # Execution Adapter Architecture
 
-Version: 0.7
+Version: 0.8
 Status: Active
-Last updated: 2026-07-05
+Last updated: 2026-07-12
 
 ## Purpose
 
@@ -124,8 +124,8 @@ the behavior.
 
 #### `KnowledgeRetriever` (split into compile and query halves)
 
-Following the same "compile only" pattern as `PlanCompiler`, this seam is
-implemented in two stages, only the first of which is built today:
+Following the same explicit describe-vs-execute split as other adapters, this
+seam is implemented in two stages:
 
 ```python
 class RetrievalConfigCompiler(Protocol):
@@ -146,10 +146,15 @@ objects (plain data containers) and an ASF-owned `RetrievalConfig`
 no embedding generation, and no vector database access** — those remain
 LlamaIndex's responsibility once a deployer builds an actual index (e.g.
 `VectorStoreIndex.from_documents(config.documents, ...)`) from this config
-and chooses an embedding model and vector store. `KnowledgeRetriever.query`
-itself — actually running a query engine — is unimplemented; it is next on
-the roadmap once a `RetrievalConfig` needs to be executed rather than only
-produced.
+and chooses an embedding model and vector store.
+
+`KnowledgeRetriever.query` is implemented in
+`adapters/llamaindex_retrieval/retriever.py`. It builds a real in-memory
+`VectorStoreIndex` using an explicit local scikit-learn hashing embedding and
+executes LlamaIndex retrieval with the configured `similarity_top_k`. It does
+not use an LLM response synthesizer, cloud embedding, credential, model
+download, or network call. Proposed ADR-0017 records the Build-vs-Reuse choice
+and its lexical-ranking tradeoff.
 
 #### `ModelInvoker` (descriptor half implemented; invoke half is not)
 
@@ -304,3 +309,4 @@ has no provider SDK, API key, cloud fallback, or paid-provider execution path.
 | 0.5 | 2026-07-05 | Added a fifth seam, `PublisherAdapter`, split into `ExportDescriptorCompiler` (implemented, `adapters/publisher_adapters/`, zero SDK dependency) and an unimplemented `publish` half, per Priority 4's declarative-only scope |
 | 0.6 | 2026-07-05 | Added Runtime Contract binding functions to all five adapters (ADR-0014 Phase 6): binding only, no invocation, no new external dependency |
 | 0.7 | 2026-07-05 | Added the loopback-only Ollama StepExecutor and canonical composite runner as the first bounded execute-half implementation. |
+| 0.8 | 2026-07-12 | Added the real local `KnowledgeRetriever.query` execute half using LlamaIndex `VectorStoreIndex` and scikit-learn hashing embeddings (proposed ADR-0017) |

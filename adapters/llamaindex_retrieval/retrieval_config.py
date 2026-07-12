@@ -1,15 +1,10 @@
 """Compiles validated ASF Knowledge IR into LlamaIndex retrieval configuration.
 
-Per Priority 2: configuration only. This module never builds an index,
-generates an embedding, or talks to a vector store -- it constructs
-``llama_index.core.schema.Document`` objects (plain data containers; no
-index/embedding/vector-store class is imported or instantiated) and an
-ASF-owned ``RetrievalConfig`` describing which documents a future retriever
-should be scoped to. Deploying an actual query engine (choosing an
-embedding model, a vector store, calling ``VectorStoreIndex.from_documents``)
-is deliberately out of scope here and is left to whoever wires this config
-into a live LlamaIndex retriever, mirroring how adapters/mcp_tools binds a
-caller-supplied handler instead of inventing tool behavior.
+This module is the configuration half and never builds an index, generates an
+embedding, or talks to a vector store -- it constructs
+``llama_index.core.schema.Document`` objects and an ASF-owned
+``RetrievalConfig``. The separate ``retriever`` module is the execute half;
+keeping the modules separate preserves the describe-vs-execute boundary.
 """
 
 from __future__ import annotations
@@ -79,9 +74,7 @@ def knowledge_ir_to_document(knowledge: KnowledgeIR) -> Document:
 @dataclass(frozen=True)
 class RetrievalConfig:
     """Non-executing retrieval configuration: which Knowledge documents a
-    future retriever should be scoped to, and how many results to return.
-    Building an actual index/query engine from this config is a deployment
-    concern outside this adapter's scope.
+    retriever is scoped to, and how many results to return.
     """
 
     knowledge_ids: tuple[str, ...]

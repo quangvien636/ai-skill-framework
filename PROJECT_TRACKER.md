@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.38
+Version: 0.39
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,29 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 39 - Local LlamaIndex query execution**
+
+Goal: implement the real `KnowledgeRetriever.query` execute half without a
+cloud embedding, model download, credential, or ASF-built vector engine.
+
+Status: **Completed with proposed ADR-0017 pending human acceptance**
+
+### Sprint 39 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Build-vs-Reuse decision | Done | Proposed ADR-0017 selects LlamaIndex `VectorStoreIndex` plus local scikit-learn hashing embeddings |
+| Real query execution | Done | `KnowledgeRetriever.query` builds and executes a real in-memory LlamaIndex retriever from `RetrievalConfig` |
+| Local result contract | Done | Immutable result/match records preserve document id, text, metadata, and score |
+| Tests | Done | Ranking, top-k, determinism, empty config, blank query, and content-sensitive fixed-size local embeddings |
+
+### Sprint 39 Exit Criteria
+
+- Full validation and all `llamaindex_retrieval` tests pass.
+- No LLM, cloud embedding, network, credential, or model download.
+
+## Previous Sprint
 
 **Sprint 38 - Atomic Ollama Runtime wiring and lifecycle promotion**
 
@@ -34,7 +57,7 @@ Status: **Completed**
 - Full validation and affected adapter suites pass.
 - No cloud API, credential, TTS, rendering, upload, publishing, or MCP v2.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 37 - Ollama Runtime promotion approval and readiness**
 
@@ -57,7 +80,7 @@ Status: **Completed**
 - No live Ollama or external API call is made in this documentation/readiness
   sprint.
 
-## Earlier Sprint
+## Earlier Readiness Sprint
 
 **Sprint 36 - CLI implementation language and phased adoption decision**
 
@@ -259,6 +282,7 @@ sprint indefinitely.
 | 36 | CLI implementation language and phased adoption decision | Proposed ADR-0016 selects Python, retains the existing single-module CLI until a real split trigger, confirms `validate` already wraps the shared IR/graph pipeline, and records the missing Generator implementation prerequisite |
 | 37 | Ollama Runtime promotion approval and readiness | Durable human-approval scope and readiness/rollback gates for `runtime:offline@1.0.0` -> `skill:content-creation@1.0.0`; no lifecycle mutation |
 | 38 | Atomic Ollama Runtime wiring and lifecycle promotion | Active `runtime:offline` production binding for Content Creation, lifecycle-safe return of `runtime:content` to draft, planner invariants, real local Ollama evidence |
+| 39 | Local LlamaIndex query execution | Proposed ADR-0017, real in-memory `VectorStoreIndex` retrieval, deterministic local scikit-learn hashing embeddings, immutable scored results |
 
 ## Risks and Guardrails
 
@@ -273,9 +297,8 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Implement the execute halves the compile-only adapters deliberately
-   deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
-   query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
+1. Implement the remaining execute halves the compile-only adapters deliberately
+   deferred: `ModelInvoker.invoke` (call a
    real provider SDK from a `ModelDescriptor` — Sprint 32 already proved
    `model_descriptor_from_binding` -> a real local Ollama call composes
    correctly in a test; this item is making that a reusable adapter
@@ -346,3 +369,4 @@ sprint indefinitely.
 | 0.36 | 2026-07-12 | Completed Sprint 36 as a proposal: ADR-0016 selects Python/current CLI layout, confirms existing Validator Integration, and records the missing Generator reference implementation prerequisite |
 | 0.37 | 2026-07-12 | Completed Sprint 37: recorded bounded human approval and readiness/rollback gates for the local Ollama Runtime promotion; no lifecycle mutation |
 | 0.38 | 2026-07-12 | Completed Sprint 38: atomically wired Content Creation to active local Ollama runtime, returned the displaced content runtime to draft, and locked planner/live readiness invariants |
+| 0.39 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution backed by deterministic scikit-learn hashing embeddings |
