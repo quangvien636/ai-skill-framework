@@ -72,6 +72,8 @@ Under Development
 
 - [Monthly Operator Plan](docs/guides/MONTHLY_OPERATOR_PLAN.md) — the
   month-scoped content-skill readiness roadmap
+- [Golden Sample Intake Plan](docs/guides/GOLDEN_SAMPLE_INTAKE_PLAN.md) —
+  the reference-content intake template, review gate, and metadata schema
 - [Weekly Operator Plan](docs/guides/WEEKLY_OPERATOR_PLAN.md) — the
   two-week infrastructure trigger runbook (MCP SDK v2, SemVer pre-release)
 

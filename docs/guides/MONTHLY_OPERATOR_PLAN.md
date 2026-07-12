@@ -1,6 +1,6 @@
 # Monthly Operator Plan
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-12
 
@@ -192,6 +192,17 @@ needed.
 
 **Validation:** `python scripts/asf.py doctor`; existing tests if a
 schema/validator actually changed; `git diff --check`.
+
+**Status (2026-07-12): Complete.** See `docs/guides/
+GOLDEN_SAMPLE_INTAKE_PLAN.md`: the intake template, a three-verdict review
+gate, explicit what-can/cannot-be-learned vocabularies, a proposed
+metadata schema, and three fictional example records. The repository was
+audited for an existing storage convention (`knowledge/`, `runs/`,
+`tools/`, `docs/references/`, and the empty top-level `assets/`/
+`examples/`/`prompts/`/`src/`/`changelog/` directories) and none fit; a
+`references/golden-samples/` location is recommended but deliberately not
+created until Content Trigger A fires. No sample was ingested, no content
+was scraped, no API was called.
 
 ### Week 3 — Benchmark & Evaluation Contract
 
@@ -416,3 +427,4 @@ Next month plan:
 | --- | --- | --- |
 | 0.1 | 2026-07-12 | Established the monthly operator plan: four-week content-skill readiness push (readiness audit, golden-sample intake plan, benchmark/evaluation contract, integration readiness), three new content triggers alongside the existing MCP/SemVer triggers, and an explicit no-Anthropic-replacement-in-production rule for the month |
 | 0.2 | 2026-07-12 | Completed Week 1 the same day: `docs/guides/CONTENT_SKILL_READINESS.md` audited the real gap between today's framework and a benchmarkable content pipeline, finding a real declarative evaluation rubric that is validated for shape but never executed against real output |
+| 0.3 | 2026-07-12 | Completed Week 2: `docs/guides/GOLDEN_SAMPLE_INTAKE_PLAN.md` defines the intake template, review gate, learning vocabularies, and metadata schema; storage location deliberately deferred until Content Trigger A fires; no sample ingested, no scraping, no API call |

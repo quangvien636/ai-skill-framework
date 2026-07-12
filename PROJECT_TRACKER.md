@@ -405,16 +405,12 @@ sprint indefinitely.
 2. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
-3. Golden Sample Intake Plan (Week 2): design the reference-content intake
-   workflow and review gate; produce `docs/guides/
-   GOLDEN_SAMPLE_INTAKE_PLAN.md`. Gated on Content Trigger A (a real
-   sample provided) for any work beyond the plan/schema itself.
-4. Content Benchmark Plan (Week 3): design the offline evaluation rubric
+3. Content Benchmark Plan (Week 3): design the offline evaluation rubric
    and pass/fail thresholds comparing AI Skill output against Claude/
    Anthropic and human-approved references; produce `docs/guides/
    CONTENT_BENCHMARK_PLAN.md`. No paid API call. Running the benchmark
    itself is gated on Content Trigger B (real sample outputs available).
-5. Video Pipeline Integration Readiness Plan (Week 4): design the Go/No-Go
+4. Video Pipeline Integration Readiness Plan (Week 4): design the Go/No-Go
    checklist and rollback policy for a shadow/offline/branch-only
    experiment with `video_pipeline`; produce `docs/guides/
    VIDEO_PIPELINE_INTEGRATION_READINESS.md`. Never a production connection;
@@ -425,8 +421,17 @@ The Monthly Plan's Week 1 item (Content Skill Readiness audit) is complete:
 `docs/guides/CONTENT_SKILL_READINESS.md` found that `skill:content-creation`
 already has a real, declarative evaluation rubric (four weighted metrics,
 `minimum_score: 85`) that is validated for shape but never executed against
-real output — the single largest gap toward a benchmarkable pipeline. No
-code changed; Weeks 2-4 above remain gated on their respective triggers.
+real output — the single largest gap toward a benchmarkable pipeline.
+
+The Monthly Plan's Week 2 item (Golden Sample Intake Plan) is also
+complete: `docs/guides/GOLDEN_SAMPLE_INTAKE_PLAN.md` defines the intake
+template, the three-verdict review gate (`APPROVED`/`REJECTED`/
+`INSUFFICIENT_EVIDENCE`), the what-can/cannot-be-learned vocabularies, a
+proposed metadata schema, and a storage-location recommendation
+deliberately deferred until Content Trigger A actually fires. No sample
+was ingested, no content was scraped, and no storage location was created
+this session — Week 3 above remains the next open item, gated on Content
+Trigger B for actually running a benchmark.
 
 ADR-0016, ADR-0017, ADR-0018, and ADR-0019 were reviewed and accepted by the
 human maintainer on 2026-07-12; the former Next Action to review them is
