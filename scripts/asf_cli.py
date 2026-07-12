@@ -351,20 +351,26 @@ def _plan_dict(plan) -> dict[str, Any]:
     }
 
 
-def _bindings(workspace: Workspace, plan) -> list[dict[str, Any]]:
+def _bindings(
+    workspace: Workspace, plan
+) -> tuple[list[dict[str, Any]], list[Diagnostic]]:
+    """Resolve every plan step's RuntimeBinding, collecting a diagnostic
+    (e.g. ASF-BINDING-001) for any step that has none instead of raising --
+    matching how `validate`/`graph` report every problem found across the
+    whole input rather than stopping at the first one."""
     reports = []
+    diagnostics: list[Diagnostic] = []
     for step in plan.steps:
         artifact = workspace.catalog.exact(step.skill_id, step.skill_version)
         if not isinstance(artifact.ir, SkillIR):
             raise RuntimeError(f"'{step.skill_id}' is not Skill IR")
-        binding, diagnostics = resolve_skill_runtime_binding(
+        binding, binding_diagnostics = resolve_skill_runtime_binding(
             artifact.ir, workspace.catalog
         )
-        if binding is None:
-            detail = diagnostics[0].message if diagnostics else "no runtime declared"
-            raise RuntimeError(f"step '{step.id}' has no binding: {detail}")
-        reports.append(to_binding_ir(binding, diagnostics).as_dict())
-    return reports
+        diagnostics.extend(binding_diagnostics)
+        if binding is not None:
+            reports.append(to_binding_ir(binding, binding_diagnostics).as_dict())
+    return reports, diagnostics
 
 
 def _run_command(args: argparse.Namespace, workspace: Workspace) -> dict[str, Any]:
@@ -446,10 +452,12 @@ def _run_command(args: argparse.Namespace, workspace: Workspace) -> dict[str, An
     if args.command == "plan":
         return {"command": "plan", "status": "ok", "plan": _plan_dict(plan)}
     if args.command == "bindings":
+        bindings, diagnostics = _bindings(workspace, plan)
         return {
             "command": "bindings",
-            "status": "ok",
-            "bindings": _bindings(workspace, plan),
+            "status": "error" if any(item.is_error() for item in diagnostics) else "ok",
+            "bindings": bindings,
+            "diagnostics": [diagnostic_dict(item) for item in diagnostics],
         }
     if args.command == "compile":
         adapters = workspace.root / "adapters"

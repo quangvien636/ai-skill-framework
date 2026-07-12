@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.32
+Version: 0.33
 Status: Active
 Last updated: 2026-07-12
 
@@ -12,60 +12,52 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 32 - First real invoked run through a compiled RuntimeBinding graph**
+**Sprint 33 - `bindings` CLI command reports diagnostics instead of crashing**
 
-Goal: work Next Actions items top to bottom, starting with items 1
-("wire a `*_from_binding` function into a real invoked path") and 5
-("wire `compile_plan()`/`compile_plan_from_binding()` into a live,
-invoked run with a real `step_executor`") together, since they are the
-same piece of work; item 3 turned out to already be done (see below).
+Goal: Next Actions item ("fix `scripts/asf_cli.py`'s `bindings` command so
+`_bindings()` collects `ASF-BINDING-001` into the report's `diagnostics`
+array instead of raising a bare `RuntimeError`").
 
-Status: **Completed (items 1, 3, 5)**
+Status: **Completed**
 
-### Sprint 32 Backlog
+### Sprint 33 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| Next Actions item 3 correction | Done — already satisfied pre-Sprint-31 | `runtime:content` is already `status: active` and already wired into `skill:content-creation`'s `dependencies.runtime` (`git log -- runtime/content/runtime.yaml` shows the flip happened at `37556ae`, "feat: compile content creation vertical slice"). `validate_repository.py`'s lifecycle orphan check (`ASF-REPOSITORY-012`) already passes clean against this real active/consumer pair (0 errors/warnings). This Next Action was carried forward stale in Sprint 31 without re-checking current repo state; corrected here. No lifecycle promotion was performed by this session — see the Decision Rights note below for why that matters. |
-| Next Actions items 1+5 | Done | New `adapters/langgraph_runtime/tests/test_live_ollama_invocation.py`: an opt-in (`ASF_TEST_OLLAMA=1`, mirrors `adapters/ollama_execution`'s existing live-test pattern exactly) test that builds a real `RuntimeBinding` from the real canonical `runtime/offline/runtime.yaml` (provider=ollama), gets a `ModelDescriptor` via `model_invokers.model_descriptor_from_binding`, compiles a real plan with `langgraph_runtime.compile_plan_from_binding`, and calls a real `await compiled.ainvoke({})` — a genuine local Ollama HTTP call happens, the compiled LangGraph graph actually runs, and the real generated text flows back through graph state. Run for real against a local Ollama server already installed on this machine (`llama3:latest`) — **passed in 36.95s**, not just skip-verified. |
+| `_bindings()` no longer raises on a missing binding | Done | `scripts/asf_cli.py`: `_bindings()` now returns `(bindings, diagnostics)`, collecting every step's diagnostics (including `ASF-BINDING-001`) instead of raising and abandoning the remaining steps; the `bindings` command's report now has `status: "error"` + a populated `diagnostics` array when any step's binding fails, matching `validate`/`graph`'s existing shape (`_render()`'s generic top-of-report diagnostic printing picks this up for free — no text-format rendering change needed) |
+| Test | Done | `tests/unit/test_cli.py::test_bindings_reports_missing_binding_as_a_diagnostic_not_a_crash` — a step with a non-required, unresolvable runtime reference now produces `{"ASF-BINDING-001"}` in `diagnostics` and `bindings == []`, not an exception |
 
-### Sprint 32 Design Notes
+### Sprint 33 Exit Criteria
 
-- **Cross-adapter composition without violating isolation**: `adapters/README.md`'s rule ("never imports another adapter package") is about each adapter's own production source. The new test needs `langgraph_runtime` + `model_invokers` + `ollama_execution`'s real HTTP client together, so it lives in test code (mirroring how `scripts/asf_cli.py` is this repo's existing precedent for a neutral layer that legitimately imports multiple adapters, e.g. its `compile`/`run` commands already import both `langgraph_runtime` and `ollama_execution`). No adapter's own source file was changed to make this work.
-- **Why `runtime:offline`, not a production Skill's real binding**: `skill:content-creation`'s only currently-active Runtime Contract (`runtime:content`) uses `provider: anthropic` — a real invoked call through it would be a real paid API call, explicitly forbidden today. `runtime:offline` (one of the five canonical examples, `status: draft`, `provider: ollama`) is real production data, just not referenced by any Skill's `dependencies.runtime` yet, so it was bound directly via `asf_runtime.binding.build_runtime_binding()` rather than through `resolve_skill_runtime_binding()`'s catalog lookup (which only resolves `status: active` candidates by design).
-- **Decision Rights boundary respected**: `.ai/governance/DECISION_RIGHTS.md` reserves "promoting an artifact's lifecycle past `draft`" as a human/reviewed decision with no session-delegation carve-out (unlike ADR acceptance, which explicitly has one). This session did not flip `runtime:offline` to `active` or wire it into any Skill's `dependencies.runtime` — doing so remains a human decision, tracked below in Next Actions.
-
-### Sprint 32 Exit Criteria
-
-- No new API key, secret, or credential introduced; the only network call
-  made is to `localhost:11434` (loopback Ollama), matching every existing
-  "live" precedent in this repository.
-- No adapter's own production source was changed for this item; the
-  composition lives entirely in a new opt-in test file.
 - `python scripts/validate_contracts.py` (23/23), `build_ir.py` (47/47),
   `build_graph.py` (14/14), `build_semantics.py` (4/4),
   `validate_repository.py` (0 errors/warnings),
-  `python -m unittest discover -s tests/unit` (154/154) all pass unchanged
-  (the new test is intentionally outside `tests/unit/`, matching Sprint
-  30's "normal tests do not require Ollama" exit criterion).
-- `adapters/langgraph_runtime`'s full suite (13 unittest + 10 pytest, 1
-  correctly skipped without the opt-in flag) passes.
-
-### Sprint 32 Deferred / Documented Gaps
-
-- Wiring `runtime:offline` (or any Runtime Contract whose model is
-  Ollama-backed) into an actual production Skill's `dependencies.runtime`,
-  and flipping its `status` to `active`, remains a human/reviewed decision
-  per `.ai/governance/DECISION_RIGHTS.md` — not attempted this sprint.
-- The real invoked run proven here uses the minimal
-  `tests/fixtures/graph/valid-runtime/` Skill/Workflow (one step, a single
-  string output), not the full three-step canonical composite workflow —
-  proportionate for proving the wiring works, not a claim that the
-  canonical composite has been run live end-to-end through LangGraph
-  (`adapters/ollama_execution`'s own bespoke sequential runner is still
-  the only thing that has executed the full composite for real).
+  `python -m unittest discover -s tests/unit` (155/155, up from 154) all
+  pass.
+- `tests/unit/test_cli.py`'s full 15-test suite passes, including the
+  pre-existing `test_plan_and_bindings_reuse_runtime_pipeline` (a
+  successfully-resolving binding is completely unaffected by this change).
+- No change to any other CLI command's behavior, exit code, or report
+  shape.
 
 ## Previous Sprint
+
+**Sprint 32 - First real invoked run through a compiled RuntimeBinding graph**
+
+Status: **Completed**
+
+Proved `compile_plan_from_binding` + `model_descriptor_from_binding`
+compose into a real, invoked LangGraph run backed by a real local Ollama
+call (`adapters/langgraph_runtime/tests/test_live_ollama_invocation.py`,
+opt-in `ASF_TEST_OLLAMA=1`, verified passing for real against an installed
+local Ollama server, 36.95s) — Next Actions items 1 and 5. Also found and
+corrected a stale Next Action: `runtime:content` has been `status: active`
+and wired into `skill:content-creation` since a pre-Sprint-31 commit
+(`37556ae`) — item 3 was already done. Wiring an Ollama-backed Runtime
+Contract into a production Skill and promoting its status remains a
+human/reviewed decision per `.ai/governance/DECISION_RIGHTS.md`.
+
+## Earlier Sprint (Sprint 31)
 
 **Sprint 31 - Dependency Resolution and Runtime Binding (ADR-0015)**
 
@@ -191,6 +183,7 @@ sprint indefinitely.
 | 30 | Local Ollama Execution Adapter | Loopback StepExecutor, canonical runner, artifact checks, reports, dry/live CLI |
 | 31 | Dependency Resolution and Runtime Binding (ADR-0015) | Dependency Resolver, `RuntimeBinding`/`BindingIR`, `ASF-BINDING-001..007`, 5 adapter `*_from_binding` functions (Phase 4), tracker caught up to Sprints 29-30 |
 | 32 | First real invoked run through a compiled RuntimeBinding graph | Real `.ainvoke()` through `compile_plan_from_binding` + `model_descriptor_from_binding`, backed by a real local Ollama call; confirmed Runtime Contract -> production Skill wiring was already done pre-Sprint-31 |
+| 33 | `bindings` CLI command reports diagnostics instead of crashing | `scripts/asf_cli.py`'s `_bindings()` collects `ASF-BINDING-001` per step instead of raising; new `test_cli.py` coverage |
 
 ## Risks and Guardrails
 
@@ -205,15 +198,7 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Fix `scripts/asf_cli.py`'s `bindings` command (`_bindings()`) to collect
-   `ASF-BINDING-001` (a step's Skill has no resolvable binding at all) into
-   the report's `diagnostics` array instead of raising a bare
-   `RuntimeError` — bring it in line with how `validate`/`graph` already
-   handle errors gracefully. Documented gap found while confirming Sprint
-   31's Step 3 (a repository-level `ASF-BINDING-*` entry point already
-   exists via this command; its error handling just does not match the
-   rest of the CLI yet).
-2. **Human/reviewed decision needed** (per `.ai/governance/DECISION_RIGHTS.md`
+1. **Human/reviewed decision needed** (per `.ai/governance/DECISION_RIGHTS.md`
    — lifecycle promotion past `draft` is not an AI Decision Right, no
    session-delegation carve-out): wire `runtime:offline` (or another
    Ollama-backed canonical Runtime Contract) into a production Skill's
@@ -222,7 +207,7 @@ sprint indefinitely.
    a local-Ollama `RuntimeBinding`) without touching any lifecycle status;
    this item is the human sign-off to make it a real, discoverable
    production binding rather than a test-only proof.
-3. Implement the execute halves the compile-only adapters deliberately
+2. Implement the execute halves the compile-only adapters deliberately
    deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
    query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
    real provider SDK from a `ModelDescriptor` — Sprint 32 already proved
@@ -232,22 +217,22 @@ sprint indefinitely.
    real target from an `ExportDescriptor`). Each needs its own explicit
    Build vs Reuse note for the chosen SDK before implementation, per the
    engineering rules.
-4. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
+3. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-5. When a CLI implementation sprint starts, choose and record its language
+4. When a CLI implementation sprint starts, choose and record its language
    and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-6. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
+5. Consider whether `.ai/governance/DECISION_RIGHTS.md`'s ADR-acceptance
    convention needs a lighter-weight mechanical check (e.g., an ADR
    "Status" field the validator confirms is one of the allowed values).
-7. Add precise line/column source-position tracking to IR adapter
+6. Add precise line/column source-position tracking to IR adapter
    diagnostics (currently field/section names only) — Sprint 16's
    Deferred / Documented Gap, still open.
-8. If pre-release versions are ever adopted, implement full SemVer
+7. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -287,3 +272,4 @@ sprint indefinitely.
 | 0.30 | 2026-07-05 | Completed Sprint 30 local Ollama execution adapter and canonical workflow runner |
 | 0.31 | 2026-07-12 | Completed Sprint 31: caught tracker up to Sprints 29-30's real work, adopted ADR-0015, closed its Phase 4 (5 adapter `*_from_binding` functions), added missing `ASF-BINDING-003` test coverage |
 | 0.32 | 2026-07-12 | Completed Sprint 32: real invoked LangGraph run via `compile_plan_from_binding` + `model_descriptor_from_binding` + local Ollama; corrected a stale Next Action (Runtime Contract -> production Skill wiring was already done pre-Sprint-31) |
+| 0.33 | 2026-07-12 | Completed Sprint 33: `bindings` CLI command now reports `ASF-BINDING-001` as a diagnostic instead of crashing |

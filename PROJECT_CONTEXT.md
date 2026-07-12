@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.30
+Version: 0.31
 Status: Active
 Last updated: 2026-07-12
 
@@ -232,3 +232,4 @@ A change is complete when:
 | 0.28 | 2026-07-05 | Completed Sprint 28: Runtime Contract (schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples), ADR-0014 |
 | 0.29 | 2026-07-12 | Documented Sprints 29-31: composite compiler proof, local Ollama execution adapter, and ADR-0015 (Dependency Resolver, RuntimeBinding/BindingIR, 5 adapter `*_from_binding` functions) |
 | 0.30 | 2026-07-12 | Completed Sprint 32: first real invoked LangGraph run via `compile_plan_from_binding`/`model_descriptor_from_binding`/local Ollama; corrected a stale claim about Runtime Contract -> production Skill wiring |
+| 0.31 | 2026-07-12 | Completed Sprint 33: `scripts/asf_cli.py`'s `bindings` command reports `ASF-BINDING-001` as a diagnostic instead of raising |

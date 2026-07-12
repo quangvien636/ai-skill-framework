@@ -4,10 +4,16 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from types import MappingProxyType, SimpleNamespace
 
 import _bootstrap
 
-from asf_cli import _normalize_cli_unicode, main
+from asf_cli import _bindings, _normalize_cli_unicode, main
+from asf_runtime.catalog import ArtifactCatalog, CatalogArtifact, build_artifact_catalog
+from asf_runtime.models import ExecutionContext
+from asf_runtime.planner import plan_workflow
+from asf_validator.pipeline import build_ir
+from asf_validator.schema_registry import build_schema_registry
 
 
 class CliTests(unittest.TestCase):
@@ -46,6 +52,69 @@ class CliTests(unittest.TestCase):
         exit_code, bindings = self.run_cli("bindings", *common)
         self.assertEqual(exit_code, 0)
         self.assertEqual(bindings["bindings"][0]["runtime_id"], "runtime:research")
+
+    def test_bindings_reports_missing_binding_as_a_diagnostic_not_a_crash(self):
+        """ASF-BINDING-001 (a step's Skill has no resolvable binding) must be
+        collected into the report's diagnostics, matching validate/graph --
+        not raised as a bare exception that skips every other step."""
+        from dataclasses import replace
+
+        fixtures = (
+            _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
+        )
+        registry = build_schema_registry(_bootstrap.REPO_ROOT / "schemas")
+        results = [
+            build_ir("workflow", fixtures / "workflow.yaml", registry),
+            build_ir("skill", fixtures / "skill.yaml", registry),
+            build_ir("runtime", fixtures / "runtime.yaml", registry),
+            build_ir("runtime", fixtures / "runtime-fallback.yaml", registry),
+            build_ir("tool", fixtures / "tool.yaml", registry),
+            build_ir("knowledge", fixtures / "knowledge.md", registry),
+        ]
+        assert all(result.ok for result in results), [
+            (result.artifact, result.diagnostics) for result in results if not result.ok
+        ]
+        catalog = build_artifact_catalog(results)
+        context = ExecutionContext.create(
+            execution_id="execution-missing-binding",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+
+        # Planning itself already hard-fails on an unresolved *required*
+        # runtime reference, so the only way _bindings() legitimately sees
+        # binding=None for an already-planned step is a *non-required*
+        # reference that still fails to resolve -- swap the skill's
+        # dependency after planning to construct exactly that.
+        original = next(a for a in catalog.artifacts if a.id == "skill:use-runtime")
+        dangling_ref = replace(
+            original.ir.dependencies.runtime[0], id="runtime:does-not-exist", required=False
+        )
+        broken_skill = replace(
+            original.ir,
+            dependencies=replace(original.ir.dependencies, runtime=(dangling_ref,)),
+        )
+        broken_artifact = CatalogArtifact(
+            kind=original.kind, id=original.id, version=original.version,
+            status=original.status, path=original.path, ir=broken_skill,
+        )
+        artifacts = tuple(
+            broken_artifact if a is original else a for a in catalog.artifacts
+        )
+        grouped: dict[str, list] = {}
+        for artifact in artifacts:
+            grouped.setdefault(artifact.id, []).append(artifact)
+        broken_catalog = ArtifactCatalog(
+            artifacts, MappingProxyType({k: tuple(v) for k, v in grouped.items()})
+        )
+
+        workspace = SimpleNamespace(catalog=broken_catalog)
+        bindings, diagnostics = _bindings(workspace, plan)
+
+        self.assertEqual(bindings, [])
+        self.assertEqual({d.code for d in diagnostics}, {"ASF-BINDING-001"})
 
     def test_invalid_inputs_are_structured_cli_diagnostic(self):
         exit_code, report = self.run_cli(
