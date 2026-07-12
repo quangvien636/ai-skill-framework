@@ -1,8 +1,8 @@
 # Contract Validation Guide
 
-Version: 0.7
+Version: 0.8
 Status: Active
-Last updated: 2026-07-05
+Last updated: 2026-07-12
 
 ## Purpose
 
@@ -126,9 +126,12 @@ artifacts.
 ### Reading Diagnostics
 
 Fix errors at their source; do not edit generated normalized models. A schema
-error identifies an instance path and schema rule. A semantic error cites the
-Markdown specification. A repository error cites both the referencing and target
-artifact where applicable.
+error identifies an instance path, exact source line/column, and schema rule.
+YAML/JSON IR-adapter and semantic diagnostics likewise retain their field path
+and append the closest exact source mark; a missing field points to its
+containing mapping because the absent key has no mark. Markdown Knowledge
+diagnostics use their heading path. A repository error cites both the
+referencing and target artifact where applicable.
 
 ## Examples
 
@@ -156,3 +159,4 @@ fail semantic validation because their sum is not `1.0`.
 | 0.4 | 2026-07-05 | Added IR, graph, and semantic validation commands and current rule coverage |
 | 0.5 | 2026-07-05 | Added integrated Project Discovery and repository validation usage |
 | 0.6 | 2026-07-05 | Documented automated content-integrity and lifecycle policies |
+| 0.8 | 2026-07-12 | Documented position-preserving YAML/JSON schema, IR-adapter, and semantic diagnostics |

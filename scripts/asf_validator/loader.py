@@ -15,18 +15,24 @@ import yaml
 from .diagnostics import Diagnostic, PARSE_MALFORMED_SOURCE, Severity
 
 
+SourcePath = tuple[str | int, ...]
+SourcePositionMap = dict[SourcePath, tuple[int, int]]
+
+
 class LoadResult:
-    __slots__ = ("document", "text", "diagnostics")
+    __slots__ = ("document", "text", "diagnostics", "positions")
 
     def __init__(
         self,
         document: Optional[Any],
         text: Optional[str],
         diagnostics: list[Diagnostic],
+        positions: Optional[SourcePositionMap] = None,
     ) -> None:
         self.document = document
         self.text = text
         self.diagnostics = diagnostics
+        self.positions = positions or {}
 
     @property
     def ok(self) -> bool:
@@ -56,6 +62,7 @@ def load_yaml(path: Path) -> LoadResult:
         return LoadResult(None, None, diagnostics)
     try:
         document = yaml.safe_load(text)
+        positions = _source_positions(text)
     except yaml.YAMLError as exc:
         mark = getattr(exc, "problem_mark", None)
         location = (
@@ -90,7 +97,7 @@ def load_yaml(path: Path) -> LoadResult:
                 )
             ],
         )
-    return LoadResult(document, text, [])
+    return LoadResult(document, text, [], positions)
 
 
 def load_json(path: Path) -> LoadResult:
@@ -117,7 +124,7 @@ def load_json(path: Path) -> LoadResult:
                 )
             ],
         )
-    return LoadResult(document, text, [])
+    return LoadResult(document, text, [], _source_positions(text))
 
 
 def load_markdown(path: Path) -> LoadResult:
@@ -127,3 +134,63 @@ def load_markdown(path: Path) -> LoadResult:
     if text is None:
         return LoadResult(None, None, diagnostics)
     return LoadResult(None, text, [])
+
+
+def _source_positions(text: str) -> SourcePositionMap:
+    """Return key/item marks without changing the safe parsed document."""
+    root = yaml.compose(text, Loader=yaml.SafeLoader)
+    if root is None:
+        return {}
+    positions: SourcePositionMap = {}
+
+    def record(node: yaml.Node, path: SourcePath, position_node: yaml.Node | None = None) -> None:
+        mark = (position_node or node).start_mark
+        positions[path] = (mark.line + 1, mark.column + 1)
+        if isinstance(node, yaml.MappingNode):
+            for key_node, value_node in node.value:
+                key = key_node.value
+                record(value_node, path + (key,), key_node)
+        elif isinstance(node, yaml.SequenceNode):
+            for index, item_node in enumerate(node.value):
+                record(item_node, path + (index,))
+
+    record(root, ())
+    return positions
+
+
+def attach_source_positions(
+    diagnostics: list[Diagnostic], positions: SourcePositionMap
+) -> list[Diagnostic]:
+    """Append the closest source mark while preserving the field path."""
+    from dataclasses import replace
+
+    enriched: list[Diagnostic] = []
+    for diagnostic in diagnostics:
+        if "line " in diagnostic.location and "column " in diagnostic.location:
+            enriched.append(diagnostic)
+            continue
+        path = _diagnostic_path(diagnostic.location)
+        candidate = path
+        while candidate not in positions and candidate:
+            candidate = candidate[:-1]
+        position = positions.get(candidate) or positions.get(())
+        if position is None:
+            enriched.append(diagnostic)
+            continue
+        line, column = position
+        enriched.append(
+            replace(
+                diagnostic,
+                location=f"{diagnostic.location} (line {line}, column {column})",
+            )
+        )
+    return enriched
+
+
+def _diagnostic_path(location: str) -> SourcePath:
+    if location in {"<root>", "<yaml>", "<file>"}:
+        return ()
+    parts: list[str | int] = []
+    for part in location.split("."):
+        parts.append(int(part) if part.isdigit() else part)
+    return tuple(parts)

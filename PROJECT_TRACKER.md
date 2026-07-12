@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.42
+Version: 0.43
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,29 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 43 - Position-preserving IR diagnostics**
+
+Goal: close Sprint 16's remaining source-position gap for successfully parsed
+YAML/JSON schema, IR-adapter, and semantic diagnostics.
+
+Status: **Completed**
+
+### Sprint 43 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Position-preserving load | Done | Safe parsed values remain unchanged; a parallel PyYAML node walk records every mapping key/sequence item mark for YAML and JSON |
+| Schema diagnostics | Done | Instance field path is retained and closest exact `line N, column N` appended; missing keys point to parent mapping |
+| IR/semantic diagnostics | Done | Adapter and semantic diagnostics reuse `AdapterResult.source_positions` without changing codes/messages/rules |
+| Tests | Done | YAML/JSON mark maps, schema root position, exact metadata field position, and semantic diagnostic positions |
+
+### Sprint 43 Exit Criteria
+
+- Full validation and 168 core unit tests pass.
+- No source mutation, network, credential, or execution behavior.
+
+## Previous Sprint
 
 **Sprint 42 - Weekly execution hardening and consolidation**
 
@@ -38,7 +61,7 @@ Status: **Completed**
   unimplemented.
 - Working tree is clean after commit/push.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 41 - Credential-free local Markdown publishing**
 
@@ -61,7 +84,7 @@ Status: **Completed with proposed ADR-0019 pending human acceptance**
 - Full validation and all `publisher_adapters` tests pass.
 - No cloud API, credential, TTS, media rendering, upload, or MCP v2.
 
-## Earlier Sprint
+## Earlier Publisher Sprint
 
 **Sprint 40 - Local Ollama ModelInvoker execution**
 
@@ -360,6 +383,7 @@ sprint indefinitely.
 | 40 | Local Ollama ModelInvoker execution | Proposed ADR-0018, official Ollama SDK invocation, immutable prompt/response contract, loopback/cloud fail-closed guards, real live-local evidence |
 | 41 | Credential-free local Markdown publishing | Proposed ADR-0019, real UTF-8 filesystem target, YAML front matter, containment/exclusive-create safety, external-platform fail-closed behavior |
 | 42 | Weekly execution hardening and consolidation | Full core validation, all six adapter suites in isolated processes, governance/secret/MCP audit, consolidated execution status |
+| 43 | Position-preserving IR diagnostics | YAML/JSON path-to-mark maps and exact source positions on schema, IR-adapter, and semantic diagnostics |
 
 ## Risks and Guardrails
 
@@ -384,15 +408,7 @@ sprint indefinitely.
    shared IR/graph pipelines. Before a real `generate` command can be added,
    implement the Generator Architecture's reference pipeline so the CLI has
    a real operation to wrap rather than a partial-success stub.
-3. Extend line/column source-position tracking beyond the parse-error
-   layer Sprint 35 closed. Needs: (a) a position-preserving YAML loader
-   (PyYAML's `safe_load` discards line/column once parsing succeeds —
-   `scripts/asf_validator/loader.py` would need a custom `Loader` that
-   attaches a mark to every node, or a switch to `ruamel.yaml`), and
-   (b) mapping each `ASF-SCHEMA-*`/IR-adapter-level diagnostic's field
-   path back to a line/column via that position-preserving document.
-   Sprint 16's original Deferred/Documented Gap, still open.
-4. If pre-release versions are ever adopted, implement full SemVer
+3. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -442,3 +458,4 @@ sprint indefinitely.
 | 0.40 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: reusable local-only ModelInvoker execution through the official Ollama SDK, including real live-local evidence |
 | 0.41 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real credential-free local Markdown publishing with containment and no-overwrite safety |
 | 0.42 | 2026-07-12 | Completed Sprint 42: weekly hardening across full core and all adapter suites; consolidated Runtime/execute-half/security status |
+| 0.43 | 2026-07-12 | Completed Sprint 43: position-preserving YAML/JSON marks now enrich schema, IR-adapter, and semantic diagnostics with exact line/column evidence |

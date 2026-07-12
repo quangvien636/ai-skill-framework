@@ -8,14 +8,6 @@ from asf_validator.loader import load_json, load_yaml
 
 
 class LoaderLineColumnTests(unittest.TestCase):
-    """Sprint 16's Deferred/Documented Gap, narrowed scope: real line/column
-    source-position tracking for the one layer that can report it exactly
-    -- YAML/JSON parse errors, which PyYAML/json already carry a precise
-    mark for. Schema/semantic-level diagnostics (a missing required field,
-    a wrong enum value, etc.) still report a field/section path rather than
-    a source line -- see PROJECT_TRACKER.md's Next Actions for why that
-    remains open (it needs a position-preserving YAML loader plus mapping
-    a jsonschema error path back to a line, a materially larger change)."""
 
     def test_malformed_yaml_reports_real_line_and_column(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -54,8 +46,10 @@ class LoaderLineColumnTests(unittest.TestCase):
 
             self.assertTrue(yaml_result.ok)
             self.assertEqual(yaml_result.document, {"a": 1, "b": 2})
+            self.assertEqual(yaml_result.positions[("a",)], (1, 1))
             self.assertTrue(json_result.ok)
             self.assertEqual(json_result.document, {"a": 1, "b": 2})
+            self.assertEqual(json_result.positions[("b",)], (1, 10))
 
 
 if __name__ == "__main__":

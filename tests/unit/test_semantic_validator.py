@@ -107,6 +107,9 @@ class SemanticValidatorTests(unittest.TestCase):
         self.assertTrue(diagnostics)
         self.assertTrue(all(diagnostic.artifact for diagnostic in diagnostics))
         self.assertTrue(all(diagnostic.location for diagnostic in diagnostics))
+        self.assertTrue(
+            all("line " in diagnostic.location and "column " in diagnostic.location for diagnostic in diagnostics)
+        )
         self.assertTrue(all(diagnostic.message for diagnostic in diagnostics))
         self.assertTrue(all(diagnostic.suggestion for diagnostic in diagnostics))
 

@@ -32,6 +32,7 @@ from .diagnostics import (
     Severity,
 )
 from .pipeline import AdapterResult
+from .loader import attach_source_positions
 from .runtime_ir import RuntimeIR
 from .skill_ir import FieldIR, SkillIR
 from .workflow_ir import WorkflowIR, WorkflowStepIR
@@ -62,7 +63,19 @@ def validate_semantics(results: list[AdapterResult]) -> list[Diagnostic]:
     for artifact, workflow in workflows:
         diagnostics.extend(_validate_workflow(artifact, workflow, skills))
 
-    return diagnostics
+    positions_by_artifact = {
+        result.artifact: result.source_positions
+        for result in results
+        if result.source_positions
+    }
+    enriched: list[Diagnostic] = []
+    for diagnostic in diagnostics:
+        enriched.extend(
+            attach_source_positions(
+                [diagnostic], positions_by_artifact.get(diagnostic.artifact, {})
+            )
+        )
+    return enriched
 
 
 def _validate_skill(artifact: str, skill: SkillIR) -> list[Diagnostic]:

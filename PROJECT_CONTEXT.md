@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.40
+Version: 0.41
 Status: Active
 Last updated: 2026-07-12
 
@@ -246,6 +246,14 @@ Adapter test isolation is now documented because duplicate module names across
 packages prevent safe all-directories-in-one-process collection even though
 each suite is green.
 
+**Sprint 43** closed the remaining IR source-position gap. YAML and JSON still
+use safe value parsing, while a parallel safe PyYAML node walk preserves marks
+for mapping keys and sequence items. `AdapterResult` carries this map so schema,
+IR-adapter, and semantic diagnostics retain their field path and append the
+closest exact line/column; missing fields correctly point at their containing
+mapping. Diagnostic codes, messages, rules, IR values, and Markdown heading-path
+behavior are unchanged.
+
 ## Definition of Done
 
 A change is complete when:
@@ -301,3 +309,4 @@ A change is complete when:
 | 0.38 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: local-only ModelInvoker execution through the official Ollama SDK with real live evidence |
 | 0.39 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real local Markdown publishing with containment and exclusive-create safety; all three deferred execute halves complete |
 | 0.40 | 2026-07-12 | Completed Sprint 42: full core/all-adapter hardening, security/governance audit, and consolidated weekly execution status |
+| 0.41 | 2026-07-12 | Completed Sprint 43: position-preserving YAML/JSON source marks now enrich schema, IR-adapter, and semantic diagnostics |

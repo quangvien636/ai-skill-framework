@@ -22,7 +22,13 @@ from typing import Any, Optional
 from .diagnostics import Diagnostic, has_errors
 from .evaluation_ir import EvaluationIR, build_evaluation_ir
 from .knowledge_ir import build_knowledge_ir
-from .loader import load_json, load_markdown, load_yaml
+from .loader import (
+    SourcePositionMap,
+    attach_source_positions,
+    load_json,
+    load_markdown,
+    load_yaml,
+)
 from .reflection_ir import ReflectionIR, build_reflection_ir
 from .runtime_ir import RuntimeIR, build_runtime_ir
 from .schema_registry import SchemaRegistry
@@ -60,6 +66,7 @@ class AdapterResult:
     artifact: str
     ir: Optional[Any] = None
     diagnostics: list[Diagnostic] = field(default_factory=list)
+    source_positions: SourcePositionMap = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
@@ -89,8 +96,12 @@ def _build_yaml_artifact(
     if not loaded.ok:
         result.diagnostics.extend(loaded.diagnostics)
         return result
+    result.source_positions = loaded.positions
 
     schema_diagnostics = schema_registry.validate(schema_name, loaded.document, artifact)
+    schema_diagnostics = attach_source_positions(
+        schema_diagnostics, loaded.positions
+    )
     result.diagnostics.extend(schema_diagnostics)
     if has_errors(schema_diagnostics):
         return result
@@ -105,7 +116,9 @@ def _build_yaml_artifact(
         ir, adapter_diagnostics = build_runtime_ir(loaded.document, artifact)
     else:
         ir, adapter_diagnostics = build_workflow_ir(loaded.document, artifact)
-    result.diagnostics.extend(adapter_diagnostics)
+    result.diagnostics.extend(
+        attach_source_positions(adapter_diagnostics, loaded.positions)
+    )
     result.ir = ir
     return result
 
@@ -119,8 +132,12 @@ def _build_json_artifact(
     if not loaded.ok:
         result.diagnostics.extend(loaded.diagnostics)
         return result
+    result.source_positions = loaded.positions
 
     schema_diagnostics = schema_registry.validate(schema_name, loaded.document, artifact)
+    schema_diagnostics = attach_source_positions(
+        schema_diagnostics, loaded.positions
+    )
     result.diagnostics.extend(schema_diagnostics)
     if has_errors(schema_diagnostics):
         return result

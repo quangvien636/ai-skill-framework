@@ -43,6 +43,27 @@ class PipelineFixtureConformanceTests(unittest.TestCase):
         self.assertTrue(second.ok)
         self.assertIsNot(first.ir, second.ir)  # independent objects, no shared mutable state
 
+    def test_schema_diagnostic_preserves_field_path_and_adds_source_position(self):
+        fixture = _bootstrap.FIXTURES_ROOT / "skill" / "missing_required.yaml"
+        result = build_ir("skill", fixture, self.schema_registry)
+        diagnostic = next(item for item in result.diagnostics if item.code == "ASF-SCHEMA-001")
+        self.assertRegex(diagnostic.location, r"^<root> \(line 1, column 1\)$")
+
+    def test_ir_adapter_diagnostic_adds_exact_field_position(self):
+        fixture = _bootstrap.FIXTURES_ROOT / "skill" / "malformed_metadata.yaml"
+        result = build_ir("skill", fixture, self.schema_registry)
+        diagnostic = next(item for item in result.diagnostics if item.code == "ASF-PARSE-005")
+        self.assertRegex(diagnostic.location, r"^id \(line \d+, column \d+\)$")
+
+    def test_json_schema_diagnostic_adds_parent_field_position(self):
+        fixture = _bootstrap.FIXTURES_ROOT / "evaluation" / "missing_required.json"
+        result = build_ir("evaluation", fixture, self.schema_registry)
+        diagnostic = next(item for item in result.diagnostics if item.code == "ASF-SCHEMA-001")
+        self.assertRegex(
+            diagnostic.location,
+            r"^acceptance \(line \d+, column \d+\)$",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
