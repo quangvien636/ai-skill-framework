@@ -1,8 +1,16 @@
 # Weekly Operator Plan
 
-Version: 0.2
+Version: 0.3
 Status: Active
 Last updated: 2026-07-12
+
+This document governs the two standing infrastructure triggers (MCP SDK v2,
+SemVer pre-release) only. `docs/guides/MONTHLY_OPERATOR_PLAN.md` is the
+higher-level, month-scoped roadmap that sits above it and covers the
+separate content-skill readiness push (golden samples, benchmark, video
+pipeline integration readiness) with its own triggers — read that document
+for anything content-skill-related; it does not change or override
+anything below.
 
 ## Purpose
 
@@ -414,3 +422,4 @@ runs, not as the sole validation before a commit.
 | --- | --- | --- |
 | 0.1 | 2026-07-12 | Established the weekly operator plan; Day 1 audit confirmed all 19 ADRs Accepted and both Next Actions triggers not yet fired (MCP SDK latest 1.28.1, no pre-release version adopted); prepared the MCP compatibility checklist and confirmed the validation matrix current |
 | 0.2 | 2026-07-12 | Extended in place to a two-week guarded operator plan: regrouped Days 1-7 under Week 1 (Guarded Trigger Monitoring & Readiness, unchanged findings), added Days 8-14 under Week 2 (Conditional Implementation Window — planning/implementation only if a trigger has actually fired, otherwise the same read-only check-and-stop behavior); documented that a bare root-level `python -m pytest` fails at collection and must not be used or reported as a validation failure |
+| 0.3 | 2026-07-12 | Added a pointer to the new `docs/guides/MONTHLY_OPERATOR_PLAN.md`, the month-scoped roadmap above this file covering content-skill readiness (golden samples, benchmark, integration readiness) with its own separate triggers; this document's own scope (MCP SDK v2, SemVer pre-release) is unchanged |

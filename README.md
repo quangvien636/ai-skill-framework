@@ -68,6 +68,13 @@ Under Development
 - [Compiler Lifecycle](docs/guides/COMPILER_LIFECYCLE.md)
 - [Validator Roadmap](docs/roadmaps/VALIDATOR_ROADMAP.md)
 
+### Operations
+
+- [Monthly Operator Plan](docs/guides/MONTHLY_OPERATOR_PLAN.md) — the
+  month-scoped content-skill readiness roadmap
+- [Weekly Operator Plan](docs/guides/WEEKLY_OPERATOR_PLAN.md) — the
+  two-week infrastructure trigger runbook (MCP SDK v2, SemVer pre-release)
+
 ## Production Skills
 
 The first production-quality framework package,

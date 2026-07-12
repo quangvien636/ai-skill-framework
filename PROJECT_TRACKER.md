@@ -405,6 +405,25 @@ sprint indefinitely.
 2. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
+3. Content Skill Readiness audit (`docs/guides/MONTHLY_OPERATOR_PLAN.md`
+   Week 1): identify the real gap between `skill:content-creation` today
+   and a benchmarkable content pipeline; produce `docs/guides/
+   CONTENT_SKILL_READINESS.md`.
+4. Golden Sample Intake Plan (Week 2): design the reference-content intake
+   workflow and review gate; produce `docs/guides/
+   GOLDEN_SAMPLE_INTAKE_PLAN.md`. Gated on Content Trigger A (a real
+   sample provided) for any work beyond the plan/schema itself.
+5. Content Benchmark Plan (Week 3): design the offline evaluation rubric
+   and pass/fail thresholds comparing AI Skill output against Claude/
+   Anthropic and human-approved references; produce `docs/guides/
+   CONTENT_BENCHMARK_PLAN.md`. No paid API call. Running the benchmark
+   itself is gated on Content Trigger B (real sample outputs available).
+6. Video Pipeline Integration Readiness Plan (Week 4): design the Go/No-Go
+   checklist and rollback policy for a shadow/offline/branch-only
+   experiment with `video_pipeline`; produce `docs/guides/
+   VIDEO_PIPELINE_INTEGRATION_READINESS.md`. Never a production connection;
+   gated on Content Trigger C (benchmark threshold cleared) plus explicit
+   human approval per `.ai/governance/DECISION_RIGHTS.md`.
 
 ADR-0016, ADR-0017, ADR-0018, and ADR-0019 were reviewed and accepted by the
 human maintainer on 2026-07-12; the former Next Action to review them is
@@ -426,6 +445,15 @@ re-confirmed later the same day: both triggers remain unfired (MCP SDK
 latest is 1.28.1; no pre-release version is adopted anywhere in the
 repository). Next scheduled re-check: on or before 2026-07-19, or
 immediately on an external signal that either trigger fired.
+
+`docs/guides/MONTHLY_OPERATOR_PLAN.md` is the higher-level, month-scoped
+roadmap above the weekly runbook: a four-week content-skill readiness push
+(Next Actions 3-6 above) covering readiness audit, golden-sample intake,
+benchmark/evaluation contract, and integration readiness — planning and
+checklists only, never a production connection to `video_pipeline` and
+never a production replacement of the Anthropic API. It defines three new
+content triggers (golden sample provided, benchmark sample available,
+integration candidate ready), none of which had fired as of 2026-07-12.
 
 ## Revision History
 
