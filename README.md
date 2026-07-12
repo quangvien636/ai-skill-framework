@@ -1,5 +1,13 @@
 # AI Skill Framework
 
+## Start Here
+
+[**Master Operator Manual**](MASTER_OPERATOR.md) is the single operating
+manual for any human or AI contributor session (Claude Code, Codex, Gemini,
+or any future coding agent): vision, philosophy, the Repository Truth
+Hierarchy, Operating Principles, Autonomous Development Rules, the Decision
+Hierarchy, and the complete documentation map. Read it first.
+
 ## Vision
 
 Build reusable AI Skills instead of one giant prompt.
@@ -30,6 +38,8 @@ Under Development
 
 ### Foundation
 
+- [Master Operator Manual](MASTER_OPERATOR.md) — the operating manual for
+  every contributor session
 - [Project Context](PROJECT_CONTEXT.md)
 - [Project Tracker](PROJECT_TRACKER.md)
 - [Design Principles](docs/principles/DESIGN_PRINCIPLES.md)

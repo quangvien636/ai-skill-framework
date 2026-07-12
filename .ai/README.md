@@ -4,6 +4,11 @@ Governance documents describing how human and AI contributors collaborate
 on the AI Skill Framework repository itself. This is documentation, not an
 executable Skill or agent system — see ADR-0008.
 
+For the repository-wide operating manual (vision, decision hierarchy,
+documentation architecture, and the complete future-chapter roadmap this
+governance suite feeds into), start at
+[MASTER_OPERATOR.md](../MASTER_OPERATOR.md).
+
 ## Roles
 
 | Role | One Decision Right |

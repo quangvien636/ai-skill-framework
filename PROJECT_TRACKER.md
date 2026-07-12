@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.43
+Version: 0.44
 Status: Active
 Last updated: 2026-07-12
 
@@ -10,7 +10,41 @@ Track the repository-backed delivery state of the AI Skill Framework. A task is
 complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
+See [MASTER_OPERATOR.md](MASTER_OPERATOR.md) for the full operating manual;
+this document remains the authoritative, live sprint-by-sprint ledger — the
+manual's spine does not replace it.
+
 ## Current Sprint
+
+**Sprint 44 - Master Operator Manual Foundation (Prompt 01/30)**
+
+Goal: create `MASTER_OPERATOR.md` as the single operating manual for every
+future AI or human contributor session, without duplicating any existing
+documentation, and define the complete future chapter roadmap.
+
+Status: **Completed**
+
+### Sprint 44 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Repository documentation audit | Done | Read every ADR, architecture document, specification, guide, principle, and governance document to build the Gap Analysis |
+| `MASTER_OPERATOR.md` | Done | Vision, Mission, Philosophy, Repository Truth Hierarchy, Operating Principles, Autonomous Development Rules, Decision Hierarchy, Documentation Strategy and Architecture, Future Expansion Strategy |
+| Complete Table of Contents | Done | 39 planned chapters across ten Parts, each with target file path and scope; none written yet, none linked as broken |
+| Gap Analysis | Done | Existing/missing knowledge, merge/keep-separate/deprecate/reference recommendations, each gap mapped to the chapter that closes it |
+| Documentation architecture decision | Done | Proposed `docs/adr/ADR-0020-master-operator-manual-and-documentation-hub.md`: hub-and-spoke, `docs/operator/` for future chapter files |
+| Agent auto-discovery | Done | Added `CLAUDE.md` and `AGENTS.md` as thin routing files pointing to `MASTER_OPERATOR.md` |
+| Cross-links from existing entry points | Done | `README.md`, `PROJECT_CONTEXT.md`, `PROJECT_TRACKER.md` (this file), `.ai/README.md`, and `.ai/playbooks/SPRINT_WORKFLOW.md` now reference `MASTER_OPERATOR.md`; no existing link removed or broken |
+| Validation | Done | `python scripts/validate_repository.py` passes with 0 errors/0 warnings after all changes |
+
+### Sprint 44 Exit Criteria
+
+- `python scripts/validate_repository.py` passes with 0 errors/0 warnings.
+- No `docs/operator/*.md` chapter content written — that is explicitly
+  Prompt 02's work and beyond.
+- No existing document merged, duplicated, or had content removed.
+
+## Previous Sprint
 
 **Sprint 43 - Position-preserving IR diagnostics**
 
@@ -33,7 +67,7 @@ Status: **Completed**
 - Full validation and 168 core unit tests pass.
 - No source mutation, network, credential, or execution behavior.
 
-## Previous Sprint
+## Earlier Hardening Sprint
 
 **Sprint 42 - Weekly execution hardening and consolidation**
 
@@ -384,6 +418,7 @@ sprint indefinitely.
 | 41 | Credential-free local Markdown publishing | Proposed ADR-0019, real UTF-8 filesystem target, YAML front matter, containment/exclusive-create safety, external-platform fail-closed behavior |
 | 42 | Weekly execution hardening and consolidation | Full core validation, all six adapter suites in isolated processes, governance/secret/MCP audit, consolidated execution status |
 | 43 | Position-preserving IR diagnostics | YAML/JSON path-to-mark maps and exact source positions on schema, IR-adapter, and semantic diagnostics |
+| 44 | Master Operator Manual Foundation (Prompt 01/30) | `MASTER_OPERATOR.md`, proposed ADR-0020 (hub-and-spoke, `docs/operator/`), `CLAUDE.md`/`AGENTS.md` routing files, 39-chapter Table of Contents, Gap Analysis |
 
 ## Risks and Guardrails
 
@@ -398,6 +433,12 @@ sprint indefinitely.
 
 ## Next Actions
 
+0. Prompt 02 of the Master Operator build-out: write the next unwritten
+   chapter(s) from `MASTER_OPERATOR.md`'s Complete Table of Contents
+   (default order is Part I onward), following the process its Future
+   Expansion Strategy section defines. `MASTER_OPERATOR.md` itself and
+   proposed ADR-0020 are also open for human review/acceptance, consistent
+   with `.ai/governance/DECISION_RIGHTS.md`.
 1. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
@@ -510,3 +551,4 @@ integration candidate ready), none of which had fired as of 2026-07-12.
 | 0.41 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real credential-free local Markdown publishing with containment and no-overwrite safety |
 | 0.42 | 2026-07-12 | Completed Sprint 42: weekly hardening across full core and all adapter suites; consolidated Runtime/execute-half/security status |
 | 0.43 | 2026-07-12 | Completed Sprint 43: position-preserving YAML/JSON marks now enrich schema, IR-adapter, and semantic diagnostics with exact line/column evidence |
+| 0.44 | 2026-07-12 | Completed Sprint 44 (Prompt 01/30): established `MASTER_OPERATOR.md`, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md`, and defined the complete 39-chapter future Table of Contents and Gap Analysis; no chapter content written yet |

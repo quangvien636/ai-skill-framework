@@ -1,13 +1,16 @@
 # AI Skill Framework - Project Context
 
-Version: 0.47
+Version: 0.48
 Status: Active
 Last updated: 2026-07-12
 
 ## Purpose
 
 This document gives human and AI contributors the minimum shared context required
-to work consistently on the AI Skill Framework.
+to work consistently on the AI Skill Framework. For the complete operating
+manual — vision, philosophy, the Repository Truth Hierarchy, Operating
+Principles, Autonomous Development Rules, the Decision Hierarchy, and the
+full documentation map — see [MASTER_OPERATOR.md](MASTER_OPERATOR.md).
 
 ## Vision
 
@@ -78,7 +81,8 @@ component-level description.
 
 ## Documentation-First Workflow
 
-1. Read `PROJECT_CONTEXT.md` and the relevant architecture, principles, and ADRs.
+1. Read `MASTER_OPERATOR.md`, then `PROJECT_CONTEXT.md` and the relevant
+   architecture, principles, and ADRs.
 2. Confirm the requirement against the current project tracker.
 3. Document new decisions or update affected documentation.
 4. Implement the smallest architecture-aligned change.
@@ -254,6 +258,24 @@ closest exact line/column; missing fields correctly point at their containing
 mapping. Diagnostic codes, messages, rules, IR values, and Markdown heading-path
 behavior are unchanged.
 
+**Sprint 44** established `MASTER_OPERATOR.md`, the repository's single
+operating manual for every future AI or human contributor session (Prompt
+01 of a planned 30-prompt build-out). It defines Vision, Mission,
+Philosophy, the Repository Truth Hierarchy, Operating Principles,
+Autonomous Development Rules, the Decision Hierarchy, Documentation
+Strategy and Architecture, a Future Expansion Strategy, a complete
+39-chapter Table of Contents across ten Parts (none written yet — each
+chapter is explicitly `Planned` with its target path already named), and a
+Gap Analysis naming every real documentation gap found. Per proposed
+ADR-0020, chapter content will live under a new `docs/operator/` directory
+following the existing hub-and-spoke pattern already used by
+`docs/specifications/README.md` and `.ai/README.md` — no existing document
+was merged, duplicated, or restructured. `CLAUDE.md` and `AGENTS.md` were
+added as thin, non-authoritative routing files so Claude Code and
+Codex-style sessions discover the manual automatically. No `docs/operator/`
+chapter content was written this sprint; that is explicitly Prompt 02's
+work and beyond.
+
 ## Definition of Done
 
 A change is complete when:
@@ -316,3 +338,4 @@ A change is complete when:
 | 0.45 | 2026-07-12 | Added `docs/guides/MONTHLY_OPERATOR_PLAN.md`: a four-week content-skill readiness push (readiness audit, golden-sample intake plan, benchmark/evaluation contract, integration readiness) sitting above the weekly infrastructure runbook. Monthly focus is content-skill readiness, a benchmark contract, and a golden-sample workflow — not replacing the Anthropic API in production, and not connecting `video_pipeline` to production output, this month or any month without a passed benchmark and explicit human approval |
 | 0.46 | 2026-07-12 | Completed the Monthly Plan's Week 1 same-day: `docs/guides/CONTENT_SKILL_READINESS.md` found `skill:content-creation` already has a real declarative evaluation rubric (four weighted metrics, `minimum_score: 85`) and a real live local-Ollama execution path, but the rubric is never executed against real output -- the largest gap toward a benchmarkable pipeline. No code changed; Weeks 2-4 remain gated on their own content triggers |
 | 0.47 | 2026-07-12 | Completed the Monthly Plan's Week 2: `docs/guides/GOLDEN_SAMPLE_INTAKE_PLAN.md` defines the intake template, three-verdict review gate, what-can/cannot-be-learned vocabularies, a proposed metadata schema, and a storage-location recommendation deferred until a real sample arrives. No sample was ingested, no content was scraped, and no external API was called this session -- Week 3 (Content Benchmark Plan) remains the next open item |
+| 0.48 | 2026-07-12 | Completed Sprint 44 (Prompt 01/30): established `MASTER_OPERATOR.md` as the repository's operating-manual hub, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md` routing files, and defined the complete 39-chapter future Table of Contents plus a Gap Analysis. No chapter content written yet |

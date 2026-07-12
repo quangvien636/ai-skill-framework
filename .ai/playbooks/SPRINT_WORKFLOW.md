@@ -8,9 +8,10 @@ without rediscovering it from Git history.
 Understand -> Plan -> Design -> Implement -> Review -> Validate -> Commit -> Push
 ```
 
-1. **Understand** — read `PROJECT_CONTEXT.md`, `PROJECT_TRACKER.md`'s
-   Current Sprint and Next Actions, and every document the sprint's scope
-   touches. Do not restate what is already established; build on it.
+1. **Understand** — read `MASTER_OPERATOR.md`, `PROJECT_CONTEXT.md`,
+   `PROJECT_TRACKER.md`'s Current Sprint and Next Actions, and every
+   document the sprint's scope touches. Do not restate what is already
+   established; build on it.
 2. **Plan** — confirm the sprint's goal and backlog against the roadmap
    ([Principal Engineer](../roles/PRINCIPAL_ENGINEER.md)). For a
    non-trivial change, this is where a plan-mode style proposal belongs.
