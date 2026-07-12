@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.37
+Version: 0.38
 Status: Active
 Last updated: 2026-07-12
 
@@ -220,6 +220,15 @@ model downloads; the documented tradeoff is lexical rather than neural
 semantic similarity. LlamaIndex still owns indexing/scoring/retrieval, and no
 LLM response synthesizer is constructed.
 
+**Sprint 40** implemented `model_invokers.ModelInvoker.invoke` for local
+Ollama through the official `ollama` Python SDK (proposed ADR-0018). A real
+`ModelDescriptor` from the production Content Creation RuntimeBinding now
+composes with this reusable invoker; non-Ollama descriptors and non-loopback
+endpoints fail before a client is constructed. Immutable prepared-prompt and
+response contracts plus explicit provider/malformed-response errors are tested,
+and an opt-in live test returned real text from the installed local `llama3`
+model. No cloud provider SDK or credential path was added.
+
 ## Definition of Done
 
 A change is complete when:
@@ -272,3 +281,4 @@ A change is complete when:
 | 0.35 | 2026-07-12 | Completed Sprint 37: recorded scoped human approval and readiness/rollback gates for the local Ollama Runtime promotion without changing lifecycle |
 | 0.36 | 2026-07-12 | Completed Sprint 38: atomic production wiring and active promotion for `runtime:offline`, with planner invariants and real local Ollama evidence |
 | 0.37 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution using deterministic scikit-learn hashing embeddings |
+| 0.38 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: local-only ModelInvoker execution through the official Ollama SDK with real live evidence |

@@ -1,6 +1,3 @@
-# model_invokers has no external dependency yet: Priority 3 scopes this
-# package to declarative provider descriptions only (no network calls, no
-# API keys, no execution). When ModelInvoker.invoke() is actually
-# implemented, each provider's official SDK is added here individually
-# (openai, anthropic, google-genai, ollama) -- never a hand-rolled HTTP
-# client, per ADR-0013.
+# Official Ollama SDK only. Cloud provider SDKs and credentials are deliberately
+# absent; their descriptors fail closed in ModelInvoker.invoke.
+ollama>=0.6,<1

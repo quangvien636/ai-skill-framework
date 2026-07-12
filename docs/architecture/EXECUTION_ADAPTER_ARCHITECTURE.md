@@ -1,6 +1,6 @@
 # Execution Adapter Architecture
 
-Version: 0.8
+Version: 0.9
 Status: Active
 Last updated: 2026-07-12
 
@@ -40,7 +40,7 @@ adapters/                # NEW: one package per reuse target, each importing exa
   langgraph_runtime/     # ExecutionPlan -> StateGraph compiler
   mcp_tools/             # ToolIR/ConnectorIR -> MCP server tool/resource bindings
   llamaindex_retrieval/  # Knowledge IR -> retrieval configuration (compile half only)
-  model_invokers/        # declarative provider/model descriptors (compile half only)
+  model_invokers/        # provider descriptors + local Ollama invoke half
   publisher_adapters/    # declarative cross-platform export descriptors (compile half only)
 ```
 
@@ -156,7 +156,7 @@ not use an LLM response synthesizer, cloud embedding, credential, model
 download, or network call. Proposed ADR-0017 records the Build-vs-Reuse choice
 and its lexical-ranking tradeoff.
 
-#### `ModelInvoker` (descriptor half implemented; invoke half is not)
+#### `ModelInvoker` (descriptor and local invoke halves implemented)
 
 ```python
 class ModelDescriptorCompiler(Protocol):
@@ -177,14 +177,15 @@ an immutable `ModelDescriptor` (provider, model, generation parameters,
 optional endpoint) and makes **no network call and imports no provider
 SDK** — Priority 3's scope. It actively rejects any parameter whose name
 looks like a credential (`api_key`, `token`, `authorization`, ...), so "no
-API keys" is an enforced guarantee, not only a convention. `model_invokers`
-does not yet resolve a Skill's `dependencies.runtime` reference to a
-specific descriptor: no Runtime contract schema exists yet to carry
-provider/model information (ADR-0011 defers Runtime artifact schemas), so
-this module documents that gap rather than inventing one (ADR-0009's
-precedent). `ModelInvoker.invoke` — actually calling a provider — is
-unimplemented; when built, each provider's official SDK (or Ollama's local
-API) is the reuse target, never a hand-rolled HTTP client.
+API keys" is an enforced guarantee, not only a convention. Runtime Contracts
+resolve to descriptors through `model_descriptor_from_runtime` or
+`model_descriptor_from_binding`.
+
+`ModelInvoker.invoke` is implemented for local Ollama only using the official
+Ollama Python SDK. It rejects non-Ollama descriptors before client construction,
+requires an HTTP loopback endpoint, and returns an immutable response. Cloud
+SDKs, credentials, streaming, and tool calls remain absent. Proposed ADR-0018
+records this provider-bounded Build-vs-Reuse decision.
 
 #### `PublisherAdapter` (descriptor half implemented; publish half is not)
 
@@ -310,3 +311,4 @@ has no provider SDK, API key, cloud fallback, or paid-provider execution path.
 | 0.6 | 2026-07-05 | Added Runtime Contract binding functions to all five adapters (ADR-0014 Phase 6): binding only, no invocation, no new external dependency |
 | 0.7 | 2026-07-05 | Added the loopback-only Ollama StepExecutor and canonical composite runner as the first bounded execute-half implementation. |
 | 0.8 | 2026-07-12 | Added the real local `KnowledgeRetriever.query` execute half using LlamaIndex `VectorStoreIndex` and scikit-learn hashing embeddings (proposed ADR-0017) |
+| 0.9 | 2026-07-12 | Added local-only `ModelInvoker.invoke` through the official Ollama SDK; cloud descriptors fail closed (proposed ADR-0018) |

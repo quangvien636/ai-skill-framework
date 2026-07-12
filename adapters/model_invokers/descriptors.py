@@ -1,15 +1,11 @@
-"""Declarative model-provider descriptions. Priority 3 scope: describe, never
-invoke.
+"""Declarative model-provider descriptions (the non-executing half).
 
 This module builds immutable ``ModelDescriptor`` values naming a provider,
 model, and generation parameters. It makes no network call, imports no
 provider SDK, and actively rejects any parameter that looks like a
 credential -- "no API keys" is enforced here, not just documented. Actually
-calling a provider (``ModelInvoker.invoke`` in
-docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md) is unimplemented; when
-it is built, each provider's official SDK (openai, anthropic, google-genai)
-or Ollama's local API is the reuse target, never a hand-rolled HTTP client,
-per ADR-0013.
+The separate ``invoker`` module implements local Ollama invocation through its
+official SDK. Cloud-provider invocation remains unavailable and fail-closed.
 
 ``model_descriptor_from_runtime`` binds a resolved Runtime Contract's
 ``model`` section (ADR-0014) to a ``ModelDescriptor`` -- binding only, no

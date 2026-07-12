@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.39
+Version: 0.40
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,29 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 40 - Local Ollama ModelInvoker execution**
+
+Goal: implement the reusable `ModelInvoker.invoke` execute half for local
+Ollama without enabling any cloud or credential path.
+
+Status: **Completed with proposed ADR-0018 pending human acceptance**
+
+### Sprint 40 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Build-vs-Reuse decision | Done | Proposed ADR-0018 selects the official Ollama Python SDK and rejects adapter-to-adapter imports/duplicated HTTP transport |
+| Real invocation | Done | `ModelInvoker.invoke` maps `ModelDescriptor` + `PreparedPrompt` to SDK `generate` and returns immutable `ModelResponse` |
+| Local-only enforcement | Done | Non-Ollama providers and non-loopback endpoints fail before client construction |
+| Live evidence | Done | Opt-in test invoked installed local `llama3` through the official SDK and returned real text |
+
+### Sprint 40 Exit Criteria
+
+- Full validation and all `model_invokers` tests pass.
+- No cloud SDK/API, credential, TTS, rendering, upload, publishing, or MCP v2.
+
+## Previous Sprint
 
 **Sprint 39 - Local LlamaIndex query execution**
 
@@ -33,7 +56,7 @@ Status: **Completed with proposed ADR-0017 pending human acceptance**
 - Full validation and all `llamaindex_retrieval` tests pass.
 - No LLM, cloud embedding, network, credential, or model download.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 38 - Atomic Ollama Runtime wiring and lifecycle promotion**
 
@@ -57,7 +80,7 @@ Status: **Completed**
 - Full validation and affected adapter suites pass.
 - No cloud API, credential, TTS, rendering, upload, publishing, or MCP v2.
 
-## Earlier Sprint
+## Earlier Runtime Promotion Sprint
 
 **Sprint 37 - Ollama Runtime promotion approval and readiness**
 
@@ -283,6 +306,7 @@ sprint indefinitely.
 | 37 | Ollama Runtime promotion approval and readiness | Durable human-approval scope and readiness/rollback gates for `runtime:offline@1.0.0` -> `skill:content-creation@1.0.0`; no lifecycle mutation |
 | 38 | Atomic Ollama Runtime wiring and lifecycle promotion | Active `runtime:offline` production binding for Content Creation, lifecycle-safe return of `runtime:content` to draft, planner invariants, real local Ollama evidence |
 | 39 | Local LlamaIndex query execution | Proposed ADR-0017, real in-memory `VectorStoreIndex` retrieval, deterministic local scikit-learn hashing embeddings, immutable scored results |
+| 40 | Local Ollama ModelInvoker execution | Proposed ADR-0018, official Ollama SDK invocation, immutable prompt/response contract, loopback/cloud fail-closed guards, real live-local evidence |
 
 ## Risks and Guardrails
 
@@ -297,12 +321,8 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Implement the remaining execute halves the compile-only adapters deliberately
-   deferred: `ModelInvoker.invoke` (call a
-   real provider SDK from a `ModelDescriptor` — Sprint 32 already proved
-   `model_descriptor_from_binding` -> a real local Ollama call composes
-   correctly in a test; this item is making that a reusable adapter
-   capability, not just a proof), and `PublisherAdapter.publish` (call a
+1. Implement the remaining execute half deliberately deferred:
+   `PublisherAdapter.publish` (call a
    real target from an `ExportDescriptor`). Each needs its own explicit
    Build vs Reuse note for the chosen SDK before implementation, per the
    engineering rules.
@@ -370,3 +390,4 @@ sprint indefinitely.
 | 0.37 | 2026-07-12 | Completed Sprint 37: recorded bounded human approval and readiness/rollback gates for the local Ollama Runtime promotion; no lifecycle mutation |
 | 0.38 | 2026-07-12 | Completed Sprint 38: atomically wired Content Creation to active local Ollama runtime, returned the displaced content runtime to draft, and locked planner/live readiness invariants |
 | 0.39 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution backed by deterministic scikit-learn hashing embeddings |
+| 0.40 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: reusable local-only ModelInvoker execution through the official Ollama SDK, including real live-local evidence |
