@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.44
+Version: 0.45
 Status: Active
 Last updated: 2026-07-12
 
@@ -16,7 +16,43 @@ manual's spine does not replace it.
 
 ## Current Sprint
 
-**Sprint 44 - Master Operator Manual Foundation (Prompt 01/30)**
+**Sprint 45 - Master Operator Manual Batch 1 (combined Prompts 02-05)**
+
+Goal: build out `MASTER_OPERATOR.md` from Sprint 44's spine-only foundation
+into its Autonomous Operating System, Governance and Decision Rights,
+Autonomous Planning, Repository Knowledge Architecture, and Documentation
+Framework chapters, in one continuous execution, without duplicating any
+existing documentation.
+
+Status: **Completed**
+
+### Sprint 45 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Repository verification (Step 0) | Done | `git fetch`, `git status`, `git diff HEAD --stat`, `git log -1`, `git branch --show-current`, upstream divergence check — clean tree, HEAD `8e27157`, 1 unpushed local commit, no concurrent-work signal |
+| Role-file grounding | Done | Read all 7 `.ai/roles/*.md` files in full to ground the Governance Model chapter in verified fact, not summary |
+| Phase 1: Autonomous Operating System | Done | 7 chapters: Session Bootstrap Protocol, Context Restoration, Autonomous Development Lifecycle, Validation and Repair Loop, Autonomous Continuation Rules and Stop Conditions, Recovery Procedures, Multi-Session Continuity and Handover |
+| Phase 2: Repository Knowledge Architecture | Done | 7 chapters: Repository Architecture Map, Truth Hierarchy and Conflict Resolution, Documentation Placement Rules, Knowledge Classification and Lifecycle, Duplication and Staleness Detection, Context/Tracker/Roadmap and Naming Standards, Deprecation/Archival and Evolution Strategy |
+| Phase 3: Governance and Autonomous Planning | Done | 10 chapters: Governance Model, ADR Governance, Authority Levels, Human/AI Responsibilities and Change Classification, Risk Classification and Governance Scenarios, Decision Engine, Priority and Planning Engine, Work Decomposition and Impact Analysis, Rollback Planning and Risk Register, Blocker Classification and Escalation |
+| Phase 4: Documentation Framework | Done | 6 chapters (Documentation and Writing Standards, Markdown/Cross-Link/Status Standards, Required Sections by Document Type, Template Framework, Documentation Review and Quality Gates, Future Document Creation Rules) plus a 12-file template library under `docs/operator/_templates/` |
+| Phase 4: Batch 1 consolidation | Done | Rewrote `MASTER_OPERATOR.md`'s Complete Table of Contents (13 Parts, 59 chapters: 30 Written/29 Planned) and Gap Analysis; updated Truth Hierarchy, Decision Hierarchy, Autonomous Development Rules, Documentation Architecture sections with pointers to new chapters |
+| Validation | Done | `python scripts/validate_repository.py`: 0 errors/0 warnings (after fixing 4 link/anchor defects found and repaired during this sprint); `python -m unittest discover -s tests/unit`: 168/168 |
+| Tracker/context update | Done | This entry; `PROJECT_CONTEXT.md` Sprint 45 narrative |
+
+### Sprint 45 Exit Criteria
+
+- `python scripts/validate_repository.py` passes with 0 errors/0 warnings.
+- `python -m unittest discover -s tests/unit` passes (no code was changed;
+  confirms the documentation-only change caused no regression).
+- No existing document merged, duplicated, or had content removed; every
+  superseded Table of Contents row is explicitly marked as superseded, not
+  silently dropped.
+- No new ADR, no code change, no lifecycle promotion, no external call.
+
+## Previous Sprint
+
+**Sprint 44 - Master Operator Manual Foundation (Prompt 01)**
 
 Goal: create `MASTER_OPERATOR.md` as the single operating manual for every
 future AI or human contributor session, without duplicating any existing
@@ -44,7 +80,7 @@ Status: **Completed**
   Prompt 02's work and beyond.
 - No existing document merged, duplicated, or had content removed.
 
-## Previous Sprint
+## Earlier Sprint (Master Operator)
 
 **Sprint 43 - Position-preserving IR diagnostics**
 
@@ -418,7 +454,8 @@ sprint indefinitely.
 | 41 | Credential-free local Markdown publishing | Proposed ADR-0019, real UTF-8 filesystem target, YAML front matter, containment/exclusive-create safety, external-platform fail-closed behavior |
 | 42 | Weekly execution hardening and consolidation | Full core validation, all six adapter suites in isolated processes, governance/secret/MCP audit, consolidated execution status |
 | 43 | Position-preserving IR diagnostics | YAML/JSON path-to-mark maps and exact source positions on schema, IR-adapter, and semantic diagnostics |
-| 44 | Master Operator Manual Foundation (Prompt 01/30) | `MASTER_OPERATOR.md`, proposed ADR-0020 (hub-and-spoke, `docs/operator/`), `CLAUDE.md`/`AGENTS.md` routing files, 39-chapter Table of Contents, Gap Analysis |
+| 44 | Master Operator Manual Foundation (Prompt 01) | `MASTER_OPERATOR.md`, proposed ADR-0020 (hub-and-spoke, `docs/operator/`), `CLAUDE.md`/`AGENTS.md` routing files, 39-chapter Table of Contents, Gap Analysis |
+| 45 | Master Operator Manual Batch 1 (combined Prompts 02-05) | 30 `docs/operator/*.md` chapters across 5 new Parts, 12-file template library, rewritten 13-Part/59-chapter Table of Contents and Gap Analysis |
 
 ## Risks and Guardrails
 
@@ -433,12 +470,16 @@ sprint indefinitely.
 
 ## Next Actions
 
-0. Prompt 02 of the Master Operator build-out: write the next unwritten
-   chapter(s) from `MASTER_OPERATOR.md`'s Complete Table of Contents
-   (default order is Part I onward), following the process its Future
-   Expansion Strategy section defines. `MASTER_OPERATOR.md` itself and
-   proposed ADR-0020 are also open for human review/acceptance, consistent
-   with `.ai/governance/DECISION_RIGHTS.md`.
+0. Batch 2 of the Master Operator build-out: write the next unwritten
+   chapter(s) from `MASTER_OPERATOR.md`'s Complete Table of Contents,
+   starting with Part VI (Architecture Reference), following the process
+   its Future Expansion Strategy section defines. Candidate priorities
+   within Batch 2, per Sprint 45's own Gap Analysis: Coding Standards
+   (Chapter 35), Testing Standards (Chapter 39), and Diagnostic Code
+   Reference (Chapter 41) close the largest remaining "no document exists
+   at all" gaps. `MASTER_OPERATOR.md` itself and proposed ADR-0020 are also
+   open for human review/acceptance, consistent with
+   `.ai/governance/DECISION_RIGHTS.md`.
 1. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
@@ -551,4 +592,5 @@ integration candidate ready), none of which had fired as of 2026-07-12.
 | 0.41 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real credential-free local Markdown publishing with containment and no-overwrite safety |
 | 0.42 | 2026-07-12 | Completed Sprint 42: weekly hardening across full core and all adapter suites; consolidated Runtime/execute-half/security status |
 | 0.43 | 2026-07-12 | Completed Sprint 43: position-preserving YAML/JSON marks now enrich schema, IR-adapter, and semantic diagnostics with exact line/column evidence |
-| 0.44 | 2026-07-12 | Completed Sprint 44 (Prompt 01/30): established `MASTER_OPERATOR.md`, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md`, and defined the complete 39-chapter future Table of Contents and Gap Analysis; no chapter content written yet |
+| 0.44 | 2026-07-12 | Completed Sprint 44 (Prompt 01): established `MASTER_OPERATOR.md`, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md`, and defined the complete 39-chapter future Table of Contents and Gap Analysis; no chapter content written yet |
+| 0.45 | 2026-07-12 | Completed Sprint 45 (Batch 1, combined Prompts 02-05): wrote 30 `docs/operator/*.md` chapters plus a 12-file template library, rewrote `MASTER_OPERATOR.md`'s Table of Contents (13 Parts, 59 chapters) and Gap Analysis; validator 0/0, unit tests 168/168, no new ADR, no code change |

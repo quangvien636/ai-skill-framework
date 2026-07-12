@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.48
+Version: 0.49
 Status: Active
 Last updated: 2026-07-12
 
@@ -276,6 +276,39 @@ Codex-style sessions discover the manual automatically. No `docs/operator/`
 chapter content was written this sprint; that is explicitly Prompt 02's
 work and beyond.
 
+**Sprint 45** built out that spine into its first real content in one
+continuous execution (Batch 1, originally scoped as combined Prompts
+02-05): 30 `docs/operator/*.md` chapters across five new Parts (Autonomous
+Operating System — boot sequence, context restoration, the full session
+state machine, validation/repair loop, stop conditions, recovery
+procedures, multi-session handover; Governance and Decision Rights —
+governance model, ADR governance, a Level 0-5 authority scale, human/AI
+responsibility and change classification, risk classification with 12
+worked governance scenarios; Autonomous Planning — a deterministic decision
+engine, a 14-tier priority ordering, work decomposition, rollback planning,
+blocker classification; Repository Knowledge Architecture — a verified
+directory-by-directory map, a category-based Truth Hierarchy expansion,
+documentation placement rules, a 13-class knowledge taxonomy, duplication/
+staleness detection, tracker/context/roadmap responsibilities; and
+Documentation Framework — writing standards, Markdown/cross-link/status
+standards, required sections by document type, and a 12-file reusable
+template library under `docs/operator/_templates/`). `MASTER_OPERATOR.md`
+itself was rewritten to a 13-Part, 59-chapter Table of Contents (30
+Written, 29 Planned) and an updated Gap Analysis; four originally-planned
+rows (Repository Structure Standard, Human Approval Rules, Escalation and
+Conflict Resolution, Documentation Standards) were retired as genuinely
+superseded rather than left as stale duplicates, and every other
+originally-planned row was preserved and renumbered. No new ADR was
+drafted — Sprint 45's own ADR Governance chapter's "when an ADR is
+unnecessary" rule applies directly, since this sprint synthesizes and
+operationalizes already-governed rules rather than introducing a new
+cross-cutting one. No code changed; `python scripts/validate_repository.py`
+(0 errors/0 warnings) and `python -m unittest discover -s tests/unit`
+(168/168) both pass. Remaining Batch 1 gaps (Coding Standards, Testing
+Standards, Diagnostic Code Reference, Documentation Map, Glossary content,
+and others the Gap Analysis names) are explicitly deferred to a future
+Batch, not silently implied as done.
+
 ## Definition of Done
 
 A change is complete when:
@@ -338,4 +371,5 @@ A change is complete when:
 | 0.45 | 2026-07-12 | Added `docs/guides/MONTHLY_OPERATOR_PLAN.md`: a four-week content-skill readiness push (readiness audit, golden-sample intake plan, benchmark/evaluation contract, integration readiness) sitting above the weekly infrastructure runbook. Monthly focus is content-skill readiness, a benchmark contract, and a golden-sample workflow — not replacing the Anthropic API in production, and not connecting `video_pipeline` to production output, this month or any month without a passed benchmark and explicit human approval |
 | 0.46 | 2026-07-12 | Completed the Monthly Plan's Week 1 same-day: `docs/guides/CONTENT_SKILL_READINESS.md` found `skill:content-creation` already has a real declarative evaluation rubric (four weighted metrics, `minimum_score: 85`) and a real live local-Ollama execution path, but the rubric is never executed against real output -- the largest gap toward a benchmarkable pipeline. No code changed; Weeks 2-4 remain gated on their own content triggers |
 | 0.47 | 2026-07-12 | Completed the Monthly Plan's Week 2: `docs/guides/GOLDEN_SAMPLE_INTAKE_PLAN.md` defines the intake template, three-verdict review gate, what-can/cannot-be-learned vocabularies, a proposed metadata schema, and a storage-location recommendation deferred until a real sample arrives. No sample was ingested, no content was scraped, and no external API was called this session -- Week 3 (Content Benchmark Plan) remains the next open item |
-| 0.48 | 2026-07-12 | Completed Sprint 44 (Prompt 01/30): established `MASTER_OPERATOR.md` as the repository's operating-manual hub, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md` routing files, and defined the complete 39-chapter future Table of Contents plus a Gap Analysis. No chapter content written yet |
+| 0.48 | 2026-07-12 | Completed Sprint 44 (Prompt 01): established `MASTER_OPERATOR.md` as the repository's operating-manual hub, proposed ADR-0020 for the hub-and-spoke documentation architecture, added `CLAUDE.md`/`AGENTS.md` routing files, and defined the complete 39-chapter future Table of Contents plus a Gap Analysis. No chapter content written yet |
+| 0.49 | 2026-07-12 | Completed Sprint 45 (Batch 1, combined Prompts 02-05): wrote 30 `docs/operator/*.md` chapters plus a 12-file template library, rewrote `MASTER_OPERATOR.md`'s Table of Contents (13 Parts, 59 chapters) and Gap Analysis with four genuinely-superseded rows retired; validator 0/0, unit tests 168/168, no new ADR, no code change |
