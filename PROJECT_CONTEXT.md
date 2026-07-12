@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.43
+Version: 0.44
 Status: Active
 Last updated: 2026-07-12
 
@@ -312,3 +312,4 @@ A change is complete when:
 | 0.41 | 2026-07-12 | Completed Sprint 43: position-preserving YAML/JSON source marks now enrich schema, IR-adapter, and semantic diagnostics |
 | 0.42 | 2026-07-12 | Human maintainer reviewed and accepted ADR-0016, ADR-0017, ADR-0018, and ADR-0019; all four Status fields changed from Proposed to Accepted, closing `PROJECT_TRACKER.md`'s Next Action to review them |
 | 0.43 | 2026-07-12 | Added `docs/guides/WEEKLY_OPERATOR_PLAN.md`: a bounded day-by-day runbook auditing the two remaining Next Actions triggers (MCP SDK v2, SemVer pre-release precedence); first exercise found both not yet fired, so no code changed this session |
+| 0.44 | 2026-07-12 | Extended `docs/guides/WEEKLY_OPERATOR_PLAN.md` in place into a guarded two-week operator plan (Week 1 monitoring/readiness, Week 2 conditional implementation window gated strictly on a trigger actually firing); goal is continued conditional operation across sessions without spending quota on no-op re-checks |
