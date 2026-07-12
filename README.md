@@ -183,9 +183,10 @@ assumptions, and deferred work.
 `contracts/runtime/<name>/runtime.yaml`) bind a Skill to a model, retriever,
 tools, and publisher plus timeout/retry/safety/audit/concurrency/fallback
 policy — the missing link between a Skill and the adapter layer below. Five
-canonical examples ship in `runtime/`: `simple`, `content`, `research`,
-`offline`, and `hybrid`. The production Skills consume active Runtime
-Contracts; offline and hybrid remain declarative examples.
+canonical contracts ship in `runtime/`: `simple`, `content`, `research`,
+`offline`, and `hybrid`. `runtime:offline` is the active, loopback-Ollama
+contract consumed by `skill:content-creation`; `runtime:content` is now a draft
+example. Other production Skills continue to consume their active contracts.
 `asf_runtime.planner` resolves a Skill's `dependencies.runtime` reference and
 that Runtime Contract's own Knowledge/Tool/fallback references, entirely at
 planning time — no model, tool, retriever, or publisher is ever invoked. See

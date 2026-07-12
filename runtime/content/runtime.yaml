@@ -4,7 +4,7 @@ name: "content"
 display_name: "Content Runtime"
 description: "Single-model runtime with a WordPress publisher binding, no retriever or tools."
 version: "1.0.0"
-status: "active"
+status: "draft"
 owners: ["framework-maintainers"]
 tags: ["runtime", "content"]
 responsibility: "Bind a content-producing Skill to a model and a WordPress export target."

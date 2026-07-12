@@ -4,7 +4,7 @@ name: "offline"
 display_name: "Offline Runtime"
 description: "Single local-model runtime (Ollama) with no retriever, tools, or publisher."
 version: "1.0.0"
-status: "draft"
+status: "active"
 owners: ["framework-maintainers"]
 tags: ["runtime", "offline"]
 responsibility: "Bind a Skill to a locally served model for offline/no-network operation."

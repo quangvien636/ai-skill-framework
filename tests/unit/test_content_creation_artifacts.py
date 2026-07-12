@@ -11,7 +11,7 @@ from asf_validator.version_graph import build_version_graph
 
 SKILL = "skills/content-creation/skill.yaml"
 WORKFLOW = "workflows/content-brief-to-package/workflow.yaml"
-RUNTIME = "runtime/content/runtime.yaml"
+RUNTIME = "runtime/offline/runtime.yaml"
 KNOWLEDGE = {
     "knowledge/creative/content/formats/content-structures.md",
     "knowledge/creative/content/style/tone-guidelines.md",

@@ -129,6 +129,33 @@ def test_ollama_runtime_binding_supplies_model_without_override():
     assert result.status == "succeeded"
 
 
+def test_production_content_skill_resolves_real_ollama_binding_without_override():
+    catalog = _catalog()
+    context = ExecutionContext.create(
+        "production-content-binding",
+        "workflow:content-brief-to-package",
+        "1.0.0",
+        {
+            "content-type": "social-media-post",
+            "brief": "Explain local-first AI.",
+            "audience": "Developers.",
+            "platform": "generic",
+        },
+    )
+    step = plan_workflow(context, catalog).steps[0]
+    skill = catalog.exact(step.skill_id, step.skill_version).ir
+    binding, diagnostics = resolve_skill_runtime_binding(skill, catalog)
+
+    assert binding is not None and not diagnostics
+    assert binding.runtime_id == "runtime:offline"
+    assert catalog.exact(binding.runtime_id, binding.runtime_version).status == "active"
+    assert binding.model is not None
+    assert binding.model.provider == "ollama"
+    assert binding.model.model == "llama3"
+    assert binding.model.endpoint == "http://localhost:11434"
+    assert OllamaStepExecutor(client=SuccessfulClient())._model(binding) == "llama3"
+
+
 def test_external_endpoint_is_rejected_before_any_request():
     with pytest.raises(ValueError, match="loopback"):
         OllamaStepExecutor(

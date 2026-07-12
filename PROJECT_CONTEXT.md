@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.35
+Version: 0.36
 Status: Active
 Last updated: 2026-07-12
 
@@ -121,7 +121,7 @@ adapter's existing descriptor — `model_descriptor_from_runtime`,
 `export_descriptor_from_runtime`, and `compile_plan(...,
 runtime_bindings=...)` — still binding only, never invoking. Five canonical
 examples ship in `runtime/` (`simple`, `content`, `research`, `offline`,
-`hybrid`, all `status: draft`), plus the first real production Tool
+`hybrid`; lifecycle varies), plus the first real production Tool
 artifact, `tools/read-file/tool.yaml`.
 
 **Sprint 29** proved the canonical three-Skill composite (Research ->
@@ -204,6 +204,14 @@ explicit. This readiness sprint changes no artifact lifecycle or dependency,
 makes no live Ollama call, and authorizes no cloud, credential, rendering,
 publishing, or MCP v2 behavior.
 
+**Sprint 38** completed the maintainer-approved atomic lifecycle transition:
+`skill:content-creation@1.0.0` now resolves the active
+`runtime:offline@1.0.0` binding (`ollama`/`llama3`, loopback endpoint), while
+the displaced `runtime:content` returned to `draft` so it did not become an
+active orphan. Planner tests lock active-only and exactly-one resolution, the
+existing adapter still reports unavailable-server/missing-model failures, and
+the opt-in compiled-binding test passed against a real local Ollama server.
+
 ## Definition of Done
 
 A change is complete when:
@@ -254,3 +262,4 @@ A change is complete when:
 | 0.33 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope) |
 | 0.34 | 2026-07-12 | Completed Sprint 36 as a proposal: recorded the Python/current-module CLI choice in proposed ADR-0016, confirmed existing Validator Integration, and documented the Generator implementation prerequisite |
 | 0.35 | 2026-07-12 | Completed Sprint 37: recorded scoped human approval and readiness/rollback gates for the local Ollama Runtime promotion without changing lifecycle |
+| 0.36 | 2026-07-12 | Completed Sprint 38: atomic production wiring and active promotion for `runtime:offline`, with planner invariants and real local Ollama evidence |

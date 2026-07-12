@@ -41,6 +41,27 @@ def production_catalog():
     )
 
 
+def _replace_catalog_artifacts(
+    catalog: ArtifactCatalog,
+    target: CatalogArtifact,
+    replacements: tuple[CatalogArtifact, ...],
+) -> ArtifactCatalog:
+    artifacts = tuple(
+        replacement
+        for item in catalog.artifacts
+        for replacement in (replacements if item is target else (item,))
+    )
+    grouped: dict[str, list[CatalogArtifact]] = {}
+    for artifact in artifacts:
+        grouped.setdefault(artifact.id, []).append(artifact)
+    return ArtifactCatalog(
+        artifacts,
+        MappingProxyType(
+            {key: tuple(entries) for key, entries in grouped.items()}
+        ),
+    )
+
+
 class RuntimePlannerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -68,10 +89,33 @@ class RuntimePlannerTests(unittest.TestCase):
         self.assertEqual(plan.batches, (("create-content",),))
         self.assertEqual(len(plan.steps[0].knowledge), 5)
         self.assertEqual(len(plan.resolutions), 7)
-        self.assertEqual(plan.steps[0].runtime[0].target_id, "runtime:content")
+        self.assertEqual(plan.steps[0].runtime[0].target_id, "runtime:offline")
         self.assertTrue(
             all(resolution.target_version == "1.0.0" for resolution in plan.resolutions)
         )
+
+    def test_production_planner_rejects_draft_offline_runtime(self):
+        offline = self.catalog.exact("runtime:offline", "1.0.0")
+        draft = replace(offline, status="draft")
+        catalog = _replace_catalog_artifacts(self.catalog, offline, (draft,))
+
+        with self.assertRaises(PlanningError) as caught:
+            plan_workflow(self.content_context(), catalog)
+
+        self.assertEqual(caught.exception.code, "ASF-RUNTIME-PLAN-006")
+        self.assertIn("found 0", str(caught.exception))
+
+    def test_production_planner_rejects_ambiguous_active_offline_runtime(self):
+        offline = self.catalog.exact("runtime:offline", "1.0.0")
+        catalog = _replace_catalog_artifacts(
+            self.catalog, offline, (offline, offline)
+        )
+
+        with self.assertRaises(PlanningError) as caught:
+            plan_workflow(self.content_context(), catalog)
+
+        self.assertEqual(caught.exception.code, "ASF-RUNTIME-PLAN-006")
+        self.assertIn("found 2", str(caught.exception))
 
     def test_execution_context_deep_freezes_inputs(self):
         context = self.content_context(inputs={"constraints": ["one"]})

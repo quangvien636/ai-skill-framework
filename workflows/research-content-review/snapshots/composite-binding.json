@@ -9,7 +9,7 @@
     {
       "step_id": "create-content",
       "skill_id": "skill:content-creation",
-      "runtime_id": "runtime:content",
+      "runtime_id": "runtime:offline",
       "runtime_version": "1.0.0"
     },
     {

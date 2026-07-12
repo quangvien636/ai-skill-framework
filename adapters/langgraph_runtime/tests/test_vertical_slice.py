@@ -50,7 +50,9 @@ def test_content_creation_compiles_end_to_end_without_execution():
 
     compiled = compile_vertical_slice(context, _production_catalog())
 
-    assert compiled.binding_ir[0].runtime_id == "runtime:content"
+    assert compiled.binding_ir[0].runtime_id == "runtime:offline"
+    assert compiled.binding_ir[0].model_provider == "ollama"
+    assert compiled.binding_ir[0].model_name == "llama3"
     assert compiled.graph.get_graph().nodes
     _snapshot("content-creation.json", compiled.as_dict())
 

@@ -113,7 +113,7 @@ class CompositeWorkflowTests(unittest.TestCase):
 
         self.assertEqual(
             runtime_ids,
-            ["runtime:research", "runtime:content", "runtime:simple"],
+            ["runtime:research", "runtime:offline", "runtime:simple"],
         )
 
 

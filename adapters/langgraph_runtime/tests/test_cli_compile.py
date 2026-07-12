@@ -30,7 +30,8 @@ def test_cli_compile_returns_compiled_graph_without_execution():
     report = json.loads(output.getvalue())
     assert exit_code == 0
     assert report["compiled"]["graph"]["nodes"][1]["id"] == "create-content"
-    assert report["compiled"]["bindings"][0]["runtime_id"] == "runtime:content"
+    assert report["compiled"]["bindings"][0]["runtime_id"] == "runtime:offline"
+    assert report["compiled"]["bindings"][0]["model"]["provider"] == "ollama"
 
 
 def test_cli_compile_content_workflow_alias_uses_canonical_inputs():
@@ -58,6 +59,6 @@ def test_cli_compile_content_workflow_alias_uses_canonical_inputs():
     ]
     assert [binding["runtime_id"] for binding in report["compiled"]["bindings"]] == [
         "runtime:research",
-        "runtime:content",
+        "runtime:offline",
         "runtime:simple",
     ]

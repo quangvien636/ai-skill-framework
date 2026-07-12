@@ -18,6 +18,13 @@ It does not provide a runtime engine, arbitrary workflow execution, scheduling,
 queues, background workers, publishing, or rendering. Dry-run mode never
 constructs or calls an Ollama client.
 
+`skill:content-creation@1.0.0` resolves its production local model through the
+active `runtime:offline@1.0.0` contract. The adapter consumes that
+`RuntimeBinding` directly, so an explicit model override is not required for
+that Skill. Other canonical Skills still use non-Ollama bindings and require
+an explicit local model override when the full three-step composite is run
+live.
+
 See [TOPIC_RELEVANCE.md](TOPIC_RELEVANCE.md) for how the artifact checks
 decide whether generated output actually stays on-topic (lexical scoring,
 domain-drift detection, configuration, and the optional semantic extension

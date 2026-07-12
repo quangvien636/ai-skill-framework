@@ -115,7 +115,7 @@ outputs:
       additional_properties: false
 dependencies:
   runtime:
-    - id: "runtime:content"
+    - id: "runtime:offline"
       version: ">=1.0.0 <2.0.0"
       required: true
   tools: []

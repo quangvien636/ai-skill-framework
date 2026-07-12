@@ -1,6 +1,6 @@
 # Runtime Promotion Readiness
 
-Version: 1.0
+Version: 1.1
 Status: Active
 Last updated: 2026-07-12
 
@@ -19,8 +19,9 @@ On 2026-07-12, the human maintainer explicitly approved one bounded promotion:
 - execution backend: a local Ollama server on a loopback endpoint only;
 - side effects: model text generation only, stopping at ASF's declared output
   boundary; no rendering, TTS, upload, publishing, or cloud API;
-- delivery: readiness, wiring, and lifecycle promotion remain separate sprints,
-  each validated, committed, and pushed independently.
+- delivery: readiness was recorded separately; wiring and lifecycle promotion
+  were explicitly approved as one atomic sprint because production planning
+  resolves active Runtime Contracts only.
 
 This approval does not accept ADR-0016, promote any other artifact, authorize a
 cloud provider, authorize credentials, or authorize MCP SDK v2 work.
@@ -31,16 +32,16 @@ All gates below must pass before `runtime:offline` changes to `active`.
 
 | Gate | Required evidence | Sprint 37 baseline |
 | --- | --- | --- |
-| Human authority | Durable scoped approval record | Pass — recorded above |
-| Contract validity | Contract, IR, graph, semantic, and repository validation | Pass at baseline |
-| Production consumer | The approved Skill resolves `runtime:offline` through its declared dependency and `RuntimeBinding` | Pending wiring sprint |
-| Real execution path | Existing adapter consumes the resolved binding; no stub or bypass | Pending wiring sprint |
-| Local-only transport | Endpoint validation rejects non-loopback hosts | Existing adapter coverage; re-verify after wiring |
-| Model configuration | Model comes from the Runtime Contract or an explicit local override; no credential or source-code-only model selection | Existing abstraction; re-verify after wiring |
-| Failure behavior | Unavailable server and missing model return structured diagnostics | Existing adapter coverage; re-verify after wiring |
-| Live readiness | A real local Ollama server lists the configured model and the approved path completes its live test without fake output | Required immediately before promotion |
-| Safety boundary | No cloud call, API key, TTS, rendering, upload, or publishing | Required in every sprint |
-| Regression safety | Full required validation plus affected adapter tests pass | Required in every sprint |
+| Human authority | Durable scoped approval record | Pass — atomic promotion approved 2026-07-12 |
+| Contract validity | Contract, IR, graph, semantic, and repository validation | Pass |
+| Production consumer | The approved Skill resolves `runtime:offline` through its declared dependency and `RuntimeBinding` | Pass |
+| Real execution path | Existing adapter consumes the resolved binding; no stub or bypass | Pass |
+| Local-only transport | Endpoint validation rejects non-loopback hosts | Pass — adapter test coverage |
+| Model configuration | Model comes from the Runtime Contract or an explicit local override; no credential or source-code-only model selection | Pass — `llama3` from binding |
+| Failure behavior | Unavailable server and missing model return structured diagnostics | Pass — adapter test coverage |
+| Live readiness | A real local Ollama server lists the configured model and the approved path completes its live test without fake output | Pass — `llama3:latest` listed; opt-in compiled-binding live test passed |
+| Safety boundary | No cloud call, API key, TTS, rendering, upload, or publishing | Pass |
+| Regression safety | Full required validation plus affected adapter tests pass | Pass |
 
 ## Promotion Procedure
 
@@ -53,6 +54,15 @@ All gates below must pass before `runtime:offline` changes to `active`.
    sprint evidence. A skip or unavailable model blocks promotion.
 5. Only after all gates pass, change `runtime:offline` from `draft` to `active`.
 6. Run full validation again, update project status, commit, and push.
+
+## Promotion Result
+
+Sprint 38 completed the approved atomic transition. `skill:content-creation`
+now requires `runtime:offline`, `runtime:offline` is `active`, and the former
+`runtime:content` contract returned to `draft` because otherwise it would be an
+active lifecycle orphan after losing its only consumer. Production planning
+resolves exactly one active `runtime:offline`; controlled tests prove draft and
+ambiguous active candidates fail closed.
 
 ## Rollback
 
@@ -69,4 +79,3 @@ substitute a cloud runtime or bypass model availability checks.
 - [Execution Adapter Architecture](../architecture/EXECUTION_ADAPTER_ARCHITECTURE.md)
 - [Compiler Lifecycle](COMPILER_LIFECYCLE.md)
 - [Ollama Execution Adapter](../../adapters/ollama_execution/README.md)
-

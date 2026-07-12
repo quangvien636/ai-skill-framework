@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.37
+Version: 0.38
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,30 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 38 - Atomic Ollama Runtime wiring and lifecycle promotion**
+
+Goal: atomically wire `skill:content-creation@1.0.0` to the local Ollama
+Runtime and promote that Runtime without ever committing an unresolvable
+production state.
+
+Status: **Completed**
+
+### Sprint 38 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Production wiring and lifecycle | Done | `skill:content-creation` requires active `runtime:offline`; the displaced `runtime:content` returned to `draft` to satisfy active-orphan policy |
+| Planner invariants | Done | Tests prove active offline resolution and fail-closed behavior for draft or ambiguous active candidates |
+| Real binding path | Done | LangGraph/Ollama adapter tests assert `runtime:offline` -> `ollama/llama3` without a model override |
+| Live readiness | Done | Local `/api/tags` listed `llama3:latest`; opt-in `test_live_ollama_invocation.py` passed against real local Ollama |
+
+### Sprint 38 Exit Criteria
+
+- Full validation and affected adapter suites pass.
+- No cloud API, credential, TTS, rendering, upload, publishing, or MCP v2.
+
+## Previous Sprint
 
 **Sprint 37 - Ollama Runtime promotion approval and readiness**
 
@@ -33,7 +57,7 @@ Status: **Completed**
 - No live Ollama or external API call is made in this documentation/readiness
   sprint.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 36 - CLI implementation language and phased adoption decision**
 
@@ -57,7 +81,7 @@ Status: **Completed as a proposal pending human ADR acceptance**
   delegation.
 - Full repository validation and unit tests pass.
 
-## Earlier Sprint
+## Earlier CLI Sprint
 
 **Sprint 35 - Real line/column tracking for parse-error diagnostics**
 
@@ -234,6 +258,7 @@ sprint indefinitely.
 | 35 | Real line/column tracking for parse-error diagnostics | `loader.py`'s YAML/JSON parse errors now report a real `line N, column N`; narrowed scope (schema/semantic diagnostics still report a field path, not a line — remains open) |
 | 36 | CLI implementation language and phased adoption decision | Proposed ADR-0016 selects Python, retains the existing single-module CLI until a real split trigger, confirms `validate` already wraps the shared IR/graph pipeline, and records the missing Generator implementation prerequisite |
 | 37 | Ollama Runtime promotion approval and readiness | Durable human-approval scope and readiness/rollback gates for `runtime:offline@1.0.0` -> `skill:content-creation@1.0.0`; no lifecycle mutation |
+| 38 | Atomic Ollama Runtime wiring and lifecycle promotion | Active `runtime:offline` production binding for Content Creation, lifecycle-safe return of `runtime:content` to draft, planner invariants, real local Ollama evidence |
 
 ## Risks and Guardrails
 
@@ -248,12 +273,7 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Wire the approved `runtime:offline@1.0.0` into
-   `skill:content-creation@1.0.0` using the existing RuntimeBinding and
-   loopback-only Ollama adapter. Satisfy
-   `docs/guides/RUNTIME_PROMOTION_READINESS.md`; lifecycle promotion remains
-   a separate following sprint and requires truthful live Ollama evidence.
-2. Implement the execute halves the compile-only adapters deliberately
+1. Implement the execute halves the compile-only adapters deliberately
    deferred: `KnowledgeRetriever.query` (build an actual LlamaIndex index/
    query engine from a `RetrievalConfig`), `ModelInvoker.invoke` (call a
    real provider SDK from a `ModelDescriptor` — Sprint 32 already proved
@@ -263,16 +283,16 @@ sprint indefinitely.
    real target from an `ExportDescriptor`). Each needs its own explicit
    Build vs Reuse note for the chosen SDK before implementation, per the
    engineering rules.
-3. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
+2. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-4. Review and accept or revise proposed ADR-0016. Python and the current
+3. Review and accept or revise proposed ADR-0016. Python and the current
    `scripts/asf_cli.py` layout are proposed; `validate` already wraps the
    shared IR/graph pipelines. Before a real `generate` command can be added,
    implement the Generator Architecture's reference pipeline so the CLI has
    a real operation to wrap rather than a partial-success stub.
-5. Extend line/column source-position tracking beyond the parse-error
+4. Extend line/column source-position tracking beyond the parse-error
    layer Sprint 35 closed. Needs: (a) a position-preserving YAML loader
    (PyYAML's `safe_load` discards line/column once parsing succeeds —
    `scripts/asf_validator/loader.py` would need a custom `Loader` that
@@ -280,7 +300,7 @@ sprint indefinitely.
    (b) mapping each `ASF-SCHEMA-*`/IR-adapter-level diagnostic's field
    path back to a line/column via that position-preserving document.
    Sprint 16's original Deferred/Documented Gap, still open.
-6. If pre-release versions are ever adopted, implement full SemVer
+5. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -325,3 +345,4 @@ sprint indefinitely.
 | 0.35 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope; schema/semantic diagnostics remain open in Next Actions) |
 | 0.36 | 2026-07-12 | Completed Sprint 36 as a proposal: ADR-0016 selects Python/current CLI layout, confirms existing Validator Integration, and records the missing Generator reference implementation prerequisite |
 | 0.37 | 2026-07-12 | Completed Sprint 37: recorded bounded human approval and readiness/rollback gates for the local Ollama Runtime promotion; no lifecycle mutation |
+| 0.38 | 2026-07-12 | Completed Sprint 38: atomically wired Content Creation to active local Ollama runtime, returned the displaced content runtime to draft, and locked planner/live readiness invariants |

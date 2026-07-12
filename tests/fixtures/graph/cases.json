@@ -87,7 +87,7 @@
         { "kind": "knowledge", "fixture": "knowledge/creative/content/platforms/publishing-constraints.md" },
         { "kind": "knowledge", "fixture": "knowledge/creative/content/hooks/hook-formulas.md" },
         { "kind": "knowledge", "fixture": "knowledge/creative/content/conversion/call-to-action-patterns.md" },
-        { "kind": "runtime", "fixture": "runtime/content/runtime.yaml" },
+        { "kind": "runtime", "fixture": "runtime/offline/runtime.yaml" },
         { "kind": "workflow", "fixture": "workflows/content-brief-to-package/workflow.yaml" }
       ],
       "expected_codes": []
@@ -148,7 +148,7 @@
         { "kind": "knowledge", "fixture": "knowledge/foundational/quality/revisions/revision-recommendation-patterns.md" },
         { "kind": "knowledge", "fixture": "knowledge/foundational/quality/decisions/approval-rejection-rules.md" },
         { "kind": "runtime", "fixture": "runtime/research/runtime.yaml" },
-        { "kind": "runtime", "fixture": "runtime/content/runtime.yaml" },
+        { "kind": "runtime", "fixture": "runtime/offline/runtime.yaml" },
         { "kind": "runtime", "fixture": "runtime/simple/runtime.yaml" },
         { "kind": "workflow", "fixture": "workflows/research-content-review/workflow.yaml" }
       ],
