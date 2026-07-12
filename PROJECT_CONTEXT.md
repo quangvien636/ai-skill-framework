@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.39
+Version: 0.40
 Status: Active
 Last updated: 2026-07-12
 
@@ -238,6 +238,14 @@ fail before any mutation, so no account, credential, upload, or platform SDK is
 introduced. All three execute halves named in the prior tracker are now
 implemented within local/credential-free scope.
 
+**Sprint 42** completed weekly hardening: every mandatory validation layer and
+all six adapter suites pass when run in their intentionally isolated pytest
+processes. The audit found no stale execute-half claim, secret/private-key
+pattern, cloud credential path, or MCP v2 change; `mcp>=1.27,<2` remains pinned.
+Adapter test isolation is now documented because duplicate module names across
+packages prevent safe all-directories-in-one-process collection even though
+each suite is green.
+
 ## Definition of Done
 
 A change is complete when:
@@ -292,3 +300,4 @@ A change is complete when:
 | 0.37 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution using deterministic scikit-learn hashing embeddings |
 | 0.38 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: local-only ModelInvoker execution through the official Ollama SDK with real live evidence |
 | 0.39 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real local Markdown publishing with containment and exclusive-create safety; all three deferred execute halves complete |
+| 0.40 | 2026-07-12 | Completed Sprint 42: full core/all-adapter hardening, security/governance audit, and consolidated weekly execution status |

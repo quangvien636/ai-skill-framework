@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.41
+Version: 0.42
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,34 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 42 - Weekly execution hardening and consolidation**
+
+Goal: consolidate the production Runtime promotion and three execute halves,
+then verify repository, adapter isolation, credential, and MCP boundaries.
+
+Status: **Completed**
+
+### Sprint 42 Weekly Summary
+
+| Area | Result |
+| --- | --- |
+| Production Runtime | `skill:content-creation` resolves active loopback `runtime:offline`; draft/ambiguous candidates fail closed |
+| Retrieval execute half | Real local LlamaIndex indexing/retrieval complete (proposed ADR-0017) |
+| Model execute half | Real local official-SDK Ollama invocation complete; cloud fail closed (proposed ADR-0018) |
+| Publisher execute half | Real caller-owned Markdown filesystem export complete; platforms fail closed (proposed ADR-0019) |
+| Core validation | Contracts 23/23; IR 47/47; graph 14/14; semantic 4/4; repository 0 errors/warnings; core unit 165/165 |
+| Adapter validation | LangGraph 23 pass/1 opt-in skip; MCP v1 7 pass; retrieval 15 pass; model 20 pass/1 opt-in skip; publisher 20 pass; Ollama execution 107 pass/1 opt-in skip |
+| Security/governance | No secret/private-key pattern, cloud API, credential, upload, TTS/media render, or MCP v2; pin remains `mcp>=1.27,<2` |
+
+### Sprint 42 Exit Criteria
+
+- All suites pass in their package-isolated processes.
+- Documentation contains no stale claim that the three execute halves remain
+  unimplemented.
+- Working tree is clean after commit/push.
+
+## Previous Sprint
 
 **Sprint 41 - Credential-free local Markdown publishing**
 
@@ -33,7 +61,7 @@ Status: **Completed with proposed ADR-0019 pending human acceptance**
 - Full validation and all `publisher_adapters` tests pass.
 - No cloud API, credential, TTS, media rendering, upload, or MCP v2.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 40 - Local Ollama ModelInvoker execution**
 
@@ -56,7 +84,7 @@ Status: **Completed with proposed ADR-0018 pending human acceptance**
 - Full validation and all `model_invokers` tests pass.
 - No cloud SDK/API, credential, TTS, rendering, upload, publishing, or MCP v2.
 
-## Earlier Sprint
+## Earlier Model Sprint
 
 **Sprint 39 - Local LlamaIndex query execution**
 
@@ -331,6 +359,7 @@ sprint indefinitely.
 | 39 | Local LlamaIndex query execution | Proposed ADR-0017, real in-memory `VectorStoreIndex` retrieval, deterministic local scikit-learn hashing embeddings, immutable scored results |
 | 40 | Local Ollama ModelInvoker execution | Proposed ADR-0018, official Ollama SDK invocation, immutable prompt/response contract, loopback/cloud fail-closed guards, real live-local evidence |
 | 41 | Credential-free local Markdown publishing | Proposed ADR-0019, real UTF-8 filesystem target, YAML front matter, containment/exclusive-create safety, external-platform fail-closed behavior |
+| 42 | Weekly execution hardening and consolidation | Full core validation, all six adapter suites in isolated processes, governance/secret/MCP audit, consolidated execution status |
 
 ## Risks and Guardrails
 
@@ -412,3 +441,4 @@ sprint indefinitely.
 | 0.39 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution backed by deterministic scikit-learn hashing embeddings |
 | 0.40 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: reusable local-only ModelInvoker execution through the official Ollama SDK, including real live-local evidence |
 | 0.41 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real credential-free local Markdown publishing with containment and no-overwrite safety |
+| 0.42 | 2026-07-12 | Completed Sprint 42: weekly hardening across full core and all adapter suites; consolidated Runtime/execute-half/security status |

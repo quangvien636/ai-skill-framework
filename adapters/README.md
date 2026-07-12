@@ -14,9 +14,10 @@ An adapter package:
   dependencies stay untouched by execution-backend churn;
 - translates ASF's already-validated contracts into the backend's native
   constructs and back;
-- owns only the bounded behavior declared by its seam. Compile-only adapters
-  never execute; the Ollama adapter performs only explicit local text
-  generation for the canonical composite workflow.
+- owns only the bounded behavior declared by its seam. Describe/compile
+  functions remain side-effect-free; execute halves are explicitly bounded to
+  local LlamaIndex retrieval, loopback Ollama generation, or caller-owned
+  Markdown filesystem export.
 
 | Package | Seam | Reuse target |
 | --- | --- | --- |
@@ -26,3 +27,8 @@ An adapter package:
 | [`model_invokers/`](model_invokers/) | `ModelDescriptorCompiler` + local `ModelInvoker.invoke` | official Ollama Python SDK; cloud providers fail closed |
 | [`publisher_adapters/`](publisher_adapters/) | `ExportDescriptorCompiler` + local Markdown `PublisherAdapter.publish` | Python filesystem + PyYAML; platform targets fail closed |
 | [`ollama_execution/`](ollama_execution/) | Canonical composite `StepExecutor` | local Ollama HTTP API, loopback only |
+
+Run each adapter's tests in a separate pytest process. Several isolated
+packages intentionally use the same test module names (for example,
+`test_descriptors.py`), so collecting every adapter directory in one process
+causes Python module-name collisions even though each individual suite passes.
