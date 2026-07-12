@@ -1,11 +1,17 @@
 import unittest
+from dataclasses import replace
 
 import _bootstrap
 
-from asf_validator.runtime_ir import build_runtime_ir
+from asf_runtime.binding import build_runtime_binding
+from asf_runtime.catalog import build_artifact_catalog
+from asf_validator.pipeline import build_ir
+from asf_validator.runtime_ir import PublisherBindingIR, build_runtime_ir
+from asf_validator.schema_registry import build_schema_registry
 from publisher_adapters.descriptors import (
     DescriptorError,
     compile_export_descriptor,
+    export_descriptor_from_binding,
     export_descriptor_from_runtime,
     facebook_export,
     markdown_export,
@@ -13,6 +19,23 @@ from publisher_adapters.descriptors import (
     wordpress_export,
     youtube_export,
 )
+
+RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
+
+
+def _runtime_binding_catalog():
+    registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+    results = [
+        build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+        build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+        build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+    ]
+    assert all(result.ok for result in results), [
+        (result.artifact, result.diagnostics) for result in results if not result.ok
+    ]
+    return build_artifact_catalog(results)
 
 _RUNTIME_DOC_BASE = {
     "schema_version": "1.0.0",
@@ -106,6 +129,37 @@ class ExportDescriptorTests(unittest.TestCase):
     def test_export_descriptor_from_runtime_returns_none_when_disabled(self):
         runtime = _runtime({"enabled": False})
         self.assertIsNone(export_descriptor_from_runtime(runtime, "Title", "Body"))
+
+    def test_export_descriptor_from_binding_returns_none_when_nothing_in_chain_enables_it(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        self.assertIsNone(binding.publisher)
+        self.assertIsNone(export_descriptor_from_binding(binding, "Title", "Body"))
+
+    def test_export_descriptor_from_binding_binds_effective_publisher(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        primary_with_publisher = replace(
+            primary,
+            publisher=PublisherBindingIR(
+                enabled=True, target="wordpress", metadata={"status": "draft"}
+            ),
+        )
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary_with_publisher, catalog
+        )
+        self.assertEqual(diagnostics, [])
+
+        descriptor = export_descriptor_from_binding(binding, "Title", "Body")
+        self.assertIsNotNone(descriptor)
+        self.assertEqual(descriptor.target, "wordpress")
+        self.assertEqual(descriptor.title, "Title")
+        self.assertEqual(descriptor.body, "Body")
+        self.assertEqual(descriptor.metadata["status"], "draft")
 
 
 if __name__ == "__main__":

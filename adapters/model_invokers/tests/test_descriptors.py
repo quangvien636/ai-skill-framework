@@ -1,17 +1,40 @@
 import unittest
+from dataclasses import replace
 
 import _bootstrap
 
+from asf_runtime.binding import build_runtime_binding
+from asf_runtime.catalog import build_artifact_catalog
+from asf_validator.pipeline import build_ir
 from asf_validator.runtime_ir import build_runtime_ir
+from asf_validator.schema_registry import build_schema_registry
 from model_invokers.descriptors import (
     DescriptorError,
     anthropic_descriptor,
     compile_model_descriptor,
     google_descriptor,
+    model_descriptor_from_binding,
     model_descriptor_from_runtime,
     ollama_descriptor,
     openai_descriptor,
 )
+
+RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
+
+
+def _runtime_binding_catalog():
+    registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+    results = [
+        build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+        build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+        build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+    ]
+    assert all(result.ok for result in results), [
+        (result.artifact, result.diagnostics) for result in results if not result.ok
+    ]
+    return build_artifact_catalog(results)
 
 _RUNTIME_DOC_BASE = {
     "schema_version": "1.0.0",
@@ -105,6 +128,28 @@ class ModelDescriptorTests(unittest.TestCase):
     def test_model_descriptor_from_runtime_returns_none_when_disabled(self):
         runtime = _runtime({"enabled": False})
         self.assertIsNone(model_descriptor_from_runtime(runtime))
+
+    def test_model_descriptor_from_binding_binds_effective_model(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        descriptor = model_descriptor_from_binding(binding)
+        self.assertIsNotNone(descriptor)
+        self.assertEqual(descriptor.provider, "anthropic")
+        self.assertEqual(descriptor.model, "claude-sonnet-5")
+
+    def test_model_descriptor_from_binding_returns_none_when_nothing_in_chain_enables_it(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        no_model_binding = replace(binding, model=None)
+        self.assertIsNone(model_descriptor_from_binding(no_model_binding))
 
 
 if __name__ == "__main__":

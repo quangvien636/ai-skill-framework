@@ -16,6 +16,13 @@ per ADR-0013.
 invocation. It returns ``None`` when the contract's model is disabled,
 mirroring how a Runtime Contract can decline a capability rather than omit
 its section (ADR-0014's `enabled` pattern).
+
+``model_descriptor_from_binding`` (ADR-0015 Phase 4) is the additive sibling
+that binds a fully resolved ``RuntimeBinding`` -- the Dependency Resolver's
+effective model after walking inheritance/override across a fallback chain
+-- instead of a single Runtime Contract's raw ``RuntimeIR``. It is purely
+additive: ``model_descriptor_from_runtime``'s signature and behavior are
+unchanged.
 """
 
 from __future__ import annotations
@@ -24,6 +31,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Mapping, Optional
 
+from asf_runtime.binding import RuntimeBinding
 from asf_validator.runtime_ir import RuntimeIR
 
 SUPPORTED_PROVIDERS = ("openai", "anthropic", "google", "ollama")
@@ -141,4 +149,24 @@ def model_descriptor_from_runtime(runtime: RuntimeIR) -> Optional[ModelDescripto
         model=runtime.model.model,
         parameters=runtime.model.parameters,
         endpoint=runtime.model.endpoint,
+    )
+
+
+def model_descriptor_from_binding(binding: RuntimeBinding) -> Optional[ModelDescriptor]:
+    """Bind a resolved ``RuntimeBinding``'s effective ``model`` capability to
+    a ``ModelDescriptor`` (ADR-0015 Phase 4). Binding only -- no invocation.
+
+    Unlike ``model_descriptor_from_runtime``, no fallback-chain walk happens
+    here -- ``binding.model`` is already the Dependency Resolver's effective
+    value (the primary's own model if it enabled one directly, or the first
+    fallback in the chain that did). Returns ``None`` when nothing in the
+    binding's fallback chain enables a model (``binding.model is None``).
+    """
+    if binding.model is None:
+        return None
+    return compile_model_descriptor(
+        provider=binding.model.provider,
+        model=binding.model.model,
+        parameters=binding.model.parameters,
+        endpoint=binding.model.endpoint,
     )

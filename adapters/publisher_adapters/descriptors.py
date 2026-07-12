@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Mapping, Optional
 
+from asf_runtime.binding import RuntimeBinding
 from asf_validator.runtime_ir import RuntimeIR
 
 SUPPORTED_TARGETS = ("youtube", "tiktok", "facebook", "wordpress", "markdown")
@@ -207,4 +208,27 @@ def export_descriptor_from_runtime(
         title=title,
         body=body,
         metadata=runtime.publisher.metadata,
+    )
+
+
+def export_descriptor_from_binding(
+    binding: RuntimeBinding, title: str, body: str
+) -> Optional[ExportDescriptor]:
+    """Bind a resolved ``RuntimeBinding``'s effective ``publisher``
+    capability to an ``ExportDescriptor`` (ADR-0015 Phase 4). Binding only
+    -- no publishing.
+
+    `title`/`body` are the Skill's produced content, exactly as for
+    ``export_descriptor_from_runtime`` -- a ``RuntimeBinding`` only declares
+    *where* and *how* something would be exported. Returns ``None`` when
+    nothing in the binding's fallback chain enables publishing
+    (``binding.publisher is None``).
+    """
+    if binding.publisher is None:
+        return None
+    return compile_export_descriptor(
+        target=binding.publisher.target,
+        title=title,
+        body=body,
+        metadata=binding.publisher.metadata,
     )

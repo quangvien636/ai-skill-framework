@@ -14,7 +14,8 @@ from asf_runtime.dependency_resolver import (
     resolve_tools,
 )
 from asf_validator.pipeline import build_ir
-from asf_validator.runtime_ir import ModelBindingIR
+from asf_validator.reference_ir import ReferenceIR
+from asf_validator.runtime_ir import ModelBindingIR, RetrieverBindingIR, ToolsBindingIR
 from asf_validator.schema_registry import build_schema_registry
 
 RUNTIME_FIXTURES = _bootstrap.REPO_ROOT / "tests" / "fixtures" / "graph" / "valid-runtime"
@@ -156,6 +157,42 @@ class DependencyResolverTests(unittest.TestCase):
             [runtime.metadata.id for runtime in chain],
             ["runtime:primary", "runtime:fallback-target"],
         )
+
+    def test_unresolved_required_fallback_runtime_is_reported(self):
+        missing_ref = ReferenceIR(
+            id="runtime:does-not-exist",
+            version=self.primary.fallback_profile.fallback_runtime.version,
+            required=True,
+        )
+        primary_with_missing_fallback = replace(
+            self.primary,
+            fallback_profile=replace(self.primary.fallback_profile, fallback_runtime=missing_ref),
+        )
+        chain, diagnostics = resolve_fallback_chain(primary_with_missing_fallback, self.catalog)
+        self.assertEqual({d.code for d in diagnostics}, {"ASF-BINDING-003"})
+        self.assertEqual([runtime.metadata.id for runtime in chain], ["runtime:primary"])
+
+    def test_unresolved_required_retriever_knowledge_is_reported(self):
+        chain, _ = resolve_fallback_chain(self.primary, self.catalog)
+        retriever, _ = inherit_retriever(chain)
+        missing_knowledge_ref = replace(retriever.knowledge[0], id="kb:does-not-exist")
+        retriever_with_missing_ref = RetrieverBindingIR(
+            enabled=True, knowledge=(missing_knowledge_ref,), similarity_top_k=retriever.similarity_top_k
+        )
+
+        knowledge, diagnostics = resolve_retriever_knowledge(retriever_with_missing_ref, self.catalog)
+        self.assertEqual(knowledge, ())
+        self.assertEqual({d.code for d in diagnostics}, {"ASF-BINDING-003"})
+
+    def test_unresolved_required_tool_reference_is_reported(self):
+        chain, _ = resolve_fallback_chain(self.primary, self.catalog)
+        tools_binding, _ = inherit_tools(chain)
+        missing_tool_ref = replace(tools_binding.refs[0], id="tool:does-not-exist")
+        tools_with_missing_ref = ToolsBindingIR(enabled=True, refs=(missing_tool_ref,))
+
+        tools, diagnostics = resolve_tools(tools_with_missing_ref, self.catalog)
+        self.assertEqual(tools, ())
+        self.assertEqual({d.code for d in diagnostics}, {"ASF-BINDING-003"})
 
 
 if __name__ == "__main__":

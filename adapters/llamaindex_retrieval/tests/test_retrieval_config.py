@@ -1,12 +1,16 @@
 import unittest
+from dataclasses import replace
 
 import _bootstrap
 
+from asf_runtime.binding import build_runtime_binding
+from asf_runtime.catalog import build_artifact_catalog
 from asf_validator.pipeline import build_ir
 from asf_validator.schema_registry import build_schema_registry
 from llamaindex_retrieval.retrieval_config import (
     compile_retrieval_config,
     knowledge_ir_to_document,
+    retrieval_config_from_binding,
     retrieval_config_from_runtime,
 )
 
@@ -85,6 +89,45 @@ class RetrievalConfigTests(unittest.TestCase):
         assert runtime_result.ok, runtime_result.diagnostics
         self.assertFalse(runtime_result.ir.retriever.enabled)
         self.assertIsNone(retrieval_config_from_runtime(runtime_result.ir, []))
+
+    def _runtime_binding_catalog(self):
+        registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+        results = [
+            build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+            build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+            build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+            build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+            build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+        ]
+        assert all(result.ok for result in results), [
+            (result.artifact, result.diagnostics) for result in results if not result.ok
+        ]
+        return build_artifact_catalog(results)
+
+    def test_retrieval_config_from_binding_binds_effective_retriever_without_extra_args(self):
+        catalog = self._runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+
+        config = retrieval_config_from_binding(binding)
+        self.assertIsNotNone(config)
+        self.assertEqual(
+            config.knowledge_ids, ("kb:technical:writing:summarization:brevity",)
+        )
+        self.assertEqual(config.similarity_top_k, primary.retriever.similarity_top_k)
+
+    def test_retrieval_config_from_binding_returns_none_when_nothing_in_chain_enables_it(self):
+        catalog = self._runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        no_retriever_binding = replace(binding, retriever=None)
+        self.assertIsNone(retrieval_config_from_binding(no_retriever_binding))
 
 
 if __name__ == "__main__":

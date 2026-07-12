@@ -1,14 +1,37 @@
 import asyncio
 import unittest
+from dataclasses import replace
 
 import _bootstrap
 
+from asf_runtime.binding import build_runtime_binding
+from asf_runtime.catalog import build_artifact_catalog
 from asf_validator.pipeline import build_ir
 from asf_validator.schema_registry import build_schema_registry
-from mcp_tools.binding import MCPToolRegistry, bind_runtime_tools, tool_ir_to_mcp_tool
+from mcp_tools.binding import (
+    MCPToolRegistry,
+    bind_binding_tools,
+    bind_runtime_tools,
+    tool_ir_to_mcp_tool,
+)
 
 FIXTURES = _bootstrap.GRAPH_FIXTURES / "valid-tool-connector"
 RUNTIME_FIXTURES = _bootstrap.GRAPH_FIXTURES / "valid-runtime"
+
+
+def _runtime_binding_catalog():
+    registry = build_schema_registry(_bootstrap.SCHEMA_ROOT)
+    results = [
+        build_ir("skill", RUNTIME_FIXTURES / "skill.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime.yaml", registry),
+        build_ir("runtime", RUNTIME_FIXTURES / "runtime-fallback.yaml", registry),
+        build_ir("tool", RUNTIME_FIXTURES / "tool.yaml", registry),
+        build_ir("knowledge", RUNTIME_FIXTURES / "knowledge.md", registry),
+    ]
+    assert all(result.ok for result in results), [
+        (result.artifact, result.diagnostics) for result in results if not result.ok
+    ]
+    return build_artifact_catalog(results)
 
 
 class MCPBindingTests(unittest.TestCase):
@@ -92,6 +115,42 @@ class MCPBindingTests(unittest.TestCase):
 
         registry = MCPToolRegistry()
         bound = bind_runtime_tools(registry, runtime_result.ir, tools_by_id={}, handlers_by_id={})
+        self.assertEqual(bound, ())
+        self.assertEqual(registry.list_tools(), [])
+
+    def test_bind_binding_tools_binds_every_resolved_tool_without_tools_by_id(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(
+            [tool.metadata.id for tool in binding.resolved_tools], ["tool:read-file"]
+        )
+
+        registry = MCPToolRegistry()
+
+        async def handler(arguments):
+            return {"content": f"read {arguments['path']}"}
+
+        bound = bind_binding_tools(
+            registry, binding, handlers_by_id={"tool:read-file": handler}
+        )
+        self.assertEqual(bound, ("read-file",))
+        self.assertEqual([t.name for t in registry.list_tools()], ["read-file"])
+
+    def test_bind_binding_tools_returns_empty_when_nothing_in_chain_enables_it(self):
+        catalog = _runtime_binding_catalog()
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+        no_tools_binding = replace(binding, tools=None)
+
+        registry = MCPToolRegistry()
+        bound = bind_binding_tools(registry, no_tools_binding, handlers_by_id={})
         self.assertEqual(bound, ())
         self.assertEqual(registry.list_tools(), [])
 

@@ -16,6 +16,7 @@ from typing import Any, Awaitable, Callable, Mapping, Optional
 
 import mcp.types as types
 
+from asf_runtime.binding import RuntimeBinding
 from asf_validator.connector_ir import ConnectorIR
 from asf_validator.runtime_ir import RuntimeIR
 from asf_validator.skill_ir import FieldIR
@@ -150,6 +151,37 @@ def bind_runtime_tools(
     for ref in runtime.tools.refs:
         tool = tools_by_id[ref.id]
         handler = handlers_by_id[ref.id]
+        connector = None
+        if tool.dependencies.connectors:
+            connector = connectors.get(tool.dependencies.connectors[0].id)
+        registry.bind(tool, handler, connector=connector)
+        bound.append(tool.metadata.name)
+    return tuple(bound)
+
+
+def bind_binding_tools(
+    registry: MCPToolRegistry,
+    binding: RuntimeBinding,
+    handlers_by_id: Mapping[str, ToolHandler],
+    connectors_by_id: Optional[Mapping[str, ConnectorIR]] = None,
+) -> tuple[str, ...]:
+    """Bind every Tool a resolved ``RuntimeBinding`` references to
+    `registry` (ADR-0015 Phase 4). Binding only -- no invocation.
+
+    Unlike ``bind_runtime_tools``, no separate `tools_by_id` argument is
+    needed -- ``binding.resolved_tools`` already carries the Dependency
+    Resolver's resolved ToolIR for the effective (possibly inherited) tools
+    capability. `handlers_by_id` must still be supplied by the caller, since
+    a handler is runtime wiring, never IR. Returns an empty tuple when
+    nothing in the binding's fallback chain enables tools
+    (``binding.tools is None``).
+    """
+    if binding.tools is None:
+        return ()
+    connectors = connectors_by_id or {}
+    bound: list[str] = []
+    for tool in binding.resolved_tools:
+        handler = handlers_by_id[tool.metadata.id]
         connector = None
         if tool.dependencies.connectors:
             connector = connectors.get(tool.dependencies.connectors[0].id)

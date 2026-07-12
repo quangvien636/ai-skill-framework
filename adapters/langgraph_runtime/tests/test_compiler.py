@@ -5,6 +5,7 @@ from types import MappingProxyType
 
 import _bootstrap
 
+from asf_runtime.binding import build_runtime_binding
 from asf_runtime.catalog import ArtifactCatalog, CatalogArtifact, build_artifact_catalog
 from asf_runtime.models import ExecutionContext
 from asf_runtime.planner import plan_workflow
@@ -13,7 +14,7 @@ from asf_validator.project_discovery import discover_project
 from asf_validator.schema_registry import build_schema_registry
 from langgraph.graph import END, START
 
-from langgraph_runtime.compiler import compile_plan
+from langgraph_runtime.compiler import compile_plan, compile_plan_from_binding
 
 
 def production_catalog():
@@ -233,6 +234,72 @@ class CompilePlanTests(unittest.TestCase):
 
         node = compiled.nodes["run"]
         self.assertNotIn("runtime_id", node.metadata)
+
+    def test_compile_plan_from_binding_runtime_binding_takes_precedence(self):
+        catalog = runtime_fixture_catalog()
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-binding-compile",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+        primary = catalog.exact("runtime:primary", "1.0.0").ir
+        binding, diagnostics = build_runtime_binding(
+            "skill:use-runtime", "1.0.0", primary, catalog
+        )
+        self.assertEqual(diagnostics, [])
+
+        compiled = compile_plan_from_binding(plan, runtime_bindings={"run": binding})
+
+        node = compiled.nodes["run"]
+        self.assertEqual(node.timeout.run_timeout, binding.timeout_seconds)
+        self.assertEqual(node.metadata["runtime_id"], "runtime:primary")
+        self.assertEqual(node.metadata["safety_content_filter"], "standard")
+        self.assertEqual(node.metadata["audit_log_level"], "basic")
+
+    def test_compile_plan_from_binding_without_bindings_uses_skill_level_policy(self):
+        catalog = runtime_fixture_catalog()
+        context = ExecutionContext.create(
+            execution_id="execution-runtime-binding-compile-2",
+            workflow_id="workflow:use-runtime",
+            workflow_version="1.0.0",
+            inputs={},
+        )
+        plan = plan_workflow(context, catalog)
+        compiled = compile_plan_from_binding(plan)
+
+        node = compiled.nodes["run"]
+        self.assertNotIn("runtime_id", node.metadata)
+
+    def test_compile_plan_from_binding_never_executes_and_is_deterministic(self):
+        plan = self._branching_plan()
+        compiled_once = compile_plan_from_binding(plan)
+        compiled_twice = compile_plan_from_binding(plan)
+
+        self.assertEqual(
+            sorted(compiled_once.nodes.keys()), sorted(compiled_twice.nodes.keys())
+        )
+        self.assertEqual(
+            {(e.source, e.target) for e in compiled_once.get_graph().edges},
+            {(e.source, e.target) for e in compiled_twice.get_graph().edges},
+        )
+        with self.assertRaises(NotImplementedError):
+            asyncio.run(compiled_once.ainvoke({}))
+
+    def test_compile_plan_from_binding_bound_step_executor_is_used(self):
+        plan = plan_workflow(self.content_context(), self.catalog)
+        calls = []
+
+        async def executor(step, state):
+            calls.append(step.id)
+            return {**state, "ran": step.id}
+
+        compiled = compile_plan_from_binding(plan, step_executor=executor)
+        result = asyncio.run(compiled.ainvoke({}))
+
+        self.assertEqual(calls, ["create-content"])
+        self.assertEqual(result["ran"], "create-content")
 
 
 if __name__ == "__main__":

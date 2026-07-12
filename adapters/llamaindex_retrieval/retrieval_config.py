@@ -19,6 +19,7 @@ from typing import Optional, Sequence
 
 from llama_index.core.schema import Document
 
+from asf_runtime.binding import RuntimeBinding
 from asf_validator.knowledge_ir import KnowledgeIR
 from asf_validator.runtime_ir import RuntimeIR
 
@@ -124,4 +125,22 @@ def retrieval_config_from_runtime(
         return None
     return compile_retrieval_config(
         knowledge_docs, similarity_top_k=runtime.retriever.similarity_top_k
+    )
+
+
+def retrieval_config_from_binding(binding: RuntimeBinding) -> Optional[RetrievalConfig]:
+    """Bind a resolved ``RuntimeBinding``'s effective ``retriever``
+    capability to a ``RetrievalConfig`` (ADR-0015 Phase 4). Binding only --
+    no indexing, embedding, or query.
+
+    Unlike ``retrieval_config_from_runtime``, no separate ``knowledge_docs``
+    argument is needed: ``binding.retriever_knowledge`` already carries the
+    Dependency Resolver's resolved Knowledge IR for the effective (possibly
+    inherited) retriever. Returns ``None`` when nothing in the binding's
+    fallback chain enables retrieval (``binding.retriever is None``).
+    """
+    if binding.retriever is None:
+        return None
+    return compile_retrieval_config(
+        binding.retriever_knowledge, similarity_top_k=binding.retriever.similarity_top_k
     )
