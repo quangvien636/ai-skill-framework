@@ -402,15 +402,16 @@ sprint indefinitely.
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-2. Review and accept or revise proposed ADR-0016, ADR-0017, ADR-0018, and
-   ADR-0019. Python and the current
-   `scripts/asf_cli.py` layout are proposed; `validate` already wraps the
-   shared IR/graph pipelines. Before a real `generate` command can be added,
-   implement the Generator Architecture's reference pipeline so the CLI has
-   a real operation to wrap rather than a partial-success stub.
-3. If pre-release versions are ever adopted, implement full SemVer
+2. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
+
+ADR-0016, ADR-0017, ADR-0018, and ADR-0019 were reviewed and accepted by the
+human maintainer on 2026-07-12; the former Next Action to review them is
+closed. A real `generate` CLI command still requires a Generator Architecture
+reference implementation to wrap (ADR-0016's own scope note), which remains
+true independent of ADR-0016's acceptance and is not separately tracked here
+because no Sprint has yet started that implementation.
 
 ## Revision History
 

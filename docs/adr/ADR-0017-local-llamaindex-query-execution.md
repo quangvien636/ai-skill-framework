@@ -1,6 +1,6 @@
 # ADR-0017: Local LlamaIndex Query Execution
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-12
 - **Decision owners:** Project maintainers
 

@@ -1,6 +1,6 @@
 # ADR-0016: CLI Implementation Language and Phased Adoption
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-12
 - **Decision owners:** Project maintainers
 

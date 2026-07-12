@@ -1,6 +1,6 @@
 # ADR-0018: Local Ollama Model Invocation
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-12
 - **Decision owners:** Project maintainers
 
