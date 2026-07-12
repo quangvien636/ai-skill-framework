@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.35
+Version: 0.36
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,30 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 36 - CLI implementation language and phased adoption decision**
+
+Goal: close the CLI language/package-layout Next Action without creating a
+parallel CLI or a stub Generator pipeline.
+
+Status: **Completed as a proposal pending human ADR acceptance**
+
+### Sprint 36 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Record implementation language and package layout | Done | Proposed `docs/adr/ADR-0016-cli-implementation-language-and-phased-adoption.md`: Python; retain `scripts/asf_cli.py` until a real second command-group need triggers a package split |
+| Verify Validator Integration | Done | `scripts/asf_cli.py::load_workspace()` already reuses `build_ir()` and `validate_workspace()` reuses dependency/version graph, semantic, and repository validation over Project Discovery |
+| Assess Generator Integration | Deferred with prerequisite | No executable Generator pipeline exists to wrap; adding `generate` first would be a stub and violate the CLI error-handling contract. A real Generator reference implementation is now the explicit prerequisite. |
+
+### Sprint 36 Exit Criteria
+
+- ADR-0016 remains `Proposed`: `.ai/governance/DECISION_RIGHTS.md` reserves
+  ADR acceptance for a human maintainer, and this session has no acceptance
+  delegation.
+- Full repository validation and unit tests pass.
+
+## Previous Sprint
 
 **Sprint 35 - Real line/column tracking for parse-error diagnostics**
 
@@ -61,7 +85,7 @@ open in Next Actions for the remainder)
 - No existing test asserted the old placeholder location strings (`"<yaml>"`,
   bare `"line N"` without column) — confirmed by grep before changing them.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 34 - ADR Status field mechanical check**
 
@@ -75,7 +99,7 @@ documented allowed values — a mechanical field-shape check only, per
 itself is a human decision. All 15 real ADRs already pass clean; 5 new
 tests in `test_content_integrity.py`.
 
-## Earlier Sprint
+## Earlier Runtime Contract Sprint
 
 **Sprint 28 - Runtime Contract (Phases 1-7)**
 
@@ -185,6 +209,7 @@ sprint indefinitely.
 | 33 | `bindings` CLI command reports diagnostics instead of crashing | `scripts/asf_cli.py`'s `_bindings()` collects `ASF-BINDING-001` per step instead of raising; new `test_cli.py` coverage |
 | 34 | ADR Status field mechanical check | `ASF-REPOSITORY-014`, `content_integrity._validate_adr_status()`; 5 new tests; all 15 real ADRs already pass |
 | 35 | Real line/column tracking for parse-error diagnostics | `loader.py`'s YAML/JSON parse errors now report a real `line N, column N`; narrowed scope (schema/semantic diagnostics still report a field path, not a line — remains open) |
+| 36 | CLI implementation language and phased adoption decision | Proposed ADR-0016 selects Python, retains the existing single-module CLI until a real split trigger, confirms `validate` already wraps the shared IR/graph pipeline, and records the missing Generator implementation prerequisite |
 
 ## Risks and Guardrails
 
@@ -222,11 +247,11 @@ sprint indefinitely.
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-4. When a CLI implementation sprint starts, choose and record its language
-   and package layout in a new ADR that conforms to `CLI_ARCHITECTURE.md`,
-   and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
-   behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
-   Validator/Generator Integration.
+4. Review and accept or revise proposed ADR-0016. Python and the current
+   `scripts/asf_cli.py` layout are proposed; `validate` already wraps the
+   shared IR/graph pipelines. Before a real `generate` command can be added,
+   implement the Generator Architecture's reference pipeline so the CLI has
+   a real operation to wrap rather than a partial-success stub.
 5. Extend line/column source-position tracking beyond the parse-error
    layer Sprint 35 closed. Needs: (a) a position-preserving YAML loader
    (PyYAML's `safe_load` discards line/column once parsing succeeds —
@@ -278,3 +303,4 @@ sprint indefinitely.
 | 0.33 | 2026-07-12 | Completed Sprint 33: `bindings` CLI command now reports `ASF-BINDING-001` as a diagnostic instead of crashing |
 | 0.34 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
 | 0.35 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope; schema/semantic diagnostics remain open in Next Actions) |
+| 0.36 | 2026-07-12 | Completed Sprint 36 as a proposal: ADR-0016 selects Python/current CLI layout, confirms existing Validator Integration, and records the missing Generator reference implementation prerequisite |

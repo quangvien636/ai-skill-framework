@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.33
+Version: 0.34
 Status: Active
 Last updated: 2026-07-12
 
@@ -187,6 +187,15 @@ open -- per `.ai/governance/DECISION_RIGHTS.md`, lifecycle promotion past
 unilaterally. See `PROJECT_TRACKER.md`'s Next Actions for the remaining
 work.
 
+**Sprint 36** drafted ADR-0016 to record Python and the existing
+`scripts/asf_cli.py` module as the CLI's current implementation choice. The
+existing `validate` path already reuses Project Discovery, IR construction,
+dependency/version graph construction, semantic validation, and repository
+validation; no parallel CLI is needed. Generator Integration remains blocked
+on a real Generator Architecture reference implementation, so no placeholder
+`generate` command was added. ADR-0016 remains `Proposed` pending the human
+acceptance required by `.ai/governance/DECISION_RIGHTS.md`.
+
 ## Definition of Done
 
 A change is complete when:
@@ -235,3 +244,4 @@ A change is complete when:
 | 0.31 | 2026-07-12 | Completed Sprint 33: `scripts/asf_cli.py`'s `bindings` command reports `ASF-BINDING-001` as a diagnostic instead of raising |
 | 0.32 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
 | 0.33 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope) |
+| 0.34 | 2026-07-12 | Completed Sprint 36 as a proposal: recorded the Python/current-module CLI choice in proposed ADR-0016, confirmed existing Validator Integration, and documented the Generator implementation prerequisite |
