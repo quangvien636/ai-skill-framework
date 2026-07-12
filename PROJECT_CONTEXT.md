@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.45
+Version: 0.46
 Status: Active
 Last updated: 2026-07-12
 
@@ -314,3 +314,4 @@ A change is complete when:
 | 0.43 | 2026-07-12 | Added `docs/guides/WEEKLY_OPERATOR_PLAN.md`: a bounded day-by-day runbook auditing the two remaining Next Actions triggers (MCP SDK v2, SemVer pre-release precedence); first exercise found both not yet fired, so no code changed this session |
 | 0.44 | 2026-07-12 | Extended `docs/guides/WEEKLY_OPERATOR_PLAN.md` in place into a guarded two-week operator plan (Week 1 monitoring/readiness, Week 2 conditional implementation window gated strictly on a trigger actually firing); goal is continued conditional operation across sessions without spending quota on no-op re-checks |
 | 0.45 | 2026-07-12 | Added `docs/guides/MONTHLY_OPERATOR_PLAN.md`: a four-week content-skill readiness push (readiness audit, golden-sample intake plan, benchmark/evaluation contract, integration readiness) sitting above the weekly infrastructure runbook. Monthly focus is content-skill readiness, a benchmark contract, and a golden-sample workflow — not replacing the Anthropic API in production, and not connecting `video_pipeline` to production output, this month or any month without a passed benchmark and explicit human approval |
+| 0.46 | 2026-07-12 | Completed the Monthly Plan's Week 1 same-day: `docs/guides/CONTENT_SKILL_READINESS.md` found `skill:content-creation` already has a real declarative evaluation rubric (four weighted metrics, `minimum_score: 85`) and a real live local-Ollama execution path, but the rubric is never executed against real output -- the largest gap toward a benchmarkable pipeline. No code changed; Weeks 2-4 remain gated on their own content triggers |
