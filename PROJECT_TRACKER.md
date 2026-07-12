@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.34
+Version: 0.35
 Status: Active
 Last updated: 2026-07-12
 
@@ -12,55 +12,68 @@ project's definition of done.
 
 ## Current Sprint
 
-**Sprint 34 - ADR Status field mechanical check**
+**Sprint 35 - Real line/column tracking for parse-error diagnostics**
 
-Goal: Next Actions item ("consider whether `.ai/governance/
-DECISION_RIGHTS.md`'s ADR-acceptance convention needs a lighter-weight
-mechanical check confirming each ADR's Status field is one of the allowed
-values, and implement it if so").
+Goal: Next Actions item ("add precise line/column source-position
+tracking to IR adapter diagnostics (currently field/section names
+only)") — Sprint 16's Deferred/Documented Gap.
 
-Status: **Completed**
+Status: **Completed, narrowed scope** (see Design Notes — this closes the
+parse-error layer only, not every IR adapter diagnostic; the item stays
+open in Next Actions for the remainder)
 
-### Sprint 34 Backlog
+### Sprint 35 Backlog
 
 | Item | Status | Evidence / Output |
 | --- | --- | --- |
-| `ASF-REPOSITORY-014` diagnostic allocated | Done | `scripts/asf_validator/diagnostics.py`: `REPOSITORY_ADR_STATUS_INVALID` |
-| Mechanical check implemented | Done | `scripts/asf_validator/content_integrity.py`'s new `_validate_adr_status()`, wired into `validate_content_integrity()` — every `docs/adr/ADR-<NNNN>-*.md` file's `- **Status:**` line must be exactly `Proposed`, `Accepted`, or `Superseded by ADR-<NNNN>` naming a real ADR (matching `ADR_TEMPLATE.md`'s own documented allowed values); a missing field, an unrecognized value, or a `Superseded by` reference to a non-existent ADR is flagged. All 15 real ADRs in this repository already pass clean. |
-| Tests | Done | `tests/unit/test_content_integrity.py`: 5 new tests (real ADRs all valid; missing Status field; unrecognized value; `Superseded by` an unknown ADR — correctly double-flagged alongside the pre-existing `ASF-REPOSITORY-009` dangling-reference check, by design, not a duplicate bug; `Superseded by` a real ADR is allowed) |
+| YAML parse errors report real line/column | Done | `scripts/asf_validator/loader.py::load_yaml()` now reads `yaml.YAMLError.problem_mark` (PyYAML already computes this on every syntax error) and reports `"line {N}, column {N}"` instead of the placeholder `"<yaml>"` |
+| JSON parse errors report real line **and** column | Done | `load_json()` already reported `exc.lineno`; now also includes `exc.colno` (both already computed by `json.JSONDecodeError`, only `lineno` was being used) |
+| Tests | Done | New `tests/unit/test_loader.py` (3 tests): malformed YAML and malformed JSON both report a `"line N, column N"` location; valid input is unaffected |
 
-### Sprint 34 Design Notes
+### Sprint 35 Design Notes
 
-- This is deliberately a **mechanical field-shape check only** — it never
-  infers, changes, or "corrects" an ADR's Status, and it does not itself
-  decide whether an ADR *should* be Accepted. `.ai/governance/
-  DECISION_RIGHTS.md`'s actual rule (a human maintainer's approval is the
-  real acceptance) is unchanged; this only catches a typo'd or stale
-  Status value once a human has already set one, the same "keep the field
-  mechanically honest" role `ASF-SEMANTIC-*` rules already play elsewhere
-  in this repository for other declared-but-unenforced fields.
+- **Why this is a narrowed, not full, close of the Next Action**: the item
+  as written covers "IR adapter diagnostics" broadly — that includes every
+  `ASF-SCHEMA-*` (jsonschema structural validation) and IR-adapter-level
+  (`ASF-PARSE-*` beyond the top-level malformed-source case) diagnostic
+  across `skill_ir.py`/`workflow_ir.py`/`runtime_ir.py`/`knowledge_ir.py`/
+  `tool_ir.py`/`connector_ir.py`/`evaluation_ir.py`/`reflection_ir.py` and
+  the shared jsonschema validator, none of which carry a source line/column
+  today (they report a field/section path, e.g. `metadata.id`). Adding
+  that requires a position-preserving YAML loader (PyYAML's `safe_load`
+  discards line/column once parsing succeeds — only a parse *error* still
+  carries a mark) and mapping each jsonschema error's JSON-pointer path
+  back to a line/column via the re-parsed-with-positions document — a
+  materially larger, cross-cutting change than today's proportionate scope
+  allowed. What *is* done here is real and immediately useful: the one
+  place a source position was already fully computed and just not
+  surfaced (parse errors) now surfaces it.
+- This item stays in Next Actions, re-scoped to name exactly what remains.
 
-### Sprint 34 Exit Criteria
+### Sprint 35 Exit Criteria
 
-- `python scripts/validate_contracts.py` (23/23), `build_ir.py` (47/47),
-  `build_graph.py` (14/14), `build_semantics.py` (4/4),
-  `validate_repository.py` (0 errors/warnings — confirms all 15 real ADRs
-  pass the new check), `python -m unittest discover -s tests/unit`
-  (160/160, up from 155) all pass.
-- No existing `content_integrity.py` check's behavior changed.
+- `python scripts/validate_contracts.py` (23/23 — malformed-syntax fixture
+  cases still correctly resolve to `invalid`, only the diagnostic's
+  location text changed), `build_ir.py` (47/47), `build_graph.py` (14/14),
+  `build_semantics.py` (4/4), `validate_repository.py` (0 errors/warnings),
+  `python -m unittest discover -s tests/unit` (163/163, up from 160) all
+  pass.
+- No existing test asserted the old placeholder location strings (`"<yaml>"`,
+  bare `"line N"` without column) — confirmed by grep before changing them.
 
 ## Previous Sprint
 
-**Sprint 33 - `bindings` CLI command reports diagnostics instead of crashing**
+**Sprint 34 - ADR Status field mechanical check**
 
 Status: **Completed**
 
-`scripts/asf_cli.py`'s `_bindings()` now collects every step's diagnostics
-(including `ASF-BINDING-001`) into the `bindings` command's report instead
-of raising a bare `RuntimeError` on the first missing binding — matching
-how `validate`/`graph` already report every problem found rather than
-stopping at the first one. New `test_cli.py` coverage; the pre-existing
-successful-binding test is unaffected.
+New `ASF-REPOSITORY-014`: every `docs/adr/ADR-<NNNN>-*.md`'s own
+`- **Status:**` field must be exactly `Proposed`, `Accepted`, or
+`Superseded by ADR-<NNNN>` naming a real ADR, matching `ADR_TEMPLATE.md`'s
+documented allowed values — a mechanical field-shape check only, per
+`.ai/governance/DECISION_RIGHTS.md`'s existing rule that ADR acceptance
+itself is a human decision. All 15 real ADRs already pass clean; 5 new
+tests in `test_content_integrity.py`.
 
 ## Earlier Sprint
 
@@ -171,6 +184,7 @@ sprint indefinitely.
 | 32 | First real invoked run through a compiled RuntimeBinding graph | Real `.ainvoke()` through `compile_plan_from_binding` + `model_descriptor_from_binding`, backed by a real local Ollama call; confirmed Runtime Contract -> production Skill wiring was already done pre-Sprint-31 |
 | 33 | `bindings` CLI command reports diagnostics instead of crashing | `scripts/asf_cli.py`'s `_bindings()` collects `ASF-BINDING-001` per step instead of raising; new `test_cli.py` coverage |
 | 34 | ADR Status field mechanical check | `ASF-REPOSITORY-014`, `content_integrity._validate_adr_status()`; 5 new tests; all 15 real ADRs already pass |
+| 35 | Real line/column tracking for parse-error diagnostics | `loader.py`'s YAML/JSON parse errors now report a real `line N, column N`; narrowed scope (schema/semantic diagnostics still report a field path, not a line — remains open) |
 
 ## Risks and Guardrails
 
@@ -213,9 +227,14 @@ sprint indefinitely.
    and wire `scripts/build_ir.py`/`scripts/build_graph.py`'s pipelines
    behind the `validate`/`generate` commands per `CLI_ARCHITECTURE.md`'s
    Validator/Generator Integration.
-5. Add precise line/column source-position tracking to IR adapter
-   diagnostics (currently field/section names only) — Sprint 16's
-   Deferred / Documented Gap, still open.
+5. Extend line/column source-position tracking beyond the parse-error
+   layer Sprint 35 closed. Needs: (a) a position-preserving YAML loader
+   (PyYAML's `safe_load` discards line/column once parsing succeeds —
+   `scripts/asf_validator/loader.py` would need a custom `Loader` that
+   attaches a mark to every node, or a switch to `ruamel.yaml`), and
+   (b) mapping each `ASF-SCHEMA-*`/IR-adapter-level diagnostic's field
+   path back to a line/column via that position-preserving document.
+   Sprint 16's original Deferred/Documented Gap, still open.
 6. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
@@ -258,3 +277,4 @@ sprint indefinitely.
 | 0.32 | 2026-07-12 | Completed Sprint 32: real invoked LangGraph run via `compile_plan_from_binding` + `model_descriptor_from_binding` + local Ollama; corrected a stale Next Action (Runtime Contract -> production Skill wiring was already done pre-Sprint-31) |
 | 0.33 | 2026-07-12 | Completed Sprint 33: `bindings` CLI command now reports `ASF-BINDING-001` as a diagnostic instead of crashing |
 | 0.34 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
+| 0.35 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope; schema/semantic diagnostics remain open in Next Actions) |

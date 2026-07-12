@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.32
+Version: 0.33
 Status: Active
 Last updated: 2026-07-12
 
@@ -234,3 +234,4 @@ A change is complete when:
 | 0.30 | 2026-07-12 | Completed Sprint 32: first real invoked LangGraph run via `compile_plan_from_binding`/`model_descriptor_from_binding`/local Ollama; corrected a stale claim about Runtime Contract -> production Skill wiring |
 | 0.31 | 2026-07-12 | Completed Sprint 33: `scripts/asf_cli.py`'s `bindings` command reports `ASF-BINDING-001` as a diagnostic instead of raising |
 | 0.32 | 2026-07-12 | Completed Sprint 34: new `ASF-REPOSITORY-014` mechanical check for each ADR's Status field |
+| 0.33 | 2026-07-12 | Completed Sprint 35: real line/column tracking for YAML/JSON parse-error diagnostics (narrowed scope) |

@@ -57,6 +57,12 @@ def load_yaml(path: Path) -> LoadResult:
     try:
         document = yaml.safe_load(text)
     except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        location = (
+            f"line {mark.line + 1}, column {mark.column + 1}"
+            if mark is not None
+            else "<yaml>"
+        )
         return LoadResult(
             None,
             text,
@@ -65,7 +71,7 @@ def load_yaml(path: Path) -> LoadResult:
                     code=PARSE_MALFORMED_SOURCE,
                     severity=Severity.ERROR,
                     artifact=artifact,
-                    location="<yaml>",
+                    location=location,
                     message=f"Malformed YAML: {exc}",
                 )
             ],
@@ -106,7 +112,7 @@ def load_json(path: Path) -> LoadResult:
                     code=PARSE_MALFORMED_SOURCE,
                     severity=Severity.ERROR,
                     artifact=artifact,
-                    location=f"line {exc.lineno}",
+                    location=f"line {exc.lineno}, column {exc.colno}",
                     message=f"Malformed JSON: {exc.msg}",
                 )
             ],
