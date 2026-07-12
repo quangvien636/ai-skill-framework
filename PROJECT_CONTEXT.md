@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.29
+Version: 0.30
 Status: Active
 Last updated: 2026-07-12
 
@@ -165,11 +165,27 @@ extends the same "describe, never execute" boundary Priorities 3 and 4
 established. The one exception is `adapters/ollama_execution` (Sprint 30):
 it consumes a resolved `RuntimeBinding` directly and makes a real local
 Ollama call, but through its own bespoke `StepExecutor`, not through
-`langgraph_runtime`'s compiled graph or `model_invokers`' `ModelDescriptor`
--- neither of those two seams is wired into a live invocation yet. None of
-the five canonical Runtime Contracts are wired into a production Skill's
-`dependencies.runtime` either. See `PROJECT_TRACKER.md`'s Next Actions for
-the remaining work.
+`langgraph_runtime`'s compiled graph or `model_invokers`' `ModelDescriptor`.
+
+**Sprint 32** proved that second path works too, in a real, opt-in,
+loopback-only test (`adapters/langgraph_runtime/tests/
+test_live_ollama_invocation.py`, `ASF_TEST_OLLAMA=1`): a real
+`RuntimeBinding` built from the canonical `runtime/offline/runtime.yaml`
+example (`provider: ollama`), a `ModelDescriptor` obtained through
+`model_invokers.model_descriptor_from_binding`, a graph compiled by
+`langgraph_runtime.compile_plan_from_binding`, and a real
+`await compiled.ainvoke({})` that made an actual local Ollama call and
+returned real generated text through graph state -- run for real against
+an installed local Ollama server, not just skip-verified. This sprint also
+found that one of the framework's own Next Actions was stale: `runtime:
+content` has been `status: active` and wired into `skill:content-creation`'s
+`dependencies.runtime` since a pre-Sprint-31 commit (`37556ae`), not
+still-pending as the tracker previously said. Wiring the Ollama-backed
+example into an actual production Skill and promoting its status remains
+open -- per `.ai/governance/DECISION_RIGHTS.md`, lifecycle promotion past
+`draft` is a human/reviewed decision, not something this session performs
+unilaterally. See `PROJECT_TRACKER.md`'s Next Actions for the remaining
+work.
 
 ## Definition of Done
 
@@ -215,3 +231,4 @@ A change is complete when:
 | 0.27 | 2026-07-05 | Completed Sprint 27: implemented the compile/describe half of all five adapter Protocol seams |
 | 0.28 | 2026-07-05 | Completed Sprint 28: Runtime Contract (schema, IR, discovery, graph, semantic, planning, adapter binding, 5 canonical examples), ADR-0014 |
 | 0.29 | 2026-07-12 | Documented Sprints 29-31: composite compiler proof, local Ollama execution adapter, and ADR-0015 (Dependency Resolver, RuntimeBinding/BindingIR, 5 adapter `*_from_binding` functions) |
+| 0.30 | 2026-07-12 | Completed Sprint 32: first real invoked LangGraph run via `compile_plan_from_binding`/`model_descriptor_from_binding`/local Ollama; corrected a stale claim about Runtime Contract -> production Skill wiring |
