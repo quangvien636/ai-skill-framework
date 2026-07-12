@@ -1,6 +1,3 @@
-# publisher_adapters has no external dependency yet: Priority 4 scopes this
-# package to declarative export descriptions only (no publishing, no API
-# calls, no authentication). When PublisherAdapter.publish() is actually
-# implemented, each platform's official SDK/API client is added here
-# individually (e.g. google-api-python-client for YouTube, a WordPress REST
-# client) -- never a hand-rolled HTTP client, per ADR-0013.
+# PyYAML serializes credential-free local Markdown front matter. Platform SDKs
+# remain absent; external targets fail closed in PublisherAdapter.publish.
+PyYAML>=6,<7

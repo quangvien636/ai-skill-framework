@@ -1,16 +1,11 @@
-"""Declarative export descriptions for publishing targets. Priority 4 scope:
-describe an export, never perform it.
+"""Declarative export descriptions (the non-executing half).
 
 This module builds immutable ``ExportDescriptor`` values naming a target
 platform, title, body, and platform-specific declarative metadata. It makes
-no network call, imports no platform SDK, performs no filesystem write (even
-for the "markdown" target -- exporting the descriptor to a file is a
-deployer's job, not this module's), and rejects any metadata key that looks
-like a credential. Actually publishing (``PublisherAdapter.publish`` in
-docs/architecture/EXECUTION_ADAPTER_ARCHITECTURE.md) is unimplemented; when
-built, each platform's official SDK/API is the reuse target -- e.g.
-google-api-python-client for YouTube, a WordPress REST client -- never a
-hand-rolled HTTP client, per ADR-0013.
+no network call, imports no platform SDK, performs no filesystem write, and
+rejects any metadata key that looks like a credential. The separate
+``publisher`` module executes only the local Markdown target; external platform
+targets remain unavailable and fail closed.
 
 This is ASF's own "Export planning" intellectual property (there is no
 mature OSS project that declaratively plans cross-platform exports without

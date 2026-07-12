@@ -1,6 +1,6 @@
 # Execution Adapter Architecture
 
-Version: 0.9
+Version: 0.10
 Status: Active
 Last updated: 2026-07-12
 
@@ -187,7 +187,7 @@ requires an HTTP loopback endpoint, and returns an immutable response. Cloud
 SDKs, credentials, streaming, and tool calls remain absent. Proposed ADR-0018
 records this provider-bounded Build-vs-Reuse decision.
 
-#### `PublisherAdapter` (descriptor half implemented; publish half is not)
+#### `PublisherAdapter` (descriptor and local Markdown halves implemented)
 
 A fifth seam, added for the "Export planning" area ASF owns
 (ADR-0013/PROJECT_TRACKER). Same split as `KnowledgeRetriever` and
@@ -217,9 +217,13 @@ produces a descriptor, not a written file. It rejects any metadata key
 "no authentication." There is no mature OSS project that declaratively
 plans a cross-platform export without also performing it, so this is ASF's
 own "Export planning" intellectual property, not a wrapped reuse target.
-`PublisherAdapter.publish` — actually publishing — is unimplemented; when
-built, each platform's official SDK/API (e.g. google-api-python-client for
-YouTube) is the reuse target, never a hand-rolled HTTP client.
+
+`PublisherAdapter.publish` is implemented for the credential-free local
+Markdown target. It writes inside a caller-owned root with a safe title-derived
+filename, YAML front matter, root containment, and exclusive-create default.
+YouTube/TikTok/Facebook/WordPress targets fail before mutation; no platform SDK,
+credential, or upload path is present. Proposed ADR-0019 records this bounded
+filesystem target and rollback.
 
 ### Runtime Contract Binding
 
@@ -312,3 +316,4 @@ has no provider SDK, API key, cloud fallback, or paid-provider execution path.
 | 0.7 | 2026-07-05 | Added the loopback-only Ollama StepExecutor and canonical composite runner as the first bounded execute-half implementation. |
 | 0.8 | 2026-07-12 | Added the real local `KnowledgeRetriever.query` execute half using LlamaIndex `VectorStoreIndex` and scikit-learn hashing embeddings (proposed ADR-0017) |
 | 0.9 | 2026-07-12 | Added local-only `ModelInvoker.invoke` through the official Ollama SDK; cloud descriptors fail closed (proposed ADR-0018) |
+| 0.10 | 2026-07-12 | Added credential-free local Markdown `PublisherAdapter.publish`; platform targets fail closed (proposed ADR-0019) |

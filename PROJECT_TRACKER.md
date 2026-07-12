@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Tracker
 
-Version: 0.40
+Version: 0.41
 Status: Active
 Last updated: 2026-07-12
 
@@ -11,6 +11,29 @@ complete only when its durable output exists in the repository and satisfies the
 project's definition of done.
 
 ## Current Sprint
+
+**Sprint 41 - Credential-free local Markdown publishing**
+
+Goal: implement the final deferred execute half against a real local target
+without credentials, uploads, cloud APIs, or silent overwrite.
+
+Status: **Completed with proposed ADR-0019 pending human acceptance**
+
+### Sprint 41 Backlog
+
+| Item | Status | Evidence / Output |
+| --- | --- | --- |
+| Build-vs-Reuse decision | Done | Proposed ADR-0019 selects Python filesystem semantics plus PyYAML for local Markdown; platform SDKs rejected for credential scope |
+| Real local publish | Done | `PublisherAdapter.publish` creates a UTF-8 Markdown file in a caller-owned root and returns immutable path/byte evidence |
+| Filesystem safety | Done | Safe filename, containment check, exclusive-create default, explicit overwrite only |
+| Platform fail-closed | Done | YouTube/TikTok/Facebook/WordPress reject before directory/file/network mutation |
+
+### Sprint 41 Exit Criteria
+
+- Full validation and all `publisher_adapters` tests pass.
+- No cloud API, credential, TTS, media rendering, upload, or MCP v2.
+
+## Previous Sprint
 
 **Sprint 40 - Local Ollama ModelInvoker execution**
 
@@ -33,7 +56,7 @@ Status: **Completed with proposed ADR-0018 pending human acceptance**
 - Full validation and all `model_invokers` tests pass.
 - No cloud SDK/API, credential, TTS, rendering, upload, publishing, or MCP v2.
 
-## Previous Sprint
+## Earlier Sprint
 
 **Sprint 39 - Local LlamaIndex query execution**
 
@@ -56,7 +79,7 @@ Status: **Completed with proposed ADR-0017 pending human acceptance**
 - Full validation and all `llamaindex_retrieval` tests pass.
 - No LLM, cloud embedding, network, credential, or model download.
 
-## Earlier Sprint
+## Earlier Retrieval Sprint
 
 **Sprint 38 - Atomic Ollama Runtime wiring and lifecycle promotion**
 
@@ -307,6 +330,7 @@ sprint indefinitely.
 | 38 | Atomic Ollama Runtime wiring and lifecycle promotion | Active `runtime:offline` production binding for Content Creation, lifecycle-safe return of `runtime:content` to draft, planner invariants, real local Ollama evidence |
 | 39 | Local LlamaIndex query execution | Proposed ADR-0017, real in-memory `VectorStoreIndex` retrieval, deterministic local scikit-learn hashing embeddings, immutable scored results |
 | 40 | Local Ollama ModelInvoker execution | Proposed ADR-0018, official Ollama SDK invocation, immutable prompt/response contract, loopback/cloud fail-closed guards, real live-local evidence |
+| 41 | Credential-free local Markdown publishing | Proposed ADR-0019, real UTF-8 filesystem target, YAML front matter, containment/exclusive-create safety, external-platform fail-closed behavior |
 
 ## Risks and Guardrails
 
@@ -321,21 +345,17 @@ sprint indefinitely.
 
 ## Next Actions
 
-1. Implement the remaining execute half deliberately deferred:
-   `PublisherAdapter.publish` (call a
-   real target from an `ExportDescriptor`). Each needs its own explicit
-   Build vs Reuse note for the chosen SDK before implementation, per the
-   engineering rules.
-2. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
+1. Track the MCP Python SDK v2 release (stable target 2026-07-27): re-check
    `adapters/mcp_tools/` against the new `MCPServer` naming and API once it
    ships, and update the `mcp>=1.27,<2` pin deliberately rather than
    incidentally.
-3. Review and accept or revise proposed ADR-0016. Python and the current
+2. Review and accept or revise proposed ADR-0016, ADR-0017, ADR-0018, and
+   ADR-0019. Python and the current
    `scripts/asf_cli.py` layout are proposed; `validate` already wraps the
    shared IR/graph pipelines. Before a real `generate` command can be added,
    implement the Generator Architecture's reference pipeline so the CLI has
    a real operation to wrap rather than a partial-success stub.
-4. Extend line/column source-position tracking beyond the parse-error
+3. Extend line/column source-position tracking beyond the parse-error
    layer Sprint 35 closed. Needs: (a) a position-preserving YAML loader
    (PyYAML's `safe_load` discards line/column once parsing succeeds —
    `scripts/asf_validator/loader.py` would need a custom `Loader` that
@@ -343,7 +363,7 @@ sprint indefinitely.
    (b) mapping each `ASF-SCHEMA-*`/IR-adapter-level diagnostic's field
    path back to a line/column via that position-preserving document.
    Sprint 16's original Deferred/Documented Gap, still open.
-5. If pre-release versions are ever adopted, implement full SemVer
+4. If pre-release versions are ever adopted, implement full SemVer
    pre-release precedence in `version_ir.py` (Sprint 17's documented
    simplification).
 
@@ -391,3 +411,4 @@ sprint indefinitely.
 | 0.38 | 2026-07-12 | Completed Sprint 38: atomically wired Content Creation to active local Ollama runtime, returned the displaced content runtime to draft, and locked planner/live readiness invariants |
 | 0.39 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution backed by deterministic scikit-learn hashing embeddings |
 | 0.40 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: reusable local-only ModelInvoker execution through the official Ollama SDK, including real live-local evidence |
+| 0.41 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real credential-free local Markdown publishing with containment and no-overwrite safety |

@@ -1,6 +1,6 @@
 # AI Skill Framework - Project Context
 
-Version: 0.38
+Version: 0.39
 Status: Active
 Last updated: 2026-07-12
 
@@ -229,6 +229,15 @@ response contracts plus explicit provider/malformed-response errors are tested,
 and an opt-in live test returned real text from the installed local `llama3`
 model. No cloud provider SDK or credential path was added.
 
+**Sprint 41** completed the third deferred execute half:
+`publisher_adapters.PublisherAdapter.publish` now performs a real local
+Markdown filesystem export (proposed ADR-0019). It uses a caller-owned output
+root, deterministic safe filename, UTF-8/YAML front matter, containment checks,
+and exclusive-create default; overwrite is explicit. External platform targets
+fail before any mutation, so no account, credential, upload, or platform SDK is
+introduced. All three execute halves named in the prior tracker are now
+implemented within local/credential-free scope.
+
 ## Definition of Done
 
 A change is complete when:
@@ -282,3 +291,4 @@ A change is complete when:
 | 0.36 | 2026-07-12 | Completed Sprint 38: atomic production wiring and active promotion for `runtime:offline`, with planner invariants and real local Ollama evidence |
 | 0.37 | 2026-07-12 | Completed Sprint 39 with proposed ADR-0017: real local LlamaIndex query execution using deterministic scikit-learn hashing embeddings |
 | 0.38 | 2026-07-12 | Completed Sprint 40 with proposed ADR-0018: local-only ModelInvoker execution through the official Ollama SDK with real live evidence |
+| 0.39 | 2026-07-12 | Completed Sprint 41 with proposed ADR-0019: real local Markdown publishing with containment and exclusive-create safety; all three deferred execute halves complete |
