@@ -413,6 +413,13 @@ reference implementation to wrap (ADR-0016's own scope note), which remains
 true independent of ADR-0016's acceptance and is not separately tracked here
 because no Sprint has yet started that implementation.
 
+`docs/guides/WEEKLY_OPERATOR_PLAN.md` is the bounded day-by-day runbook for
+auditing and, only if triggered, acting on the two Next Actions above; an
+autonomous or human operator session with no other instruction should read
+that document rather than re-deriving an audit cadence from scratch. It was
+first exercised 2026-07-12: both triggers remain unfired (MCP SDK latest is
+1.28.1; no pre-release version is adopted anywhere in the repository).
+
 ## Revision History
 
 | Version | Date | Description |
